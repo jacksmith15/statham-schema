@@ -1,0 +1,14 @@
+pylint==2.3.0
+# This is pinned due to a bug in 2.3.0
+astroid==2.2.5
+mypy==0.730
+coverage
+pytest>=4.0.0,<5.0.0
+pytest-cov
+pytest-xdist
+pytest-cov
+pytest-env
+ipdb
+pre-commit
+safety
+black
