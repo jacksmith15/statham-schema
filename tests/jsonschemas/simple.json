@@ -34,7 +34,7 @@
         "id": {
           "$ref": "#/definitions/uuid"
         },
-        "datetime": {
+        "timestamp": {
           "$ref": "#/definitions/datetime"
         }
       }

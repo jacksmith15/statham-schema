@@ -1,5 +1,9 @@
 from typing import Any, Dict, NamedTuple, Set, Tuple
-from jsonschema_objects.parser import INDENT, ObjectSchema, ArraySchema
+
+from attr import attrs
+
+from jsonschema_objects.constants import INDENT
+from jsonschema_objects.models import ObjectSchema, ArraySchema
 
 
 def _required_init_lines(key: str) -> str:
@@ -24,7 +28,8 @@ class {schema.title}:
 """
 
 
-class ClassDef(NamedTuple):
+@attrs(auto_attribs=True)
+class ClassDef:
     schema: ObjectSchema
     depends: Set[str]
 
@@ -39,17 +44,22 @@ class ClassTree:
     def add(self, key: str, class_def: ClassDef):
         self.class_defs[key] = class_def
 
-    def _next(self):
-        try:
-            return next(key for key, value in self.class_defs.items() if not value.depends)
-        except StopIteration:
-            raise ValueError(f"Unresolvable declaration tree.")
+    def __iter__(self):
+        return self
 
-    def pop(self):
-        next_item = self._next()
+    def __next__(self):
+        next_item = self._next_key()
         for value in self.class_defs.values():
             value.depends = value.depends - {next_item}
-        return self.class_defs.pop(next_item)
+        return self.class_defs.pop(next_item).schema
+
+    def _next_key(self):
+        try:
+            return next(key for key, value in self.class_defs.items() if not value.depends)
+        except StopIteration as exc:
+            if not self.class_defs:
+                raise exc
+            raise ValueError(f"Unresolvable declaration tree.")
 
 
 def collect_class_dependencies(class_tree: ClassTree, schema: ObjectSchema):

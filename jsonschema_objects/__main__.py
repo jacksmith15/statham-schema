@@ -7,7 +7,8 @@ from typing import Any, Dict, Tuple
 
 import yaml
 
-from jsonschema_objects.parser import parse_schema
+from jsonschema_objects.models import parse_schema
+from jsonschema_objects.parser import dereference_schema
 from jsonschema_objects.renderer import get_class_defs, to_python
 
 
@@ -18,10 +19,7 @@ LOGGER.setLevel(INFO)
 def parse_args() -> Namespace:
     parser = ArgumentParser(description="Batch download a set of tracks from slider.")
     parser.add_argument(
-        "--input",
-        type=str,
-        default=None,
-        help="Specify path to top-level schema document.",
+        "--input", type=str, default=None, help="Specify path to top-level schema document."
     )
     parser.add_argument(
         "--output",
@@ -41,10 +39,15 @@ def _load_schema(path: str) -> Dict[str, Any]:
 
 
 def main(args: Namespace) -> None:
-    schema: Dict[str, Any] = parse_schema(_load_schema(args.input), f"file://{args.input}")
-    to_python(schema.items)
+    schema = _load_schema(args.input)
+    schema: Dict[str, Any] = parse_schema(
+        dereference_schema(schema, f"file://{args.input}", schema)
+    )
     class_defs = get_class_defs(schema.items)
-    import ipdb;ipdb.set_trace()
+    print("from typing import *\n")
+    print("NOT_PASSED = object()\n")
+    for schema in class_defs:
+        print(to_python(schema))
 
 
 if __name__ == "__main__":
