@@ -2,15 +2,12 @@ from functools import partial
 
 from attr import attrs, attrib
 from attr.validators import instance_of
-
-
-NOT_PASSED = object()
 {% for schema in schemas %}
 
 
 @attrs(kw_only=True)
 class {{ schema.title }}:
-    """{{ schema.description }}."""
+    """{{ schema.description }}"""
 
 {% for key, prop in schema.properties.items() %}
     {{ key }} = attrib(

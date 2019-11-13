@@ -9,7 +9,7 @@
   "definitions": {
     "simple_schema": {
       "type": "object",
-      "description": "simple object",
+      "description": "This is a simple object.",
       "required": ["related"],
       "properties": {
         "related": {
