@@ -1,0 +1,30 @@
+from functools import partial
+
+from attr import attrs, attrib
+from attr.validators import instance_of
+
+
+NOT_PASSED = object()
+{% for schema in schemas %}
+
+
+@attrs(kw_only=True)
+class {{ schema.title }}:
+    """{{ schema.description }}."""
+
+{% for key, prop in schema.properties.items() %}
+    {{ key }} = attrib(
+        validator=[instance_of({{ prop|validator_type_arg }})],
+    {% if prop.type == type_enum.OBJECT %}
+        converter=lambda x: {{ prop.title }}(**x),
+    {% elif prop.type == type_enum.ARRAY and prop.items.type == type_enum.OBJECT %}
+        converter=partial(map, {{ prop.items.title }}),
+    {% endif %}
+    {% if prop.default is defined and prop.default != not_provided %}
+        default={{ prop|default_arg }},
+    {% elif key not in schema.required %}
+        default=None,
+    {% endif %}
+    )
+{% endfor %}
+{% endfor %}

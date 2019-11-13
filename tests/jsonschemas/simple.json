@@ -10,16 +10,16 @@
     "simple_schema": {
       "type": "object",
       "description": "simple object",
-      "required": ["foo"],
+      "required": ["related"],
       "properties": {
-        "foo": {
+        "related": {
           "$ref": "#/definitions/nested_schema"
         },
-        "bar": {
+        "amount": {
           "type": "number",
           "description": "int-bar"
         },
-        "baz": {
+        "children": {
           "type": "array",
           "nullable": false,
           "items": {
@@ -36,6 +36,14 @@
         },
         "timestamp": {
           "$ref": "#/definitions/datetime"
+        },
+        "version": {
+          "type": "integer",
+          "default": 0
+        },
+        "annotation": {
+          "type": "string",
+          "default": "unannotated"
         }
       }
     },

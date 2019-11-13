@@ -1,15 +1,13 @@
 from argparse import ArgumentParser, Namespace
-import json
 from logging import getLogger, INFO
-from os import listdir
-from os.path import basename, join
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 import yaml
 
+from jsonschema_objects.dependency_resolver import ClassDependencyResolver
 from jsonschema_objects.models import parse_schema
 from jsonschema_objects.parser import dereference_schema
-from jsonschema_objects.renderer import get_class_defs, to_python
+from jsonschema_objects.serializer import serialize_object_schemas
 
 
 LOGGER = getLogger(__name__)
@@ -19,13 +17,10 @@ LOGGER.setLevel(INFO)
 def parse_args() -> Namespace:
     parser = ArgumentParser(description="Batch download a set of tracks from slider.")
     parser.add_argument(
-        "--input", type=str, default=None, help="Specify path to top-level schema document."
-    )
-    parser.add_argument(
-        "--output",
+        "--input",
         type=str,
-        required=True,
-        help="Specify a folder in which to store the module schemas.",
+        default=None,
+        help="Specify path to top-level schema document.",
     )
     return parser.parse_args()
 
@@ -43,12 +38,10 @@ def main(args: Namespace) -> None:
     schema: Dict[str, Any] = parse_schema(
         dereference_schema(schema, f"file://{args.input}", schema)
     )
-    class_defs = get_class_defs(schema.items)
-    print("from typing import *\n")
-    print("NOT_PASSED = object()\n")
-    for schema in class_defs:
-        print(to_python(schema))
+    class_schemas = ClassDependencyResolver(schema)
+    serialized = serialize_object_schemas(class_schemas)
+    print(serialized)
 
 
 if __name__ == "__main__":
-    print(main(parse_args()))
+    main(parse_args())

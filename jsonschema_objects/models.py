@@ -4,23 +4,12 @@ from typing import Any, ClassVar, Dict, List, Type
 from attr import attrs, attrib, validators
 
 from jsonschema_objects.constants import (
-    INDENT,
     not_required,
     NotProvidedType,
     NOT_PROVIDED,
     TypeEnum,
 )
 from jsonschema_objects.helpers import all_subclasses, counter, dict_map
-
-
-TYPE_ANNOTATION = {
-    TypeEnum.OBJECT: "Dict",
-    TypeEnum.ARRAY: "List",
-    TypeEnum.NUMBER: "float",
-    TypeEnum.INTEGER: "int",
-    TypeEnum.STRING: "str",
-    TypeEnum.NULL: "type(None)",
-}
 
 
 def type_attrib(*types: Type):
@@ -43,32 +32,6 @@ class Schema:
     title: str = type_attrib(str)(converter=lambda x: x.title().replace("_", ""))
     description: str = type_attrib(str)()
     nullable: not_required(bool) = optional_type_attrib(bool)()
-
-    @property
-    def base_type_annotation(self):
-        return TYPE_ANNOTATION[self.type]
-
-    @property
-    def type_annotation(self):
-        return (
-            self.base_type_annotation
-            if not self.nullable
-            else f"Optional[{self.base_type_annotation}]"
-        )
-
-    def as_arg(self, key: str) -> str:
-        return f"{key}: {self.type_annotation} = NOT_PASSED"
-
-    def as_init(self, key: str, indent=None) -> str:
-        indent = indent or INDENT
-        if not self.nullable:
-            return [
-                f"{key} = None if {key} == NOT_PASSED else {key}",
-                f"if {key} is None:",
-                f'{indent}raise ValueError("{key} cannot be None.")',
-                f"self.{key}: {self.type_annotation} = {key}",
-            ]
-        return [f"self.{key}: {self.type_annotation} = {key}"]
 
 
 def parse_schema(schema: Dict[str, Any]) -> Schema:
@@ -100,11 +63,6 @@ class ArraySchema(Schema):
     minItems: not_required(int) = optional_type_attrib(int)()
     maxItems: not_required(int) = optional_type_attrib(int)()
 
-    @property
-    def base_type_annotation(self):
-        nested_type = self.items.base_type_annotation
-        return f"List[{nested_type}]"
-
 
 @attrs(kw_only=True)
 class ObjectSchema(Schema):
@@ -115,23 +73,6 @@ class ObjectSchema(Schema):
         converter=partial(dict_map, parse_schema)
     )
     required: List[str] = type_attrib(list)(factory=list)
-
-    @property
-    def base_type_annotation(self):
-        nested_types = {value.base_type_annotation for value in self.properties.values()}
-        allows_none = any(value.nullable for value in self.properties.values())
-        if len(nested_types) > 1:
-            inner_type_def = "Union[" + ", ".join(nested_types) + "]"
-        else:
-            inner_type_def = next(iter(nested_types))
-        if allows_none:
-            inner_type_def = "Optional[" + inner_type_def + "]"
-        return f"Dict[str, {inner_type_def}]"
-
-    def as_init(self, key: str, indent=None) -> str:
-        lines = super().as_init(key, indent)
-        lines[-1] = f"self.{key} = {self.title}(**{key})"
-        return lines
 
 
 @attrs(kw_only=True)
