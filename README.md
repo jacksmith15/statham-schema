@@ -2,11 +2,11 @@
 A tool for generating Python classes from [JSONSchema](https://json-schema.org/) documents.
 
 This project aims to simplify the experience of integrating with external sources, by providing:
-1. A model layer ensuring that incoming data is as expected.
-2. The ability to statically type check (e.g. [mypy](http://mypy-lang.org/)) that an application is using external data sources correctly.
-3. The ability to quickly identify impacts of breaking changes to external sources in your codebase.
+1. **External validation**: Ensure that incoming data matches what you expect _early_.
+2. **Internal validation**: Ensure your application's use of external data sources is _consistent_ with the schema. Declared models and static type checking (see [mypy](http://mypy-lang.org/)) can do this job for you.
+3. **Visibility**: Update the model layer against schema changes automatically, and let static tools identify any issues.
 
-The tool will generate [attrs](http://www.attrs.org/en/stable/index.html) dataclasses which can then be used and extended as a model layer for your application.
+The tool will generate [attrs](http://www.attrs.org/en/stable/index.html) dataclasses which can then be used and extended as a model layer for the external data source.
 
 # Requirements
 This package is currently tested for Python 3.6.
