@@ -8,22 +8,10 @@ from attr.validators import instance_of
 class NestedSchema:
     """nested_schema"""
 
-    id = attrib(
-        validator=[instance_of(str)],
-        default=None,
-    )
-    timestamp = attrib(
-        validator=[instance_of(str)],
-        default=None,
-    )
-    version = attrib(
-        validator=[instance_of(int)],
-        default=0,
-    )
-    annotation = attrib(
-        validator=[instance_of(str)],
-        default="unannotated",
-    )
+    id = attrib(validator=[instance_of(str)], default=None)
+    timestamp = attrib(validator=[instance_of(str)], default=None)
+    version = attrib(validator=[instance_of(int)], default=0)
+    annotation = attrib(validator=[instance_of(str)], default="unannotated")
 
 
 @attrs(kw_only=True)
@@ -34,10 +22,7 @@ class SimpleSchema:
         validator=[instance_of(NestedSchema)],
         converter=lambda x: NestedSchema(**x),
     )
-    amount = attrib(
-        validator=[instance_of(float)],
-        default=None,
-    )
+    amount = attrib(validator=[instance_of(float)], default=None)
     children = attrib(
         validator=[instance_of(list)],
         converter=partial(map, NestedSchema),
