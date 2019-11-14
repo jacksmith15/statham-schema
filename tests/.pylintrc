@@ -56,7 +56,8 @@ confidence=
 # --disable=W"
 
 # By default are disabled error not possible in Python > 3.0
-disable=bad-continuation,
+disable=too-few-public-methods,
+        bad-continuation,
         missing-docstring,
         missing-type-doc,
         missing-returns-doc,

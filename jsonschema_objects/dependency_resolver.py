@@ -22,7 +22,7 @@ def _get_first_class_schema(schema: Schema) -> ObjectSchema:
 
 
 class ClassDependencyResolver:
-    """Iterates classes defined by a schema in an order which is safe for declaration."""
+    """Iterator which returns classes in declaration order."""
 
     def __init__(self, schema: Schema):
         self.class_defs = {}
@@ -37,7 +37,9 @@ class ClassDependencyResolver:
                 deps = deps | self._extract_schemas(nested)
             if isinstance(nested, ArraySchema):
                 deps = deps | self._extract_schemas(nested.items)
-        self._add(schema.title, ClassDef(schema=schema, depends=deps - {schema.title}))
+        self._add(
+            schema.title, ClassDef(schema=schema, depends=deps - {schema.title})
+        )
         return deps
 
     def __getitem__(self, key: str) -> ClassDef:
@@ -58,7 +60,9 @@ class ClassDependencyResolver:
     def _next_key(self) -> str:
         try:
             return next(
-                key for key, value in self.class_defs.items() if not value.depends
+                key
+                for key, value in self.class_defs.items()
+                if not value.depends
             )
         except StopIteration as exc:
             if not self.class_defs:

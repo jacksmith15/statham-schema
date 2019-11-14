@@ -3,10 +3,7 @@ from typing import Iterable
 from jinja2 import Environment, FileSystemLoader
 
 from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
-from jsonschema_objects.models import (
-    Schema,
-    ObjectSchema,
-)
+from jsonschema_objects.models import Schema, ObjectSchema
 
 
 def validator_type_arg(schema: Schema) -> str:
@@ -18,10 +15,7 @@ def validator_type_arg(schema: Schema) -> str:
         TypeEnum.STRING: str.__name__,
         TypeEnum.NULL: "type(None)",
     }
-    args = [
-        arg for flag, arg in mapping.items()
-        if flag & schema.type
-    ]
+    args = [arg for flag, arg in mapping.items() if flag & schema.type]
     if len(args) == 1:
         return next(iter(args))
     validator_args = ", ".join(args)

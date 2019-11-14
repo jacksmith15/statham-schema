@@ -12,7 +12,9 @@ NotProvidedType = type(
 NOT_PROVIDED: NotProvidedType = NotProvidedType()
 
 
-not_required: Callable[[Type], Type] = lambda Type_: Union[Type_, NotProvidedType]
+not_required: Callable[[Type], Type] = lambda Type_: Union[
+    Type_, NotProvidedType
+]
 """Similar to `typing.Optional` but for the NotProvidedType."""
 
 

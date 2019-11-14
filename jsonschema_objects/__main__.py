@@ -20,7 +20,9 @@ LOGGER.setLevel(INFO)
 
 @contextmanager
 def parse_args() -> ContextManager[Tuple[Namespace, TextIOWrapper]]:
-    parser = ArgumentParser(description="Generate python attrs models from JSONSchema files.")
+    parser = ArgumentParser(
+        description="Generate python attrs models from JSONSchema files."
+    )
     parser.add_argument(
         "--input",
         type=str,
@@ -36,7 +38,7 @@ def parse_args() -> ContextManager[Tuple[Namespace, TextIOWrapper]]:
             "is a directory, the command will derive the name from the "
             "input file. If not passed, the command will write to "
             "stdout."
-        )
+        ),
     )
     parsed = parser.parse_args()
     if parsed.output:

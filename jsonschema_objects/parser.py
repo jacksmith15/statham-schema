@@ -31,9 +31,7 @@ def dereference_schema(
     if "$ref" in element:
         ref_schema = get_ref(schema, base_uri, element["$ref"])
         if not isinstance(ref_schema, dict):
-            raise NotImplementedError(
-                "Only support refs to objects."
-            )
+            raise NotImplementedError("Only support refs to objects.")
         ref_schema["title"] = element["$ref"].split("/")[-1]
         return deref(ref_schema)
     return {

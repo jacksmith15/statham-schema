@@ -19,12 +19,11 @@ counter: Callable = _Counter()
 DictVal: Type = TypeVar("DictVal")
 
 
-def dict_map(function: Callable[[DictVal], Any], dictionary: Dict[Any, DictVal]) -> Dict[Any, Any]:
+def dict_map(
+    function: Callable[[DictVal], Any], dictionary: Dict[Any, DictVal]
+) -> Dict[Any, Any]:
     """Similar to `map`, but operates on a dictionary's values."""
-    return {
-        key: function(value)
-        for key, value in dictionary.items()
-    }
+    return {key: function(value) for key, value in dictionary.items()}
 
 
 def all_subclasses(klass: Type) -> Set[Type]:
