@@ -18,6 +18,10 @@ case $key in
     UNIT=True
     shift # past argument
     ;;
+    -c|--clean)
+    CLEAN=True
+    shift # past argument
+    ;;
     -a|--all)
     LINT=True
     TYPE=True
@@ -30,6 +34,19 @@ done
 
 EXIT_CODE=0
 
+if [[ -z ${COVERAGE_MIN_PERCENTAGE} ]];
+then
+    COVERAGE_MIN_PERCENTAGE=80
+fi
+
+clean() {
+    find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+    rm -rf cover
+    rm -rf .coverage
+    rm -f unit_test_results.xml
+    rm -rf .pytest_cache
+    rm -rf .mypy_cache
+}
 
 lint() {
     PYLINT_CMD="pylint --output-format=colorized" 
@@ -38,13 +55,24 @@ lint() {
 }
 
 typecheck() {
-    mypy jsonschema_objects tests || EXIT_CODE=1
+    mypy --ignore-missing-imports jsonschema_objects tests || EXIT_CODE=1
 }
 
 tests() {
-    pytest -s -v tests || EXIT_CODE=1
+    pytest -v -s --junitxml=unit_test_results.xml --cov="jsonschema_objects" --cov-append --cov-branch --cov-report= tests || EXIT_CODE=1
 }
 
+coverage_check() {
+    coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0} || echo Failed to meet minimum coverage of "$COVERAGE_MIN_PERCENTAGE"% && EXIT_CODE=1
+
+    coverage html -d "cover"
+    coverage xml -o "cover/coverage.xml"
+}
+
+if [[ -n ${CLEAN} ]];
+then
+    clean
+fi
 if [[ -n ${LINT} ]];
 then
     lint
@@ -56,6 +84,7 @@ fi
 if [[ -n ${UNIT} ]];
 then
     tests
+    coverage_check
 fi
 
 exit $EXIT_CODE

@@ -1,7 +1,7 @@
 from functools import lru_cache, partial, reduce
 from typing import Any, ClassVar, Dict, List, Type, Union
 
-from attr import attrs, attrib, validators
+from attr import attrs, attrib, Factory, validators
 
 from jsonschema_objects.constants import (
     get_flag,
@@ -13,9 +13,23 @@ from jsonschema_objects.constants import (
 from jsonschema_objects.helpers import all_subclasses, counter, dict_map
 
 
+def convert_int(value: Any) -> Any:
+    """If value is an int, cast it to a float.
+
+    JSON doesn't distinguish, so integer values for float validation are
+    acceptable.
+    """
+    if isinstance(value, int):
+        return float(value)
+    return value
+
+
 # This wrapper falls back on complex typing declared by attrs.
 def type_attrib(*types: Type):
-    return partial(attrib, validator=[validators.instance_of(tuple(types))])
+    factory = partial(attrib, validator=[validators.instance_of(tuple(types))])
+    if float in types and int not in types:
+        factory = partial(factory, converter=convert_int)
+    return factory
 
 
 # This wrapper falls back on complex typing declared by attrs.
@@ -24,16 +38,20 @@ def optional_type_attrib(*types: Type):
 
 
 def title_format(string: str) -> str:
-    return string.title().replace("_", "")
+    return string.title().replace("_", "").replace(" ", "")
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class Schema:
 
     type: ClassVar[TypeEnum]
 
+    _type: Union[str, List[str]] = type_attrib(str, list)()
+
     title: str = type_attrib(str)(converter=title_format)
-    description: str = type_attrib(str)()
+    description: str = type_attrib(str)(
+        default=Factory(lambda self: self.title, takes_self=True)
+    )
     nullable: Union[bool, NotProvidedType] = optional_type_attrib(bool)()
 
 
@@ -44,7 +62,7 @@ def parse_schema(schema: Dict[str, Any]) -> Schema:
     variable.
     """
     try:
-        type_prop = schema.pop("type")
+        type_prop = schema["type"]
     except KeyError:
         raise ValueError(f"No type or ref defined in schema: {schema}")
     types = type_prop if isinstance(type_prop, list) else [type_prop]
@@ -53,7 +71,7 @@ def parse_schema(schema: Dict[str, Any]) -> Schema:
     return model_from_types(*types)(**schema)  # type: ignore
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class ArraySchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.ARRAY
@@ -63,7 +81,7 @@ class ArraySchema(Schema):
     maxItems: Union[int, NotProvidedType] = optional_type_attrib(int)()
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class ObjectSchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.OBJECT
@@ -74,13 +92,13 @@ class ObjectSchema(Schema):
     required: List[str] = type_attrib(list)(factory=list)
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class PrimitiveSchema(Schema):
 
     default: Any = attrib(default=NOT_PROVIDED)
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class NumberSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NUMBER
@@ -96,7 +114,7 @@ class NumberSchema(PrimitiveSchema):
     multipleOf: Union[float, NotProvidedType] = optional_type_attrib(float)()
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class IntegerSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.INTEGER
@@ -108,16 +126,17 @@ class IntegerSchema(PrimitiveSchema):
     multipleOf: Union[int, NotProvidedType] = optional_type_attrib(int)()
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class StringSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.STRING
 
     format: Union[str, NotProvidedType] = optional_type_attrib(str)()
     pattern: Union[str, NotProvidedType] = optional_type_attrib(str)()
+    minLength: Union[str, NotProvidedType] = optional_type_attrib(str)()
 
 
-@attrs(kw_only=True)
+@attrs(kw_only=True, frozen=True, slots=True)
 class NullSchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NULL
@@ -127,12 +146,15 @@ def _union_model(*models: Type[Schema]) -> Type[Schema]:
     """Get a model which represents the union of two types."""
     invalid = {ObjectSchema, ArraySchema, PrimitiveSchema, Schema} & set(models)
     if invalid:
-        raise ValueError(f"Can't produce a union for these types: {invalid}.")
+        raise ValueError(
+            f"Can't produce a union for these types: {invalid}. "
+            f"The following union was requested: {models}"
+        )
     model_type = reduce(lambda x, y: x | y, map(lambda _: _.type, models))
     type_names = [name.title() for name in get_type(model_type)]
     name = "Or".join(type_names)
     attribs = {"type": model_type}
-    return attrs(kw_only=True)(
+    return attrs(kw_only=True, frozen=True, slots=True)(
         type(name, tuple(model for model in models), attribs)
     )
 
@@ -148,8 +170,12 @@ def _model_from_types_cached(*types: str) -> Type[Schema]:
         and (flag & SubSchema.type) == SubSchema.type
     ]
     if not matching_models:
-        raise TypeError(
-            f"No existing models found construct which can construct this type!"
+        # This block shouldn't be hit!
+        raise TypeError(  # pragma: no cover
+            "No existing models found construct which can construct "
+            "this type! Does every declared flag on "
+            "`jsonschema_objects.constants.TypeEnum` have an equivalent "
+            "model declared?"
         )
     if len(matching_models) == 1:
         return next(iter(matching_models))
