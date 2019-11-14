@@ -29,6 +29,7 @@ def title_format(string: str) -> str:
 # Dataclasses
 # pylint: disable=too-few-public-methods
 
+
 @attrs(kw_only=True)
 class Schema:
 
@@ -147,7 +148,9 @@ def _union_model(*models: Type[Schema]) -> Type[Schema]:
     type_names = [name.title() for name in get_type(model_type)]
     name = "Or".join(type_names)
     attribs = {"type": model_type}
-    return attrs(kw_only=True)(type(name, tuple(model for model in models), attribs))
+    return attrs(kw_only=True)(
+        type(name, tuple(model for model in models), attribs)
+    )
 
 
 @lru_cache(maxsize=None)
