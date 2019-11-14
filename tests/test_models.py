@@ -86,10 +86,12 @@ def test_that_nested_schemas_have_been_parsed(
     )
     for subpath in path:
         try:
-            try:
-                parsed_schema = getattr(parsed_schema, subpath)
-            except AttributeError:
+            if isinstance(parsed_schema, dict):
+                # False positive.
+                # pylint: disable=unsubscriptable-object
                 parsed_schema = parsed_schema[subpath]
-        except TypeError:
+            else:
+                parsed_schema = getattr(parsed_schema, subpath)
+        except (KeyError, AttributeError):
             raise KeyError(f"Couldn't resolve subpath {subpath} in path {path}")
     assert isinstance(parsed_schema, type_)
