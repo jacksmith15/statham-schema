@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Dict, Optional
 
-from jsonschema_objects.constants import IGNORED_SCHEMA_KEYWORDS
+from jsonschema_objects.constants import JSONElement, IGNORED_SCHEMA_KEYWORDS
 
 
 def get_ref(
@@ -21,8 +21,8 @@ def get_ref(
 
 
 def dereference_schema(
-    schema: Dict[str, Any], base_uri: Optional[str], element: Any
-) -> Dict[str, Any]:
+    schema: Dict[str, Any], base_uri: Optional[str], element: JSONElement
+) -> JSONElement:
     deref = partial(dereference_schema, schema, base_uri)
     if isinstance(element, list):
         return [deref(item) for item in element]

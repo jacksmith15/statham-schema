@@ -1,21 +1,25 @@
 from enum import auto, Flag, unique
 from functools import reduce
-from typing import Callable, Type, Union
+from typing import Any, Dict, Iterator, List, Tuple, Union
 
 
 INDENT = " " * 4
 
 
-NotProvidedType = type(
-    "NotProvidedType", tuple(), {"__repr__": lambda self: "<NOTPROVIDED>"}
-)
+JSONElement = Union[Dict[str, Any], List[Any], int, float, bool, None, str]
+
+
+class NotProvidedType:
+    """Singleton for indicating whether a field has been specified.
+
+    Useful to differentiate between e.g. default=None and no default.
+    """
+
+    def __repr__(self):
+        return "<NOTPROVIDED>"
+
+
 NOT_PROVIDED: NotProvidedType = NotProvidedType()
-
-
-not_required: Callable[[Type], Type] = lambda Type_: Union[
-    Type_, NotProvidedType
-]
-"""Similar to `typing.Optional` but for the NotProvidedType."""
 
 
 IGNORED_SCHEMA_KEYWORDS = ("$schema", "definitions")
@@ -32,7 +36,7 @@ class TypeEnum(Flag):
     NULL = auto()
 
 
-_JSON_SCHEMA_TYPE_MAP = (
+_JSON_SCHEMA_TYPE_MAP: Tuple[Tuple[str, TypeEnum], ...] = (
     ("object", TypeEnum.OBJECT),
     ("array", TypeEnum.ARRAY),
     ("number", TypeEnum.NUMBER),
@@ -53,13 +57,16 @@ def get_flag(*types: str) -> TypeEnum:
         raise ValueError(f"Unknown JSONSchema types: {unknown}")
     if len(types) == 1:
         return _TYPE_LOOKUP[next(iter(types))]
-    return reduce(lambda x, y: x | y, map(_TYPE_LOOKUP.get, types))
+    type_components: Iterator[TypeEnum] = (
+        _TYPE_LOOKUP[type_] for type_ in types
+    )
+    return reduce(lambda x, y: x | y, type_components)
 
 
 _ENUM_LOOKUP = {enum: keyword for keyword, enum in _JSON_SCHEMA_TYPE_MAP}
 
 
-def get_type(flag: TypeEnum) -> Union[str]:
+def get_type(flag: TypeEnum) -> Union[str, List[str]]:
     """Get jsonschema type representation of type flag."""
     if flag in _ENUM_LOOKUP:
         return _ENUM_LOOKUP[flag]

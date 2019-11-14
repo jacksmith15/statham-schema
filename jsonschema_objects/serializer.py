@@ -24,10 +24,8 @@ def validator_type_arg(schema: Schema) -> str:
 
 def default_arg(schema: Schema) -> str:
     default = getattr(schema, "default", NOT_PROVIDED)
-    if default == NOT_PROVIDED:
-        return NOT_PROVIDED
     if isinstance(default, (int, float)) or default is None:
-        return default
+        return str(default)
     if isinstance(default, (str)):
         return f'"{default}"'
     raise TypeError(f"Unsupported default {default} of type {type(default)}")

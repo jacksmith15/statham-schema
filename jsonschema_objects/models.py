@@ -1,12 +1,11 @@
 from functools import lru_cache, partial, reduce
-from typing import Any, ClassVar, Dict, List, Type
+from typing import Any, ClassVar, Dict, List, Type, Union
 
-from attr import attrs, attrib, Attribute, validators
+from attr import attrs, attrib, validators
 
 from jsonschema_objects.constants import (
     get_flag,
     get_type,
-    not_required,
     NotProvidedType,
     NOT_PROVIDED,
     TypeEnum,
@@ -14,20 +13,18 @@ from jsonschema_objects.constants import (
 from jsonschema_objects.helpers import all_subclasses, counter, dict_map
 
 
+# This wrapper falls back on complex typing declared by attrs.
 def type_attrib(*types: Type):
     return partial(attrib, validator=[validators.instance_of(tuple(types))])
 
 
+# This wrapper falls back on complex typing declared by attrs.
 def optional_type_attrib(*types: Type):
     return partial(type_attrib(NotProvidedType, *types), default=NOT_PROVIDED)
 
 
 def title_format(string: str) -> str:
     return string.title().replace("_", "")
-
-
-# Dataclasses
-# pylint: disable=too-few-public-methods
 
 
 @attrs(kw_only=True)
@@ -37,7 +34,7 @@ class Schema:
 
     title: str = type_attrib(str)(converter=title_format)
     description: str = type_attrib(str)()
-    nullable: not_required(bool) = optional_type_attrib(bool)()
+    nullable: Union[bool, NotProvidedType] = optional_type_attrib(bool)()
 
 
 def parse_schema(schema: Dict[str, Any]) -> Schema:
@@ -53,7 +50,7 @@ def parse_schema(schema: Dict[str, Any]) -> Schema:
     types = type_prop if isinstance(type_prop, list) else [type_prop]
     schema["title"] = schema.get("title") or counter(".".join(types))
     schema["description"] = schema.get("description") or schema["title"]
-    return model_from_types(*types)(**schema)
+    return model_from_types(*types)(**schema)  # type: ignore
 
 
 @attrs(kw_only=True)
@@ -62,8 +59,8 @@ class ArraySchema(Schema):
     type: ClassVar[TypeEnum] = TypeEnum.ARRAY
 
     items: Schema = type_attrib(Schema)(converter=parse_schema)
-    minItems: not_required(int) = optional_type_attrib(int)()
-    maxItems: not_required(int) = optional_type_attrib(int)()
+    minItems: Union[int, NotProvidedType] = optional_type_attrib(int)()
+    maxItems: Union[int, NotProvidedType] = optional_type_attrib(int)()
 
 
 @attrs(kw_only=True)
@@ -88,11 +85,15 @@ class NumberSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NUMBER
 
-    minimum: not_required(float) = optional_type_attrib(float)()
-    exclusiveMinimum: not_required(float) = optional_type_attrib(float)()
-    maximum: not_required(float) = optional_type_attrib(float)()
-    exclusiveMinimum: not_required(float) = optional_type_attrib(float)()
-    multipleOf: not_required(float) = optional_type_attrib(float)()
+    minimum: Union[float, NotProvidedType] = optional_type_attrib(float)()
+    exclusiveMinimum: Union[float, NotProvidedType] = optional_type_attrib(
+        float
+    )()
+    maximum: Union[float, NotProvidedType] = optional_type_attrib(float)()
+    exclusiveMaximum: Union[float, NotProvidedType] = optional_type_attrib(
+        float
+    )()
+    multipleOf: Union[float, NotProvidedType] = optional_type_attrib(float)()
 
 
 @attrs(kw_only=True)
@@ -100,11 +101,11 @@ class IntegerSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.INTEGER
 
-    minimum: not_required(int) = optional_type_attrib(int)()
-    exclusiveMinimum: not_required(int) = optional_type_attrib(int)()
-    maximum: not_required(int) = optional_type_attrib(int)()
-    exclusiveMinimum: not_required(int) = optional_type_attrib(int)()
-    multipleOf: not_required(int) = optional_type_attrib(int)()
+    minimum: Union[int, NotProvidedType] = optional_type_attrib(int)()
+    exclusiveMinimum: Union[int, NotProvidedType] = optional_type_attrib(int)()
+    maximum: Union[int, NotProvidedType] = optional_type_attrib(int)()
+    exclusiveMaximum: Union[int, NotProvidedType] = optional_type_attrib(int)()
+    multipleOf: Union[int, NotProvidedType] = optional_type_attrib(int)()
 
 
 @attrs(kw_only=True)
@@ -112,31 +113,14 @@ class StringSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.STRING
 
-    format: not_required(str) = optional_type_attrib(str)()
-    pattern: not_required(str) = optional_type_attrib(str)()
+    format: Union[str, NotProvidedType] = optional_type_attrib(str)()
+    pattern: Union[str, NotProvidedType] = optional_type_attrib(str)()
 
 
 @attrs(kw_only=True)
 class NullSchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NULL
-
-
-def _shared_attribs(*models: Type[Schema]) -> Dict[str, Attribute]:
-    """Get the union of attributes between two types."""
-    attribs = {}
-    for model in models:
-        for attribute in model.__attrs_attrs__:
-            if (
-                attribute.name in attribs
-                and attribute != attribs[attribute.name]
-            ):
-                raise ValueError(
-                    f"Name conflict for {attribute.name} between {model} "
-                    f"and {attribs[attribute.name]['sources']}"
-                )
-            attribs[attribute.name] = attribute
-    return attribs
 
 
 def _union_model(*models: Type[Schema]) -> Type[Schema]:

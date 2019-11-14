@@ -16,7 +16,7 @@ class _Counter:  # pylint: disable=too-few-public-methods
 counter: Callable = _Counter()
 
 
-DictVal: Type = TypeVar("DictVal")
+DictVal = TypeVar("DictVal")
 
 
 def dict_map(

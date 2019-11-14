@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Dict, Set
 
 from attr import attrs
 
@@ -25,46 +25,47 @@ class ClassDependencyResolver:
     """Iterator which returns classes in declaration order."""
 
     def __init__(self, schema: Schema):
-        self.class_defs = {}
+        self._class_defs: Dict[str, ClassDef] = {}
         _ = self._extract_schemas(_get_first_class_schema(schema))
 
     def _extract_schemas(self, schema: ObjectSchema) -> Set[str]:
-        if schema.title in self.class_defs:
+        if schema.title in self._class_defs:
             return self[schema.title].depends
         deps = {schema.title}
         for nested in schema.properties.values():
-            if isinstance(nested, ObjectSchema):
-                deps = deps | self._extract_schemas(nested)
-            if isinstance(nested, ArraySchema):
-                deps = deps | self._extract_schemas(nested.items)
+            try:
+                next_schema: ObjectSchema = _get_first_class_schema(nested)
+            except ValueError:
+                continue
+            deps = deps | self._extract_schemas(next_schema)
         self._add(
             schema.title, ClassDef(schema=schema, depends=deps - {schema.title})
         )
         return deps
 
     def __getitem__(self, key: str) -> ClassDef:
-        return self.class_defs[key]
+        return self._class_defs[key]
 
     def __iter__(self) -> "ClassDependencyResolver":
         return self
 
     def __next__(self) -> ObjectSchema:
         next_item = self._next_key()
-        for value in self.class_defs.values():
+        for value in self._class_defs.values():
             value.depends = value.depends - {next_item}
-        return self.class_defs.pop(next_item).schema
+        return self._class_defs.pop(next_item).schema
 
     def _add(self, key: str, class_def: ClassDef):
-        self.class_defs[key] = class_def
+        self._class_defs[key] = class_def
 
     def _next_key(self) -> str:
         try:
             return next(
                 key
-                for key, value in self.class_defs.items()
+                for key, value in self._class_defs.items()
                 if not value.depends
             )
         except StopIteration as exc:
-            if not self.class_defs:
+            if not self._class_defs:
                 raise exc
             raise ValueError(f"Unresolvable declaration tree.")

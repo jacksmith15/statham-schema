@@ -1,15 +1,15 @@
 from argparse import ArgumentParser, Namespace
 from contextlib import contextmanager
-from io import TextIOWrapper
 from logging import getLogger, INFO
 from os import path
-from typing import Any, ContextManager, Dict, Tuple
+from typing import Any, cast, Dict, Iterator, TextIO, Tuple
 from sys import stdout
 
 import yaml
 
+from jsonschema_objects.constants import JSONElement
 from jsonschema_objects.dependency_resolver import ClassDependencyResolver
-from jsonschema_objects.models import parse_schema
+from jsonschema_objects.models import Schema, parse_schema
 from jsonschema_objects.parser import dereference_schema
 from jsonschema_objects.serializer import serialize_object_schemas
 
@@ -19,7 +19,7 @@ LOGGER.setLevel(INFO)
 
 
 @contextmanager
-def parse_args() -> ContextManager[Tuple[Namespace, TextIOWrapper]]:
+def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
     parser = ArgumentParser(
         description="Generate python attrs models from JSONSchema files."
     )
@@ -63,11 +63,13 @@ def _load_schema(filepath: str) -> Dict[str, Any]:
 
 
 def main(input_file: str) -> str:
-    schema = _load_schema(input_file)
-    schema: Dict[str, Any] = parse_schema(
-        dereference_schema(schema, f"file://{input_file}", schema)
+    schema_dict = _load_schema(input_file)
+    dereferenced_schema: Dict[str, JSONElement] = cast(
+        Dict[str, JSONElement],
+        dereference_schema(schema_dict, f"file://{input_file}", schema_dict),
     )
-    class_schemas = ClassDependencyResolver(schema)
+    schema: Schema = parse_schema(dereferenced_schema)
+    class_schemas: ClassDependencyResolver = ClassDependencyResolver(schema)
     return serialize_object_schemas(class_schemas)
 
 
