@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Mapping
 
 import pytest
 
@@ -43,5 +43,5 @@ def valid_schema() -> Dict[str, JSONElement]:
 
 
 @pytest.fixture
-def schema_model(valid_schema: Dict[str, JSONElement]) -> ObjectSchema:
+def schema_model(valid_schema: Mapping[str, JSONElement]) -> ObjectSchema:
     return ObjectSchema(**valid_schema)

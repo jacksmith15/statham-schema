@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Callable, Dict, Set, Type, TypeVar
+from typing import Any, Callable, Dict, Set, Type
 
 # This is a stateful function.
 class _Counter:  # pylint: disable=too-few-public-methods
@@ -16,11 +16,8 @@ class _Counter:  # pylint: disable=too-few-public-methods
 counter: Callable = _Counter()
 
 
-DictVal = TypeVar("DictVal")
-
-
 def dict_map(
-    function: Callable[[DictVal], Any], dictionary: Dict[Any, DictVal]
+    function: Callable[[Any], Any], dictionary: Dict[Any, Any]
 ) -> Dict[Any, Any]:
     """Similar to `map`, but operates on a dictionary's values."""
     return {key: function(value) for key, value in dictionary.items()}
