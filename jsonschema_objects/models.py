@@ -22,16 +22,19 @@ def optional_type_attrib(*types: Type):
     return partial(type_attrib(NotProvidedType, *types), default=NOT_PROVIDED)
 
 
+def title_format(string: str) -> str:
+    return string.title().replace("_", "")
+
+
 # Dataclasses
 # pylint: disable=too-few-public-methods
-
 
 @attrs(kw_only=True)
 class Schema:
 
     type: ClassVar[TypeEnum]
 
-    title: str = type_attrib(str)(converter=lambda x: x.title().replace("_", ""))
+    title: str = type_attrib(str)(converter=title_format)
     description: str = type_attrib(str)()
     nullable: not_required(bool) = optional_type_attrib(bool)()
 

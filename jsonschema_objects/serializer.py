@@ -1,14 +1,10 @@
-from typing import Any, Iterable
+from typing import Iterable
 
 from jinja2 import Environment, FileSystemLoader
 
-from jsonschema_objects.constants import get_flag, get_type, NOT_PROVIDED, TypeEnum
+from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
 from jsonschema_objects.models import (
     Schema,
-    ArraySchema,
-    ObjectSchema,
-    NumberSchema,
-    IntegerSchema,
     ObjectSchema,
 )
 
