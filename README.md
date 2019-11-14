@@ -29,7 +29,7 @@ PYTHONPATH=. python jsonschema_objects --input /path/to/schema.json
 
 This will write generated python classes to stdout. Optionally specify an `--output` path to write to file.
 
-See [this example output](https://github.com/jacksmith15/jsonschema-objects/blob/master/tests/models/simple.py).
+See this [example output](https://github.com/jacksmith15/jsonschema-objects/blob/master/tests/models/simple.py).
 
 # Supported features
 - [x] Basic types (primitves, array, object)
