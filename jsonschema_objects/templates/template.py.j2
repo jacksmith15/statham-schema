@@ -1,7 +1,84 @@
+{% macro attrib(key, prop, required) -%}
+    {{ key }} = attrib(
+        validator=[
+            instance_of({{ prop|validator_type_arg }}),
+{% if prop.type == type_enum.OBJECT %}
+        ],
+        converter=lambda _: {{ prop.title }}(**_),
+{% elif prop.type == type_enum.ARRAY %}
+    {% if prop.minItems != not_provided %}
+            lambda _, __, val: len(val) >= {{ prop.minItems }},
+    {% endif %}
+    {% if prop.maxItems != not_provided %}
+            lambda _, __, val: len(val) <= {{ prop.maxItems }},
+    {% endif %}
+        ],
+    {% if prop.items.type == type_enum.OBJECT %}
+        converter=partial(map, lambda _: {{ prop.items.title }}(**_)),
+    {% endif %}
+{% elif prop.type == type_enum.STRING %}
+    {% if prop.pattern != not_provided %}
+            matches_pattern(r"{{ prop.pattern }}"),
+    {% endif %}
+        ],
+{% elif prop.type == type_enum.NUMBER or prop.type == type_enum.INTEGER %}
+    {% if prop.minimum != not_provided %}
+            lambda _, __, val: val >= {{ prop.minimum }},
+    {% endif %}
+    {% if prop.exclusiveMinimum != not_provided %}
+            lambda _, __, val: val > {{ prop.exclusiveMinimum }},
+    {% endif %}
+    {% if prop.maximum != not_provided %}
+            lambda _, __, val: val <= {{ prop.maximum }},
+    {% endif %}
+    {% if prop.exclusiveMaximum != not_provided %}
+            lambda _, __, val: val < {{ prop.exclusiveMaximum }},
+    {% endif %}
+    {% if prop.multipleOf != not_provided %}
+            lambda _, __, val: (val % {{ prop.multipleOf }}) == 0,
+    {% endif %}
+        ],
+{% elif prop.type == type_enum.NULL %}
+{% endif %}
+{% if prop.default is defined and prop.default != not_provided %}
+        default={{ prop|default_arg }},
+{% elif key not in required %}
+        default=NOT_PASSED,
+{% endif %}
+    )
+{%- endmacro %}
 from functools import partial
+import re
+from typing import Callable, ClassVar, List, Type
 
 from attr import attrs, attrib
-from attr.validators import instance_of
+
+
+NOT_PASSED = type(
+    "NotPassed",
+    tuple(),
+    {"__repr__": lambda self: "<NOTPASSED>", "__bool__": lambda self: False}
+)()
+
+
+def instance_of(*types: Type) -> Callable:
+    def validate_type(instance, attribute, value):
+        if attribute.name not in instance.required and value == NOT_PASSED:
+            return
+        if not isinstance(value, types):
+            raise TypeError(f"{attribute.name} must by type {types}, got {value}.")
+    return validate_type
+
+
+def matches_pattern(pattern: str) -> Callable:
+    def validate_pattern(instance, attribute, value):
+        if value == NOT_PASSED:
+            return
+        if not re.match(pattern, value):
+            raise ValueError(
+                f"{attribute.name} must match pattern {pattern}. Got {value}."
+            )
+    return validate_pattern
 {% for schema in schemas %}
 
 
@@ -9,19 +86,9 @@ from attr.validators import instance_of
 class {{ schema.title }}:
     """{{ schema.description }}"""
 
+    required: ClassVar[List[str]] = {{ schema.required }}
+
 {% for key, prop in schema.properties.items() %}
-    {{ key }} = attrib(
-        validator=[instance_of({{ prop|validator_type_arg }})],
-    {% if prop.type == type_enum.OBJECT %}
-        converter=lambda x: {{ prop.title }}(**x),
-    {% elif prop.type == type_enum.ARRAY and prop.items.type == type_enum.OBJECT %}
-        converter=partial(map, {{ prop.items.title }}),
-    {% endif %}
-    {% if prop.default is defined and prop.default != not_provided %}
-        default={{ prop|default_arg }},
-    {% elif key not in schema.required %}
-        default=None,
-    {% endif %}
-    )
+    {{ attrib(key, prop, schema.required) }}
 {% endfor %}
 {% endfor %}
