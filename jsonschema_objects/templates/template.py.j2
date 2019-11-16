@@ -20,7 +20,14 @@
     {% if prop.pattern != not_provided %}
             matches_re(r"{{ prop.pattern }}", func=re.match),
     {% endif %}
+    {% if prop.minLength != not_provided %}
+            lambda _, __, val: len(val) >= {{ prop.minLength }},
+    {% endif %}
+    {% if prop.maxLength != not_provided %}
+            lambda _, __, val: len(val) <= {{ prop.maxLength }},
+    {% endif %}
         ],
+    }
 {% elif prop.type == type_enum.NUMBER or prop.type == type_enum.INTEGER %}
     {% if prop.minimum != not_provided %}
             lambda _, __, val: val >= {{ prop.minimum }},
