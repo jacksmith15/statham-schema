@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+ls
 
 while [[ $# -gt 0 ]]
 do
