@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-ls
-ls tests
 
 while [[ $# -gt 0 ]]
 do
