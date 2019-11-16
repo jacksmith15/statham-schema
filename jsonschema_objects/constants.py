@@ -34,6 +34,7 @@ class TypeEnum(Flag):
     INTEGER = auto()
     STRING = auto()
     NULL = auto()
+    BOOLEAN = auto()
 
 
 _JSON_SCHEMA_TYPE_MAP: Tuple[Tuple[str, TypeEnum], ...] = (

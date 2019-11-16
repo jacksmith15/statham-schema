@@ -41,6 +41,7 @@ See this [example output](https://github.com/jacksmith15/jsonschema-objects/blob
 - [ ] Type-specific validation (pattern, format, minimum, maximum etc)
 - [ ] Custom string format validation
 - [ ] Composition keywords (allOf, anyOf, oneOf, not)
+- [ ] Custom templates
 
 # License
 This project is distributed under the MIT license.

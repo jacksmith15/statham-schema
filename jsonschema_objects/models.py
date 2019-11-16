@@ -103,6 +103,12 @@ class PrimitiveSchema(Schema):
 
 
 @attrs(kw_only=True, frozen=True, slots=True)
+class BooleanSchema(PrimitiveSchema):
+
+    type: ClassVar[TypeEnum] = TypeEnum.BOOLEAN
+
+
+@attrs(kw_only=True, frozen=True, slots=True)
 class NumberSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NUMBER

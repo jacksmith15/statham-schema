@@ -14,6 +14,7 @@ def validator_type_arg(schema: Schema) -> str:
         TypeEnum.NUMBER: float.__name__,
         TypeEnum.STRING: str.__name__,
         TypeEnum.NULL: "type(None)",
+        TypeEnum.BOOLEAN: bool.__name__,
     }
     args = [arg for flag, arg in mapping.items() if flag & schema.type]
     if len(args) == 1:
