@@ -10,7 +10,6 @@ show_help() {
     echo "  -h, --help: Display this help message"
 }
 
-
 while [[ $# -gt 0 ]]
 do
 key="$1"

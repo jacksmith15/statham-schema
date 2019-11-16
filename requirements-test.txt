@@ -5,9 +5,6 @@ mypy==0.730
 coverage
 pytest>=4.0.0,<5.0.0
 pytest-cov
-pytest-xdist
-pytest-cov
-pytest-env
 ipdb
 pre-commit
 safety

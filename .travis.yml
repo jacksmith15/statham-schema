@@ -1,7 +1,9 @@
-language: python
 branches:
   only:
     - master
+environment:
+  PYTHONPATH: .
+language: python
 python:
   - "3.6"      # current default Python on Travis CI
 # command to install dependencies

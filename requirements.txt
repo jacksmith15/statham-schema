@@ -1,4 +1,3 @@
-json-schema-to-class==0.2.1
 PyYAML==5.1.2
 attrs==19.3.0
 Jinja2==2.10.3
