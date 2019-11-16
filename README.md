@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/jacksmith15/jsonschema-objects.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/jsonschema-objects)
 # JSONSchema Objects
 A tool for generating Python classes from [JSONSchema](https://json-schema.org/) documents.
 
