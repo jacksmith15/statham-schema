@@ -47,10 +47,8 @@
 {% endif %}
     )
 {%- endmacro %}
-from abc import abstractmethod
-from functools import partial
 import re
-from typing import Any, Callable, ClassVar, Dict, List, Type
+from typing import ClassVar, List, Type
 
 from attr import attrs, attrib
 from attr.validators import matches_re

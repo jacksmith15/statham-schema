@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+show_help() {
+    echo "Usage:"
+    echo "  -l, --lint: Run the linter"
+    echo "  -t, --type: Run the type checker"
+    echo "  -u, --unit: Run the unit tests"
+    echo "  -c, --clean: Clean generated files"
+    echo "  -a, --all: Run all tests"
+    echo "  -h, --help: Display this help message"
+}
+
 
 while [[ $# -gt 0 ]]
 do
@@ -27,6 +37,15 @@ case $key in
     TYPE=True
     UNIT=True
     shift # past argument
+    ;;
+    -h|--help)
+    show_help
+    exit 0
+    ;;
+    *)
+    echo "Unknown argument $1"
+    show_help
+    exit 1
     ;;
 esac
 done

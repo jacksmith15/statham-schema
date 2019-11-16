@@ -1,7 +1,5 @@
-from abc import abstractmethod
-from functools import partial
 import re
-from typing import Any, Callable, ClassVar, Dict, List, Type
+from typing import ClassVar, List, Type
 
 from attr import attrs, attrib
 from attr.validators import matches_re
@@ -50,7 +48,10 @@ class NestedSchema:
         validator=[
             instance_of(str),
             matches_re(
-                r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$",
+                (
+                    r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}"
+                    r"\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+                ),
                 func=re.match,
             ),
         ]
@@ -59,7 +60,12 @@ class NestedSchema:
         validator=[
             instance_of(str),
             matches_re(
-                r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$",
+                (
+                    r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])"
+                    r"-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9])"
+                    r":([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2"
+                    r"[0-3]|[01][0-9]):[0-5][0-9])?$"
+                ),
                 func=re.match,
             ),
         ],
