@@ -1,8 +1,10 @@
+from abc import abstractmethod
 from functools import partial
 import re
-from typing import Callable, ClassVar, List, Type
+from typing import Any, Callable, ClassVar, Dict, List, Type
 
 from attr import attrs, attrib
+from attr.validators import matches_re
 
 
 NOT_PASSED = type(
@@ -12,9 +14,9 @@ NOT_PASSED = type(
 )()
 
 
-def instance_of(*types: Type) -> Callable:
+def instance_of(*types: Type):
     def validate_type(instance, attribute, value):
-        if attribute.name not in instance.required and value == NOT_PASSED:
+        if attribute.name not in instance._required and value == NOT_PASSED:
             return
         if not isinstance(value, types):
             raise TypeError(
@@ -24,37 +26,41 @@ def instance_of(*types: Type) -> Callable:
     return validate_type
 
 
-def matches_pattern(pattern: str) -> Callable:
-    def validate_pattern(instance, attribute, value):
-        if value == NOT_PASSED:
-            return
-        if not re.match(pattern, value):
-            raise ValueError(
-                f"{attribute.name} must match pattern {pattern}. Got {value}."
-            )
+def instantiate(model: Type):
+    def _convert(kwargs):
+        return model(**kwargs)
 
-    return validate_pattern
+    return _convert
+
+
+def map_instantiate(model: Type):
+    def _convert(list_kwargs):
+        return [model(**kwargs) for kwargs in list_kwargs]
+
+    return _convert
 
 
 @attrs(kw_only=True)
 class NestedSchema:
     """nested_schema"""
 
-    required: ClassVar[List[str]] = ["id"]
+    _required: ClassVar[List[str]] = ["id"]
 
     id = attrib(
         validator=[
             instance_of(str),
-            matches_pattern(
-                r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+            matches_re(
+                r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$",
+                func=re.match,
             ),
         ]
     )
     timestamp = attrib(
         validator=[
             instance_of(str),
-            matches_pattern(
-                r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+            matches_re(
+                r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$",
+                func=re.match,
             ),
         ],
         default=NOT_PASSED,
@@ -67,15 +73,15 @@ class NestedSchema:
 class SimpleSchema:
     """This is a simple object."""
 
-    required: ClassVar[List[str]] = ["related"]
+    _required: ClassVar[List[str]] = ["related"]
 
     related = attrib(
         validator=[instance_of(NestedSchema)],
-        converter=lambda _: NestedSchema(**_),
+        converter=instantiate(NestedSchema),  # type: ignore
     )
     amount = attrib(validator=[instance_of(float)], default=NOT_PASSED)
     children = attrib(
         validator=[instance_of(list)],
-        converter=partial(map, lambda _: NestedSchema(**_)),
+        converter=map_instantiate(NestedSchema),  # type: ignore
         default=NOT_PASSED,
     )

@@ -4,7 +4,7 @@
             instance_of({{ prop|validator_type_arg }}),
 {% if prop.type == type_enum.OBJECT %}
         ],
-        converter=lambda _: {{ prop.title }}(**_),
+        converter=instantiate({{ prop.title }}),  # type: ignore
 {% elif prop.type == type_enum.ARRAY %}
     {% if prop.minItems != not_provided %}
             lambda _, __, val: len(val) >= {{ prop.minItems }},
@@ -14,11 +14,11 @@
     {% endif %}
         ],
     {% if prop.items.type == type_enum.OBJECT %}
-        converter=partial(map, lambda _: {{ prop.items.title }}(**_)),
+        converter=map_instantiate({{ prop.items.title }}),  # type: ignore
     {% endif %}
 {% elif prop.type == type_enum.STRING %}
     {% if prop.pattern != not_provided %}
-            matches_pattern(r"{{ prop.pattern }}"),
+            matches_re(r"{{ prop.pattern }}", func=re.match),
     {% endif %}
         ],
 {% elif prop.type == type_enum.NUMBER or prop.type == type_enum.INTEGER %}
@@ -47,11 +47,13 @@
 {% endif %}
     )
 {%- endmacro %}
+from abc import abstractmethod
 from functools import partial
 import re
-from typing import Callable, ClassVar, List, Type
+from typing import Any, Callable, ClassVar, Dict, List, Type
 
 from attr import attrs, attrib
+from attr.validators import matches_re
 
 
 NOT_PASSED = type(
@@ -61,24 +63,25 @@ NOT_PASSED = type(
 )()
 
 
-def instance_of(*types: Type) -> Callable:
+def instance_of(*types: Type):
     def validate_type(instance, attribute, value):
-        if attribute.name not in instance.required and value == NOT_PASSED:
+        if attribute.name not in instance._required and value == NOT_PASSED:
             return
         if not isinstance(value, types):
             raise TypeError(f"{attribute.name} must by type {types}, got {value}.")
     return validate_type
 
 
-def matches_pattern(pattern: str) -> Callable:
-    def validate_pattern(instance, attribute, value):
-        if value == NOT_PASSED:
-            return
-        if not re.match(pattern, value):
-            raise ValueError(
-                f"{attribute.name} must match pattern {pattern}. Got {value}."
-            )
-    return validate_pattern
+def instantiate(model: Type):
+    def _convert(kwargs):
+        return model(**kwargs)
+    return _convert
+
+
+def map_instantiate(model: Type):
+    def _convert(list_kwargs):
+        return [model(**kwargs) for kwargs in list_kwargs]
+    return _convert
 {% for schema in schemas %}
 
 
@@ -86,7 +89,7 @@ def matches_pattern(pattern: str) -> Callable:
 class {{ schema.title }}:
     """{{ schema.description }}"""
 
-    required: ClassVar[List[str]] = {{ schema.required }}
+    _required: ClassVar[List[str]] = {{ schema.required }}
 
 {% for key, prop in schema.properties.items() %}
     {{ attrib(key, prop, schema.required) }}
