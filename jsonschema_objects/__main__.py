@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
@@ -19,7 +19,7 @@ LOGGER.setLevel(INFO)
 
 
 @contextmanager
-def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
+def parse_args() -> Iterator[Tuple[TextIO, TextIO]]:
     parser = ArgumentParser(
         description="Generate python attrs models from JSONSchema files."
     )
@@ -41,28 +41,28 @@ def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
         ),
     )
     parsed = parser.parse_args()
-    if parsed.output:
-        if path.isdir(parsed.output):
-            filename = ".".join(path.basename(parsed.input).split(".")[:-1])
-            output_path = path.join(parsed.output, ".".join([filename, "py"]))
-        else:
-            output_path = parsed.output
-        with open(output_path, "w", encoding="utf8") as file:
-            yield parsed, file
+    with open(parsed.input, "r", encoding="utf8") as input_file:
+        if parsed.output:
+            if path.isdir(parsed.output):
+                filename = ".".join(path.basename(parsed.input).split(".")[:-1])
+                output_path = path.join(
+                    parsed.output, ".".join([filename, "py"])
+                )
+            else:
+                output_path = parsed.output
+            with open(output_path, "w", encoding="utf8") as output_file:
+                yield input_file, output_file
+            return
+        yield input_file, stdout
         return
-    yield parsed, stdout
-    return
 
 
-def _load_schema(filepath: str) -> Dict[str, Any]:
-    if not filepath.endswith((".json", ".yaml", ".yml")):
-        raise TypeError(f"File {filepath} has unsupported extension.")
-    with open(filepath, "r", encoding="utf8") as file:
-        content = file.read()
+def _load_schema(file: TextIO) -> Dict[str, Any]:
+    content = file.read()
     return yaml.safe_load(content)
 
 
-def main(input_file: str) -> str:
+def main(input_file: TextIO) -> str:
     schema_dict = _load_schema(input_file)
     dereferenced_schema: Dict[str, JSONElement] = cast(
         Dict[str, JSONElement],
@@ -74,5 +74,5 @@ def main(input_file: str) -> str:
 
 
 if __name__ == "__main__":
-    with parse_args() as (args, output):
-        output.write(main(args.input))
+    with parse_args() as (in_file, out_file):
+        in_file.write(main(in_file))

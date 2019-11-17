@@ -11,7 +11,8 @@ def test_that_main_produces_expected_output():
     out black's message (which is very specific). If black's error
     reporting changes this may need to be updated.
     """
-    generated = main("tests/jsonschemas/simple.json")
+    with open("tests/jsonschemas/simple.json", "r", encoding="utf8") as file:
+        generated = main(file)
     with open("tests/models/simple.py") as file:
         expected = file.read()
     try:
