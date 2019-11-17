@@ -44,6 +44,7 @@ _JSON_SCHEMA_TYPE_MAP: Tuple[Tuple[str, TypeEnum], ...] = (
     ("integer", TypeEnum.INTEGER),
     ("string", TypeEnum.STRING),
     ("null", TypeEnum.NULL),
+    ("boolean", TypeEnum.BOOLEAN),
 )
 
 _TYPE_LOOKUP = dict(_JSON_SCHEMA_TYPE_MAP)

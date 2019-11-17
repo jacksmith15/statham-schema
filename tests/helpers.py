@@ -3,7 +3,7 @@ from black import assert_equivalent as assert_ast_equal
 from jsonschema_objects.__main__ import main
 
 
-def test_that_main_produces_expected_output():
+def assert_generated_models_match(filename: str) -> None:
     """Test that the output is equivalent to generated models.
 
     To avoid reinventing the wheel, this borrows from black`s ast
@@ -11,9 +11,8 @@ def test_that_main_produces_expected_output():
     out black's message (which is very specific). If black's error
     reporting changes this may need to be updated.
     """
-    with open("tests/jsonschemas/simple.json", "r", encoding="utf8") as file:
-        generated = main(file)
-    with open("tests/models/simple.py") as file:
+    generated = main(f"tests/jsonschemas/{filename}.json")
+    with open(f"tests/models/{filename}.py") as file:
         expected = file.read()
     try:
         assert_ast_equal(expected, generated)

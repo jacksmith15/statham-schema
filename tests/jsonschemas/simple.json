@@ -21,7 +21,6 @@
         },
         "children": {
           "type": "array",
-          "nullable": false,
           "items": {
             "$ref": "#/definitions/nested_schema"
           }
