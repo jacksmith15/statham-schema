@@ -1,0 +1,30 @@
+{
+    "title": "Model",
+    "type": "object",
+    "properties": {
+        "string_no_validation": {"type": "string"},
+        "string_default": {"type": "string", "default": "foo"},
+        "string_format_uuid": {"type": "string", "format": "uuid"},
+        "string_format_date_time": {"type": "string", "format": "date-time"},
+        "string_format_uri": {"type": "string", "format": "uri"},
+        "string_pattern": {"type": "string", "pattern": "^(foo|bar).*"},
+        "string_minLength": {"type": "string", "minLength": 3},
+        "string_maxLength": {"type": "string", "maxLength": 3},
+        "integer_no_validation": {"type": "integer"},
+        "integer_default": {"type": "integer", "default": 1},
+        "integer_minimum": {"type": "integer", "minimum": 3},
+        "integer_exclusiveMinimum": {"type": "integer", "exclusiveMinimum": 3},
+        "integer_maximum": {"type": "integer", "maximum": 3},
+        "integer_exclusiveMaximum": {"type": "integer", "exclusiveMaximum": 3},
+        "integer_multipleOf": {"type": "integer", "multipleOf": 2},
+        "number_no_validation": {"type": "number"},
+        "number_default": {"type": "number", "default": 1.5},
+        "number_minimum": {"type": "number", "minimum": 2.5},
+        "number_exclusiveMinimum": {"type": "number", "exclusiveMinimum": 2.5},
+        "number_maximum": {"type": "number", "maximum": 2.5},
+        "number_exclusiveMaximum": {"type": "number", "exclusiveMaximum": 2.5},
+        "number_multipleOf": {"type": "number", "multipleOf": 2.5},
+        "boolean_no_validation": {"type": "boolean"},
+        "boolean_default": {"type": "boolean", "default": true}
+    }
+}

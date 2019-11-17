@@ -42,9 +42,6 @@ class Schema:
         validator=[instance_of(str)],
         default=Factory(lambda self: self.title, takes_self=True),
     )
-    nullable: Union[bool, NotProvidedType] = attrib(
-        validator=[instance_of((bool, NotProvidedType))], default=NOT_PROVIDED
-    )
 
 
 def parse_schema(schema: Dict[str, JSONElement]) -> Schema:

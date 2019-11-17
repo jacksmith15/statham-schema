@@ -24,6 +24,23 @@ def instance_of(*types: Type):
     return validate_type
 
 
+def if_passed(validator):
+    def optional_validator(instance, attribute, value):
+        if attribute.name not in instance._required and value == NOT_PASSED:
+            return
+        validator(instance, attribute, value)
+
+    return optional_validator
+
+
+def fail_unless(function, message=None):
+    def check(instance, attribute, value):
+        if not function(instance, attribute, value):
+            raise ValueError(message)
+
+    return check
+
+
 def instantiate(model: Type):
     def _convert(kwargs):
         return model(**kwargs)
@@ -45,34 +62,47 @@ class NestedSchema:
     _required: ClassVar[List[str]] = ["id"]
 
     id = attrib(
-        validator=[
-            instance_of(str),
-            matches_re(
-                (
-                    r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}"
-                    r"\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
-                ),
-                func=re.match,
-            ),
-        ]
+        validator=list(
+            map(
+                if_passed,
+                [
+                    instance_of(str),
+                    matches_re(
+                        r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]"
+                        r"{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$",
+                        func=re.match,
+                    ),
+                ],
+            )
+        )
     )
     timestamp = attrib(
-        validator=[
-            instance_of(str),
-            matches_re(
-                (
-                    r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])"
-                    r"-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9])"
-                    r":([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2"
-                    r"[0-3]|[01][0-9]):[0-5][0-9])?$"
-                ),
-                func=re.match,
-            ),
-        ],
+        validator=list(
+            map(
+                if_passed,
+                [
+                    instance_of(str),
+                    matches_re(
+                        (
+                            r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-"
+                            r"(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):"
+                            r"([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-]"
+                            r"(?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+                        ),
+                        func=re.match,
+                    ),
+                ],
+            )
+        ),
         default=NOT_PASSED,
     )
-    version = attrib(validator=[instance_of(int)], default=0)
-    annotation = attrib(validator=[instance_of(str)], default="unannotated")
+    version = attrib(
+        validator=list(map(if_passed, [instance_of(int)])), default=0
+    )
+    annotation = attrib(
+        validator=list(map(if_passed, [instance_of(str)])),
+        default="unannotated",
+    )
 
 
 @attrs(kw_only=True)
@@ -82,12 +112,14 @@ class SimpleSchema:
     _required: ClassVar[List[str]] = ["related"]
 
     related = attrib(
-        validator=[instance_of(NestedSchema)],
+        validator=list(map(if_passed, [instance_of(NestedSchema)])),
         converter=instantiate(NestedSchema),  # type: ignore
     )
-    amount = attrib(validator=[instance_of(float)], default=NOT_PASSED)
+    amount = attrib(
+        validator=list(map(if_passed, [instance_of(float)])), default=NOT_PASSED
+    )
     children = attrib(
-        validator=[instance_of(list)],
+        validator=list(map(if_passed, [instance_of(list)])),
         converter=map_instantiate(NestedSchema),  # type: ignore
         default=NOT_PASSED,
     )
