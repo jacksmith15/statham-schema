@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import pytest
 
@@ -74,5 +74,19 @@ def test_field_validation(kwargs: Dict, exception: Optional[Type[Exception]]):
     assert excinfo.type is exception
 
 
-def test_default():
-    pass
+@pytest.fixture(scope="module")
+def instance():
+    return Model()
+
+
+@pytest.mark.parametrize(
+    "attribute,expected_value",
+    [
+        ("string_default", "foo"),
+        ("integer_default", 1),
+        ("number_default", 1.5),
+        ("boolean_default", True),
+    ],
+)
+def test_default_values(instance: Model, attribute: str, expected_value: Any):
+    assert getattr(instance, attribute) == expected_value
