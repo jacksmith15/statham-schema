@@ -17,21 +17,13 @@ from jsonschema_objects.models import (
 from jsonschema_objects.validators import SCHEMA_ATTRIBUTE_VALIDATORS
 
 
-def serialize_primitive(value) -> str:
-    if isinstance(value, (int, float)) or value is None:
-        return str(value)
-    if isinstance(value, (str)):
-        return f'"{value}"'
-    raise TypeError(f"Unsupported value {value} of type {type(value)}")
-
-
 def default(schema: Schema, required: bool) -> str:
     default_value = getattr(schema, "default", NOT_PROVIDED)
     if default_value is NOT_PROVIDED:
         if required:
             return ""
         return "NOT_PASSED"
-    return serialize_primitive(default_value)
+    return repr(default_value)
 
 
 def type_annotation(schema: Schema) -> str:
@@ -88,10 +80,7 @@ def validators(schema: Schema) -> str:
 
 def extra_validators(schema: Schema) -> List[str]:
     return [
-        (
-            f"{validator.__name__}"
-            f"({serialize_primitive(getattr(schema, attribute))}),"
-        )
+        (f"{validator.__name__}" f"({repr(getattr(schema, attribute))}),")
         for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()
         if hasattr(schema, attribute)
         and getattr(schema, attribute) is not NOT_PROVIDED
