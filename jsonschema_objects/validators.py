@@ -38,9 +38,7 @@ def _is_uuid(value: str) -> bool:
     return True
 
 
-format_checker.register("date-time")
-
-
+@format_checker.register("date-time")
 def _is_date_time(value: str) -> bool:
     try:
         parse_datetime(value)
