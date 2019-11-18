@@ -14,8 +14,6 @@ NOT_PASSED = type(
 
 def instance_of(*types: Type):
     def validate_type(instance, attribute, value):
-        if attribute.name not in instance._required and value == NOT_PASSED:
-            return
         if not isinstance(value, types):
             raise TypeError(
                 f"{attribute.name} must by type {types}, got {value}."
