@@ -63,7 +63,7 @@ class Model:
         validator=[instance_of(str), has_format("uri")], default=NOT_PASSED
     )
     string_pattern: str = attrib(
-        validator=[instance_of(str), pattern("^(foo|bar).*")],
+        validator=[instance_of(str), pattern(r"^(foo|bar).*")],
         default=NOT_PASSED,
     )
     string_minLength: str = attrib(

@@ -1,19 +1,9 @@
-from functools import singledispatch
 from typing import Iterable, List
 
 from jinja2 import Environment, FileSystemLoader
 
 from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
-from jsonschema_objects.models import (
-    ArraySchema,
-    BooleanSchema,
-    IntegerSchema,
-    NullSchema,
-    NumberSchema,
-    ObjectSchema,
-    Schema,
-    StringSchema,
-)
+from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
 from jsonschema_objects.validators import SCHEMA_ATTRIBUTE_VALIDATORS
 
 
@@ -79,8 +69,15 @@ def validators(schema: Schema) -> str:
 
 
 def extra_validators(schema: Schema) -> List[str]:
+    arg_prefix = lambda val: (
+        "r" if val is SCHEMA_ATTRIBUTE_VALIDATORS["pattern"] else ""
+    )
     return [
-        (f"{validator.__name__}" f"({repr(getattr(schema, attribute))}),")
+        (
+            f"{validator.__name__}"
+            f"({arg_prefix(validator)}"
+            f"{repr(getattr(schema, attribute))}),"
+        )
         for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()
         if hasattr(schema, attribute)
         and getattr(schema, attribute) is not NOT_PROVIDED
