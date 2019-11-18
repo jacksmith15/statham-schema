@@ -1,8 +1,10 @@
-import re
 from typing import ClassVar, List, Type
 
 from attr import attrs, attrib
-from attr.validators import matches_re
+
+# TODO: Import only what is needed.
+# pylint: disable=wildcard-import,unused-wildcard-import
+from jsonschema_objects.validators import *
 
 
 NOT_PASSED = type(
@@ -14,31 +16,16 @@ NOT_PASSED = type(
 
 def instance_of(*types: Type):
     def validate_type(instance, attribute, value):
+        # This callable acts as a method.
+        # pylint: disable=protected-access
         if attribute.name not in instance._required and value == NOT_PASSED:
             return
         if not isinstance(value, types):
             raise TypeError(
-                f"{attribute.name} must by type {types}, got {value}."
+                f"{attribute.name} must be type {types}, got {value}."
             )
 
     return validate_type
-
-
-def if_passed(validator):
-    def optional_validator(instance, attribute, value):
-        if attribute.name not in instance._required and value == NOT_PASSED:
-            return
-        validator(instance, attribute, value)
-
-    return optional_validator
-
-
-def fail_unless(function, message=None):
-    def check(instance, attribute, value):
-        if not function(instance, attribute, value):
-            raise ValueError(message)
-
-    return check
 
 
 def instantiate(model: Type):
@@ -61,47 +48,32 @@ class NestedSchema:
 
     _required: ClassVar[List[str]] = ["id"]
 
-    id = attrib(
-        validator=list(
-            map(
-                if_passed,
-                [
-                    instance_of(str),
-                    matches_re(
-                        r"^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]"
-                        r"{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$",
-                        func=re.match,
-                    ),
-                ],
-            )
-        )
+    id: str = attrib(
+        validator=[
+            instance_of(str),
+            has_format("uuid"),
+            pattern(
+                r"^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-"
+                r"[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$"
+            ),
+        ]
     )
-    timestamp = attrib(
-        validator=list(
-            map(
-                if_passed,
-                [
-                    instance_of(str),
-                    matches_re(
-                        (
-                            r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-"
-                            r"(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):"
-                            r"([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-]"
-                            r"(?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
-                        ),
-                        func=re.match,
-                    ),
-                ],
-            )
-        ),
+    timestamp: str = attrib(
+        validator=[
+            instance_of(str),
+            has_format("date-time"),
+            pattern(
+                r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-"
+                r"(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):"
+                r"([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-]"
+                r"(?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+            ),
+        ],
         default=NOT_PASSED,
     )
-    version = attrib(
-        validator=list(map(if_passed, [instance_of(int)])), default=0
-    )
-    annotation = attrib(
-        validator=list(map(if_passed, [instance_of(str)])),
-        default="unannotated",
+    version: int = attrib(validator=[instance_of(int)], default=0)
+    annotation: str = attrib(
+        validator=[instance_of(str)], default="unannotated"
     )
 
 
@@ -111,15 +83,13 @@ class SimpleSchema:
 
     _required: ClassVar[List[str]] = ["related"]
 
-    related = attrib(
-        validator=list(map(if_passed, [instance_of(NestedSchema)])),
+    related: NestedSchema = attrib(
+        validator=[instance_of(NestedSchema)],
         converter=instantiate(NestedSchema),  # type: ignore
     )
-    amount = attrib(
-        validator=list(map(if_passed, [instance_of(float)])), default=NOT_PASSED
-    )
-    children = attrib(
-        validator=list(map(if_passed, [instance_of(list)])),
+    amount: float = attrib(validator=[instance_of(float)], default=NOT_PASSED)
+    children: List[NestedSchema] = attrib(
+        validator=[instance_of(list)],
         converter=map_instantiate(NestedSchema),  # type: ignore
         default=NOT_PASSED,
     )
