@@ -2,6 +2,7 @@ from typing import Dict, Set
 
 from attr import attrs
 
+from jsonschema_objects.exceptions import SchemaParseError
 from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
 
 
@@ -18,7 +19,7 @@ def _get_first_class_schema(schema: Schema) -> ObjectSchema:
         return schema
     if isinstance(schema, ArraySchema):
         return _get_first_class_schema(schema.items)
-    raise ValueError(f"Schema contains no class-equivalent schemas.")
+    raise SchemaParseError.no_class_equivalent_schemas()
 
 
 class ClassDependencyResolver:
@@ -68,4 +69,4 @@ class ClassDependencyResolver:
         except StopIteration as exc:
             if not self._class_defs:
                 raise exc
-            raise ValueError(f"Unresolvable declaration tree.")
+            raise SchemaParseError.unresolvable_declaration()

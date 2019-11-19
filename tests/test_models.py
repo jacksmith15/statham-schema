@@ -2,7 +2,9 @@ from typing import Dict, List, Type, Union
 
 import pytest
 
+from jsonschema_objects.constants import TypeEnum
 from jsonschema_objects.models import (
+    all_subclasses,
     ArraySchema,
     IntegerSchema,
     model_from_types,
@@ -53,3 +55,18 @@ def test_that_nested_schemas_have_been_parsed(
         except (KeyError, AttributeError):
             raise KeyError(f"Couldn't resolve subpath {subpath} in path {path}")
     assert isinstance(parsed_schema, type_)
+
+
+def test_that_model_types_produce_spanning_set_of_types():
+    """Subclasses of `Schema` need to form a group over (type, union)."""
+    declared_model_type_flags = {
+        SubSchema.type
+        for SubSchema in all_subclasses(Schema)
+        if hasattr(SubSchema, "type")
+    }
+    missing_flags = {
+        flag for flag in TypeEnum if flag not in declared_model_type_flags
+    }
+    assert (
+        not missing_flags
+    ), f"The following type flag need schema model definitions."

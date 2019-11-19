@@ -12,6 +12,7 @@ from jsonschema_objects.constants import (
     NOT_PROVIDED,
     TypeEnum,
 )
+from jsonschema_objects.exceptions import SchemaParseError
 from jsonschema_objects.helpers import all_subclasses, counter, dict_map
 
 
@@ -53,7 +54,7 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     try:
         type_prop = schema["type"]
     except KeyError:
-        raise ValueError(f"No type or ref defined in schema: {schema}")
+        raise SchemaParseError.missing_type(schema)
     types = type_prop if isinstance(type_prop, list) else [type_prop]
     schema["title"] = schema.get("title") or counter(".".join(types))
     schema["description"] = schema.get("description") or schema["title"]
@@ -188,10 +189,7 @@ def _union_model(*models: Type[Schema]) -> Type[Schema]:
     """Get a model which represents the union of two types."""
     invalid = {ObjectSchema, ArraySchema, PrimitiveSchema, Schema} & set(models)
     if invalid:
-        raise ValueError(
-            f"Can't produce a union for these types: {invalid}. "
-            f"The following union was requested: {models}"
-        )
+        raise SchemaParseError.unsupported_type_union(invalid, set(models))
     model_type = reduce(lambda x, y: x | y, map(lambda _: _.type, models))
     type_names = [name.title() for name in get_type(model_type)]
     name = "Or".join(type_names)
@@ -213,11 +211,13 @@ def _model_from_types_cached(*types: str) -> Type[Schema]:
     ]
     if not matching_models:
         # This block shouldn't be hit!
-        raise TypeError(  # pragma: no cover
+        # If every type flag has a corresponding fundamental model,
+        # there should always be a match.
+        raise RuntimeError(  # pragma: no cover
             "No existing models found construct which can construct "
-            "this type! Does every declared flag on "
-            "`jsonschema_objects.constants.TypeEnum` have an equivalent "
-            "model declared?"
+            "the requested type! Does every declared flag on "
+            f"`{TypeEnum.__module__}.{TypeEnum.__name__}` have an "
+            "equivalent model declared?"
         )
     if len(matching_models) == 1:
         return next(iter(matching_models))
