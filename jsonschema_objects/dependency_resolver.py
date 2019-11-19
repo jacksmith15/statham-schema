@@ -36,7 +36,7 @@ class ClassDependencyResolver:
         for nested in schema.properties.values():
             try:
                 next_schema: ObjectSchema = _get_first_class_schema(nested)
-            except ValueError:
+            except SchemaParseError:
                 continue
             deps = deps | self._extract_schemas(next_schema)
         self._add(
