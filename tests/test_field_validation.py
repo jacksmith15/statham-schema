@@ -2,75 +2,176 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 import pytest
 
+from jsonschema_objects.exceptions import ValidationError
 from tests.models.field_validation import Model
 
 
-FIELD_VALIDATION_PARAMS: List[Tuple[Dict, Optional[Type[Exception]]]] = [
-    ({}, None),
-    ({"string_no_validation": "foo"}, None),
-    ({"string_no_validation": None}, TypeError),
-    ({"string_format_uuid": "3ffaeb95-d650-4ad8-9a08-9b4fb246c2ed"}, None),
-    ({"string_format_uuid": "foo"}, ValueError),
-    ({"string_format_date_time": "2019-11-17T18:03:01.988614"}, None),
-    ({"string_format_date_time": "foo"}, ValueError),
-    ({"string_pattern": "foo-baz"}, None),
-    ({"string_pattern": "baz-foo"}, ValueError),
-    ({"string_minLength": "fo"}, ValueError),
-    ({"string_minLength": "foo"}, None),
-    ({"string_minLength": "foob"}, None),
-    ({"string_maxLength": "fo"}, None),
-    ({"string_maxLength": "foo"}, None),
-    ({"string_maxLength": "foob"}, ValueError),
-    ({"integer_no_validation": 1}, None),
-    ({"integer_no_validation": None}, TypeError),
-    ({"integer_minimum": 2}, ValueError),
-    ({"integer_minimum": 3}, None),
-    ({"integer_minimum": 4}, None),
-    ({"integer_exclusiveMinimum": 2}, ValueError),
-    ({"integer_exclusiveMinimum": 3}, ValueError),
-    ({"integer_exclusiveMinimum": 4}, None),
-    ({"integer_maximum": 2}, None),
-    ({"integer_maximum": 3}, None),
-    ({"integer_maximum": 4}, ValueError),
-    ({"integer_exclusiveMaximum": 2}, None),
-    ({"integer_exclusiveMaximum": 3}, ValueError),
-    ({"integer_exclusiveMaximum": 4}, ValueError),
-    ({"integer_multipleOf": 4}, None),
-    ({"integer_multipleOf": 5}, ValueError),
-    ({"number_no_validation": 2.5}, None),
-    ({"number_no_validation": None}, TypeError),
-    ({"number_minimum": 2.4}, ValueError),
-    ({"number_minimum": 2.5}, None),
-    ({"number_minimum": 2.6}, None),
-    ({"number_exclusiveMinimum": 2.4}, ValueError),
-    ({"number_exclusiveMinimum": 2.5}, ValueError),
-    ({"number_exclusiveMinimum": 2.6}, None),
-    ({"number_maximum": 2.4}, None),
-    ({"number_maximum": 2.5}, None),
-    ({"number_maximum": 2.6}, ValueError),
-    ({"number_exclusiveMaximum": 2.4}, None),
-    ({"number_exclusiveMaximum": 2.5}, ValueError),
-    ({"number_exclusiveMaximum": 2.6}, ValueError),
-    ({"number_multipleOf": 7.5}, None),
-    ({"number_multipleOf": 7.6}, ValueError),
-    ({"boolean_no_validation": True}, None),
-    ({"boolean_no_validation": None}, TypeError),
+FIELD_VALIDATION_PARAMS: List[
+    Tuple[Dict, Optional[Type[Exception]], Optional[str]]
+] = [
+    ({}, None, None),
+    ({"string_no_validation": "foo"}, None, None),
+    ({"string_no_validation": None}, ValidationError, "Must be of type (str)."),
+    (
+        {"string_format_uuid": "3ffaeb95-d650-4ad8-9a08-9b4fb246c2ed"},
+        None,
+        None,
+    ),
+    (
+        {"string_format_uuid": "foo"},
+        ValidationError,
+        "Must match format described by 'uuid'.",
+    ),
+    ({"string_format_date_time": "2019-11-17T18:03:01.988614"}, None, None),
+    (
+        {"string_format_date_time": "foo"},
+        ValidationError,
+        "Must match format described by 'date-time'.",
+    ),
+    ({"string_pattern": "foo-baz"}, None, None),
+    (
+        {"string_pattern": "baz-foo"},
+        ValidationError,
+        "Must match regex pattern r'^(foo|bar).*'.",
+    ),
+    (
+        {"string_minLength": "fo"},
+        ValidationError,
+        "Must be at least 3 characters long.",
+    ),
+    ({"string_minLength": "foo"}, None, None),
+    ({"string_minLength": "foob"}, None, None),
+    ({"string_maxLength": "fo"}, None, None),
+    ({"string_maxLength": "foo"}, None, None),
+    (
+        {"string_maxLength": "foob"},
+        ValidationError,
+        "Must be at most 3 characters long.",
+    ),
+    ({"integer_no_validation": 1}, None, None),
+    (
+        {"integer_no_validation": None},
+        ValidationError,
+        "Must be of type (int).",
+    ),
+    (
+        {"integer_minimum": 2},
+        ValidationError,
+        "Must be greater than or equal to 3.",
+    ),
+    ({"integer_minimum": 3}, None, None),
+    ({"integer_minimum": 4}, None, None),
+    (
+        {"integer_exclusiveMinimum": 2},
+        ValidationError,
+        "Must be strictly greater than 3.",
+    ),
+    (
+        {"integer_exclusiveMinimum": 3},
+        ValidationError,
+        "Must be strictly greater than 3.",
+    ),
+    ({"integer_exclusiveMinimum": 4}, None, None),
+    ({"integer_maximum": 2}, None, None),
+    ({"integer_maximum": 3}, None, None),
+    (
+        {"integer_maximum": 4},
+        ValidationError,
+        "Must be less than or equal to 3.",
+    ),
+    ({"integer_exclusiveMaximum": 2}, None, None),
+    (
+        {"integer_exclusiveMaximum": 3},
+        ValidationError,
+        "Must be strictly less than 3.",
+    ),
+    (
+        {"integer_exclusiveMaximum": 4},
+        ValidationError,
+        "Must be strictly less than 3.",
+    ),
+    ({"integer_multipleOf": 4}, None, None),
+    ({"integer_multipleOf": 5}, ValidationError, "Must be a multiple of 2."),
+    ({"number_no_validation": 2.5}, None, None),
+    (
+        {"number_no_validation": None},
+        ValidationError,
+        "Must be of type (float).",
+    ),
+    (
+        {"number_minimum": 2.4},
+        ValidationError,
+        "Must be greater than or equal to 2.5.",
+    ),
+    ({"number_minimum": 2.5}, None, None),
+    ({"number_minimum": 2.6}, None, None),
+    (
+        {"number_exclusiveMinimum": 2.4},
+        ValidationError,
+        "Must be strictly greater than 2.5.",
+    ),
+    (
+        {"number_exclusiveMinimum": 2.5},
+        ValidationError,
+        "Must be strictly greater than 2.5.",
+    ),
+    ({"number_exclusiveMinimum": 2.6}, None, None),
+    ({"number_maximum": 2.4}, None, None),
+    ({"number_maximum": 2.5}, None, None),
+    (
+        {"number_maximum": 2.6},
+        ValidationError,
+        "Must be less than or equal to 2.5.",
+    ),
+    ({"number_exclusiveMaximum": 2.4}, None, None),
+    (
+        {"number_exclusiveMaximum": 2.5},
+        ValidationError,
+        "Must be strictly less than 2.5.",
+    ),
+    (
+        {"number_exclusiveMaximum": 2.6},
+        ValidationError,
+        "Must be strictly less than 2.5.",
+    ),
+    ({"number_multipleOf": 7.5}, None, None),
+    ({"number_multipleOf": 7.6}, ValidationError, "Must be a multiple of 2.5."),
+    ({"boolean_no_validation": True}, None, None),
+    (
+        {"boolean_no_validation": None},
+        ValidationError,
+        "Must be of type (bool).",
+    ),
+    ({"null_no_validation": None}, None, None),
+    ({"null_no_validation": 1}, ValidationError, "Must be of type (NoneType)."),
 ]
 
 
-@pytest.mark.parametrize("kwargs,exception", FIELD_VALIDATION_PARAMS)
-def test_field_validation(kwargs: Dict, exception: Optional[Type[Exception]]):
-    if not exception:
+@pytest.mark.parametrize(
+    "kwargs,exception_type,exception_msg", FIELD_VALIDATION_PARAMS
+)
+def test_field_validation(
+    kwargs: Dict,
+    exception_type: Optional[Type[Exception]],
+    exception_msg: Optional[str],
+):
+    if not exception_type:
         try:
             assert Model(**kwargs)
         except Exception as exc:
             raise AssertionError(f"Failed field validation: {kwargs}") from exc
         return
-    with pytest.raises(
-        Exception, message=f"Failed field validation: {kwargs}"
-    ) as excinfo:
+    with pytest.raises(Exception) as excinfo:
         Model(**kwargs)
-    assert excinfo.type is exception
+    assert excinfo.type is exception_type, (
+        f"Raised incorrect exception type. Expected {exception_type}, "
+        f"got {excinfo.type}. kwargs: {kwargs}"
+    )
+    actual_msg = str(excinfo.value)
+    assert actual_msg.endswith(exception_msg or ""), (
+        f"Unexpected error message: '{actual_msg}'. Expected to contain "
+        f"'{exception_msg}'."
+    )
 
 
 @pytest.fixture(scope="module")

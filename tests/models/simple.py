@@ -7,27 +7,6 @@ from attr import attrs, attrib
 from jsonschema_objects.validators import *
 
 
-NOT_PASSED = type(
-    "NotPassed",
-    tuple(),
-    {"__repr__": lambda self: "<NOTPASSED>", "__bool__": lambda self: False},
-)()
-
-
-def instance_of(*types: Type):
-    def validate_type(instance, attribute, value):
-        # This callable acts as a method.
-        # pylint: disable=protected-access
-        if attribute.name not in instance._required and value == NOT_PASSED:
-            return
-        if not isinstance(value, types):
-            raise TypeError(
-                f"{attribute.name} must be type {types}, got {value}."
-            )
-
-    return validate_type
-
-
 def instantiate(model: Type):
     def _convert(kwargs):
         return model(**kwargs)
@@ -58,7 +37,7 @@ class NestedSchema:
             ),
         ]
     )
-    timestamp: str = attrib(
+    timestamp: Union[str, NotPassed] = attrib(
         validator=[
             instance_of(str),
             has_format("date-time"),
@@ -69,10 +48,12 @@ class NestedSchema:
                 r"(?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
             ),
         ],
-        default=NOT_PASSED,
+        default=NotPassed(),
     )
-    version: int = attrib(validator=[instance_of(int)], default=0)
-    annotation: str = attrib(
+    version: Union[int, NotPassed] = attrib(
+        validator=[instance_of(int)], default=0
+    )
+    annotation: Union[str, NotPassed] = attrib(
         validator=[instance_of(str)], default="unannotated"
     )
 
@@ -87,9 +68,11 @@ class SimpleSchema:
         validator=[instance_of(NestedSchema)],
         converter=instantiate(NestedSchema),  # type: ignore
     )
-    amount: float = attrib(validator=[instance_of(float)], default=NOT_PASSED)
-    children: List[NestedSchema] = attrib(
+    amount: Union[float, NotPassed] = attrib(
+        validator=[instance_of(float)], default=NotPassed()
+    )
+    children: Union[List[Union[NestedSchema, NotPassed]], NotPassed] = attrib(
         validator=[instance_of(list)],
         converter=map_instantiate(NestedSchema),  # type: ignore
-        default=NOT_PASSED,
+        default=NotPassed(),
     )

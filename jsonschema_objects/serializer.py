@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
 from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
-from jsonschema_objects.validators import SCHEMA_ATTRIBUTE_VALIDATORS
+from jsonschema_objects.validators import NotPassed, SCHEMA_ATTRIBUTE_VALIDATORS
 
 
 def default(schema: Schema, required: bool) -> str:
@@ -12,18 +12,18 @@ def default(schema: Schema, required: bool) -> str:
     if default_value is NOT_PROVIDED:
         if required:
             return ""
-        return "NOT_PASSED"
+        return f"{NotPassed.__name__}()"
     return repr(default_value)
 
 
-def type_annotation(schema: Schema) -> str:
+def type_annotation(schema: Schema, required: bool) -> str:
     schema_items = getattr(schema, "items", NOT_PROVIDED)
     mapping = {
         TypeEnum.OBJECT: schema.title,
         TypeEnum.ARRAY: (
             List.__name__
             + (
-                f"[{type_annotation(getattr(schema, 'items'))}]"
+                f"[{type_annotation(schema_items, False)}]"
                 if schema_items is not NOT_PROVIDED
                 else ""
             )
@@ -35,6 +35,9 @@ def type_annotation(schema: Schema) -> str:
         TypeEnum.BOOLEAN: bool.__name__,
     }
     args = [arg for flag, arg in mapping.items() if flag & schema.type]
+
+    if not required:
+        args.append(NotPassed.__name__)
     if len(args) == 1:
         return next(iter(args))
     validator_args = ", ".join(args)

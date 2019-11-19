@@ -2,6 +2,10 @@ from functools import partial
 from typing import Any, Dict, Optional
 
 from jsonschema_objects.constants import JSONElement, IGNORED_SCHEMA_KEYWORDS
+from jsonschema_objects.exceptions import (
+    NotImplementedSchemaParserError,
+    SchemaParseError,
+)
 
 
 def get_ref(
@@ -9,14 +13,14 @@ def get_ref(
 ) -> Dict[str, Any]:
     filename, path = reference.split("#")
     if filename:
-        assert base_uri
-        raise NotImplementedError
+        assert base_uri, "Cannot resolve remote refs without base_uri."
+        raise NotImplementedSchemaParserError.remote_refs()
     output = schema
     for breadcrumb in path.strip("/").split("/"):
         try:
             output = output[breadcrumb]
         except KeyError:
-            raise KeyError(f"Couldnt resolve pointer: {reference}")
+            raise SchemaParseError.unresolvable_pointer(reference)
     return output
 
 
@@ -31,7 +35,7 @@ def dereference_schema(
     if "$ref" in element:
         ref_schema = get_ref(schema, base_uri, element["$ref"])
         if not isinstance(ref_schema, dict):
-            raise NotImplementedError("Only support refs to objects.")
+            raise NotImplementedSchemaParserError.non_object_refs()
         ref_schema["title"] = element["$ref"].split("/")[-1]
         return deref(ref_schema)
     return {
