@@ -62,21 +62,31 @@ def _is_date_time(value: str) -> bool:
 def on_types(*type_args: Type) -> Callable:
     """Decorator factory to limit scope of validators to given types."""
 
-    def validate_if_types(validator: Callable) -> Callable:
+    def _validate_if_types(validator: Callable) -> Callable:
         """Return a wrapped version of `validator` to negotiate type."""
 
-        def inner_validator(instance, attribute, value) -> None:
+        def _inner_validator(instance, attribute, value) -> None:
             if not isinstance(value, type_args):
                 return
             validator(instance, attribute, value)
 
-        return inner_validator
+        return _inner_validator
 
-    return validate_if_types
+    return _validate_if_types
 
 
 def raises(message: str) -> Callable:
+    """Decorator factory which declares error message for validator."""
+
     def validate_with_error_message(validator: Callable) -> Callable:
+        """Return an attrs compatible validator which raises outer error.
+
+        :param validator: Similar to `attrs` validator interface, but
+            accepting an additional argument, which is the error to
+            raise if validation fails.
+        :return: `attrs` compliant validator.
+        """
+
         def inner_validator(instance, attribute, value) -> None:
             validator(
                 instance,
