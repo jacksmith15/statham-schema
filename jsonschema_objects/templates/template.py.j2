@@ -1,5 +1,5 @@
 {% macro attrib(key, prop, required) -%}
-    {{ key }}: {{ prop|type_annotation }} = attrib(
+    {{ key }}: {{ prop|type_annotation(key in required) }} = attrib(
         validator=[
             {{ prop|validators }}
         ],

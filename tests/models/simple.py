@@ -36,7 +36,7 @@ class NestedSchema:
             ),
         ]
     )
-    timestamp: str = attrib(
+    timestamp: Union[str, NotPassed] = attrib(
         validator=[
             instance_of(str),
             has_format("date-time"),
@@ -46,8 +46,10 @@ class NestedSchema:
         ],
         default=NotPassed(),
     )
-    version: int = attrib(validator=[instance_of(int)], default=0)
-    annotation: str = attrib(
+    version: Union[int, NotPassed] = attrib(
+        validator=[instance_of(int)], default=0
+    )
+    annotation: Union[str, NotPassed] = attrib(
         validator=[instance_of(str)], default="unannotated"
     )
 
@@ -62,8 +64,10 @@ class SimpleSchema:
         validator=[instance_of(NestedSchema)],
         converter=instantiate(NestedSchema),  # type: ignore
     )
-    amount: float = attrib(validator=[instance_of(float)], default=NotPassed())
-    children: List[NestedSchema] = attrib(
+    amount: Union[float, NotPassed] = attrib(
+        validator=[instance_of(float)], default=NotPassed()
+    )
+    children: Union[List[Union[NestedSchema, NotPassed]], NotPassed] = attrib(
         validator=[instance_of(list)],
         converter=map_instantiate(NestedSchema),  # type: ignore
         default=NotPassed(),

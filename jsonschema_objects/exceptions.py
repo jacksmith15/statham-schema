@@ -1,4 +1,4 @@
-from typing import Dict, Set, Type
+from typing import Dict, Set
 
 from jsonschema_objects.constants import JSONElement
 
@@ -53,7 +53,7 @@ class SchemaParseError(JSONSchemaObjectError):
 
 
 class NotImplementedSchemaParserError(SchemaParseError):
-    """Failure parsing valid JSON Schema input which is not supported by this project."""
+    """Exceptions for JSONSchema features which aren't supported."""
 
     @classmethod
     def remote_refs(cls) -> "SchemaParseError":

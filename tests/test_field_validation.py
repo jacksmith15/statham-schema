@@ -168,7 +168,7 @@ def test_field_validation(
         f"got {excinfo.type}. kwargs: {kwargs}"
     )
     actual_msg = str(excinfo.value)
-    assert actual_msg.endswith(exception_msg), (
+    assert actual_msg.endswith(exception_msg or ""), (
         f"Unexpected error message: '{actual_msg}'. Expected to contain "
         f"'{exception_msg}'."
     )
