@@ -1,3 +1,4 @@
+from functools import partial
 import re
 from typing import Callable, Dict, Type, Union
 from uuid import UUID
@@ -5,12 +6,15 @@ from uuid import UUID
 # False positive on `ParserError` import.
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
 
+from jsonschema_objects.exceptions import ValidationError
+
 
 class _FormatString:
     """Extendable format string register."""
 
-    def __init__(self):
+    def __init__(self, name: str):
         self._callable_register: Dict[str, Callable[[str], bool]] = {}
+        self.__name__: str = name
 
     def register(self, format_string: str) -> Callable:
         def _register_callable(is_format: Callable[[str], bool]):
@@ -20,13 +24,21 @@ class _FormatString:
 
     def __call__(self, format_string: str, value: str) -> bool:
         if format_string not in self._callable_register:
+            full_name = f"{self.__module__}.{self.__name__}"
             raise KeyError(
-                f"No validator found for format string {format_string}"
+                f"No validator found for format string {format_string}. "
+                f"To register new formats, please register a checker with "
+                f"{full_name} as follows:\n"
+                f"```\n"
+                f"@{self.__name__}({format_string})\n"
+                f"def is_{format_string.replace('-', '_')}value) -> bool:\n"
+                f"    ...\n"
+                f"```"
             )
         return self._callable_register[format_string](value)
 
 
-format_checker: _FormatString = _FormatString()
+format_checker: _FormatString = _FormatString("format_checker")
 
 
 @format_checker.register("uuid")
@@ -47,8 +59,12 @@ def _is_date_time(value: str) -> bool:
     return True
 
 
-def valid_types(*type_args: Type) -> Callable:
+def on_types(*type_args: Type) -> Callable:
+    """Decorator factory to limit scope of validators to given types."""
+
     def validate_if_types(validator: Callable) -> Callable:
+        """Return a wrapped version of `validator` to negotiate type."""
+
         def inner_validator(instance, attribute, value) -> None:
             if not isinstance(value, type_args):
                 return
@@ -59,101 +75,127 @@ def valid_types(*type_args: Type) -> Callable:
     return validate_if_types
 
 
+def raises(message: str) -> Callable:
+    def validate_with_error_message(validator: Callable) -> Callable:
+        def inner_validator(instance, attribute, value) -> None:
+            validator(
+                instance,
+                attribute,
+                value,
+                partial(ValidationError, instance, attribute, value, message),
+            )
+
+        return inner_validator
+
+    return validate_with_error_message
+
+
 def min_items(minimum_items: int) -> Callable:
-    @valid_types(list)
-    def _min_items(_instance, _attribute, value):
+    @on_types(list)
+    @raises(f"Must contain not more than {minimum_items} items.")
+    def _min_items(_instance, _attribute, value, error):
         if len(value) < minimum_items:
-            raise ValueError
+            raise error()
 
     return _min_items
 
 
 def max_items(maximum_items: int) -> Callable:
-    @valid_types(list)
-    def _max_items(_instance, _attribute, value):
+    @on_types(list)
+    @raises(f"Must contain no fewer than {maximum_items} items.")
+    def _max_items(_instance, _attribute, value, error):
         if len(value) > maximum_items:
-            raise ValueError
+            raise error()
 
     return _max_items
 
 
 def minimum(minimum_value: Union[int, float]) -> Callable:
-    @valid_types(int, float)
-    def _minimum(_instance, _attribute, value):
+    @on_types(int, float)
+    @raises(f"Must greater than or equal to {minimum_value}.")
+    def _minimum(_instance, _attribute, value, error):
         if value < minimum_value:
-            raise ValueError
+            raise error()
 
     return _minimum
 
 
 def maximum(maximum_value: Union[int, float]) -> Callable:
-    @valid_types(int, float)
-    def _maximum(_instance, _attribute, value):
+    @on_types(int, float)
+    @raises(f"Must be less than or equal to {maximum_value}.")
+    def _maximum(_instance, _attribute, value, error):
         if value > maximum_value:
-            raise ValueError
+            raise error()
 
     return _maximum
 
 
 def exclusive_minimum(exclusive_minimum_value: Union[int, float]) -> Callable:
-    @valid_types(int, float)
-    def _exclusive_minimum(_instance, _attribute, value):
+    @on_types(int, float)
+    @raises(f"Must be strictly greater than {exclusive_minimum_value}.")
+    def _exclusive_minimum(_instance, _attribute, value, error):
         if value <= exclusive_minimum_value:
-            raise ValueError
+            raise error()
 
     return _exclusive_minimum
 
 
 def exclusive_maximum(exclusive_maximum_value: Union[int, float]) -> Callable:
-    @valid_types(int, float)
-    def _exclusive_maximum(_instance, _attribute, value):
+    @on_types(int, float)
+    @raises(f"Must be strictly less than {exclusive_maximum_value}.")
+    def _exclusive_maximum(_instance, _attribute, value, error):
         if value >= exclusive_maximum_value:
-            raise ValueError
+            raise error()
 
     return _exclusive_maximum
 
 
 def multiple_of(multiple_value: Union[int, float]) -> Callable:
-    @valid_types(int, float)
-    def _multiple_of(_instance, _attribute, value):
+    @on_types(int, float)
+    @raises(f"Must be a multiple of {multiple_value}.")
+    def _multiple_of(_instance, _attribute, value, error):
         if value % multiple_value:
-            raise ValueError
+            raise error()
 
     return _multiple_of
 
 
 def has_format(format_string: str) -> Callable:
-    @valid_types(str)
-    def _format(_instance, _attribute, value):
+    @on_types(str)
+    @raises(f"Must match format described by {repr(format_string)}.")
+    def _format(_instance, _attribute, value, error):
         if not format_checker(format_string, value):
-            raise ValueError
+            raise error()
 
     return _format
 
 
 def pattern(re_pattern: str) -> Callable:
-    @valid_types(str)
-    def _pattern(_instance, _attribute, value):
+    @on_types(str)
+    @raises(f"Must match regex pattern r{repr(re_pattern)}.")
+    def _pattern(_instance, _attribute, value, error):
         if not re.match(re_pattern, value):
-            raise ValueError
+            raise error()
 
     return _pattern
 
 
 def min_length(min_length_value: int) -> Callable:
-    @valid_types(str)
-    def _min_length_value(_instance, _attribute, value):
+    @on_types(str)
+    @raises(f"Must be at least {min_length_value} characters long.")
+    def _min_length_value(_instance, _attribute, value, error):
         if len(value) < min_length_value:
-            raise ValueError
+            raise error()
 
     return _min_length_value
 
 
 def max_length(max_length_value: int) -> Callable:
-    @valid_types(str)
-    def _max_length_value(_instance, _attribute, value):
+    @on_types(str)
+    @raises(f"Must be at most {max_length_value} characters long.")
+    def _max_length_value(_instance, _attribute, value, error):
         if len(value) > max_length_value:
-            raise ValueError
+            raise error()
 
     return _max_length_value
 
