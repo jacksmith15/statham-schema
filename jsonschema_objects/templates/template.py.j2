@@ -19,24 +19,6 @@ from attr import attrs, attrib
 from jsonschema_objects.validators import *
 
 
-NOT_PASSED = type(
-    "NotPassed",
-    tuple(),
-    {"__repr__": lambda self: "<NOTPASSED>", "__bool__": lambda self: False}
-)()
-
-
-def instance_of(*types: Type):
-    def validate_type(instance, attribute, value):
-        # This callable acts as a method.
-        # pylint: disable=protected-access
-        if attribute.name not in instance._required and value == NOT_PASSED:
-            return
-        if not isinstance(value, types):
-            raise TypeError(f"{attribute.name} must be type {types}, got {value}.")
-    return validate_type
-
-
 def instantiate(model: Type):
     def _convert(kwargs):
         return model(**kwargs)

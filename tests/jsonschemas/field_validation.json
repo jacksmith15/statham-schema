@@ -25,6 +25,7 @@
         "number_exclusiveMaximum": {"type": "number", "exclusiveMaximum": 2.5},
         "number_multipleOf": {"type": "number", "multipleOf": 2.5},
         "boolean_no_validation": {"type": "boolean"},
-        "boolean_default": {"type": "boolean", "default": true}
+        "boolean_default": {"type": "boolean", "default": true},
+        "null_no_validation": {"type": "null"}
     }
 }

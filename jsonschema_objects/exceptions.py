@@ -10,10 +10,10 @@ class JSONSchemaObjectError(Exception):
 class ValidationError(JSONSchemaObjectError):
     """Validation failure in generated models."""
 
-    def __init__(self, instance, attribute, value, message=None) -> None:
+    def __init__(self, instance, attribute, value, message) -> None:
         super().__init__(
-            f"Failed validating `{type(instance)}.{attribute.name} = "
-            f"{repr(value)}`. {message}"
+            f"Failed validating `{type(instance).__name__}."
+            f"{attribute.name} = {repr(value)}`. {message}"
         )
 
 

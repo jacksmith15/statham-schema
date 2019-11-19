@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
 from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
-from jsonschema_objects.validators import SCHEMA_ATTRIBUTE_VALIDATORS
+from jsonschema_objects.validators import NotPassed, SCHEMA_ATTRIBUTE_VALIDATORS
 
 
 def default(schema: Schema, required: bool) -> str:
@@ -12,7 +12,7 @@ def default(schema: Schema, required: bool) -> str:
     if default_value is NOT_PROVIDED:
         if required:
             return ""
-        return "NOT_PASSED"
+        return f"{NotPassed.__name__}()"
     return repr(default_value)
 
 

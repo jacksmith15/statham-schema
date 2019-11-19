@@ -122,7 +122,7 @@ def max_items(maximum_items: int) -> Callable:
 
 def minimum(minimum_value: Union[int, float]) -> Callable:
     @on_types(int, float)
-    @raises(f"Must greater than or equal to {minimum_value}.")
+    @raises(f"Must be greater than or equal to {minimum_value}.")
     def _minimum(_instance, _attribute, value, error):
         if value < minimum_value:
             raise error()
@@ -208,6 +208,43 @@ def max_length(max_length_value: int) -> Callable:
             raise error()
 
     return _max_length_value
+
+
+class NotPassed:
+    """Singleton similar to NoneType.
+
+    To distinguish between arguments not passed, and arguments passed as
+    None.
+    """
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """Enforce singleton."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def __repr__(self) -> str:
+        return "NotPassed"
+
+    def __bool__(self) -> bool:
+        return False
+
+
+def instance_of(*types: Type) -> Callable:
+    type_names = f"({', '.join((type_.__name__ for type_ in types))})"
+
+    @raises(f"Must be of type {type_names}.")
+    def _instance_of(instance, attribute, value, error):
+        # Validator acts as a method.
+        # pylint: disable=protected-access
+        if value == NotPassed() and attribute.name not in instance._required:
+            return
+        if not isinstance(value, types):
+            raise error()
+
+    return _instance_of
 
 
 SCHEMA_ATTRIBUTE_VALIDATORS: Dict[str, Callable] = {
