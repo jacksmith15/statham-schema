@@ -56,10 +56,11 @@ def _check_my_format(value: str) -> bool:
 - [x] Custom string format validation
 - [ ] Remote references
 - [ ] Composition keywords (`allOf`, `anyOf`, `oneOf`, `not`)
+- [ ] Generic keywords: `enum`, `const`
 - [ ] Custom templates
 - [ ] Property dependencies
 - [ ] Schema dependencies
-- [ ] Array: `uniqueItems`
+- [ ] Array keyword: `uniqueItems`
 - [ ] `minProperties`, `maxProperties`
 - [ ] `propertyNames`, `patternProperties`, `additionalProperties` (This is  tricky with `attrs`)
 
