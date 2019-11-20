@@ -22,7 +22,7 @@ class NotProvidedType:
 NOT_PROVIDED: NotProvidedType = NotProvidedType()
 
 
-IGNORED_SCHEMA_KEYWORDS = ("$schema", "definitions")
+IGNORED_SCHEMA_KEYWORDS = ("$schema", "definitions", "$comment")
 """Keywords to ignore from jsonschemas when parsing."""
 
 
