@@ -54,15 +54,16 @@ def _check_my_format(value: str) -> bool:
 - [x] Local references
 - [x] Type-specific validation (pattern, format, minimum, maximum etc)
 - [x] Custom string format validation
-- [ ] Remote references
-- [ ] Composition keywords (`allOf`, `anyOf`, `oneOf`, `not`)
-- [ ] Generic keywords: `enum`, `const`
-- [ ] Custom templates
+- [ ] Built-in string format validation #6
+- [ ] Remote references #7
+- [ ] Generic keywords: `enum` #8, `const` #9
+- [ ] Array keyword: `uniqueItems` #10
+- [ ] Composition keywords (`allOf` #12, `anyOf` #13, `oneOf` #11, `not` #14)
 - [ ] Property dependencies
 - [ ] Schema dependencies
-- [ ] Array keyword: `uniqueItems`
 - [ ] `minProperties`, `maxProperties`
 - [ ] `propertyNames`, `patternProperties`, `additionalProperties` (This is  tricky with `attrs`)
+- [ ] `if`, `then`, `else` keywords
 
 # Development
 1. Clone the repository: `git clone git@github.com:jacksmith15/jsonschema-objects.git && cd jsonschema-objects`
