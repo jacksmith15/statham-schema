@@ -59,9 +59,9 @@ def _check_my_format(value: str) -> bool:
 - [ ] Generic keywords: `enum` #8, `const` #9
 - [ ] Array keyword: `uniqueItems` #10
 - [ ] Composition keywords (`allOf` #12, `anyOf` #13, `oneOf` #11, `not` #14)
+- [ ] `minProperties`, `maxProperties` #15
 - [ ] Property dependencies
 - [ ] Schema dependencies
-- [ ] `minProperties`, `maxProperties`
 - [ ] `propertyNames`, `patternProperties`, `additionalProperties` (This is  tricky with `attrs`)
 - [ ] `if`, `then`, `else` keywords
 
