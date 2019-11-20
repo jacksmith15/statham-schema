@@ -1,4 +1,5 @@
 from functools import partial
+from logging import getLogger
 import re
 from typing import Callable, Dict, Type, Union
 from uuid import UUID
@@ -7,6 +8,9 @@ from uuid import UUID
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
 
 from jsonschema_objects.exceptions import ValidationError
+
+
+LOGGER = getLogger(__name__)
 
 
 class _FormatString:
@@ -25,7 +29,7 @@ class _FormatString:
     def __call__(self, format_string: str, value: str) -> bool:
         if format_string not in self._callable_register:
             full_name = f"{self.__module__}.{self.__name__}"
-            raise KeyError(
+            LOGGER.warning(
                 f"No validator found for format string {format_string}. "
                 f"To register new formats, please register a checker with "
                 f"{full_name} as follows:\n"
@@ -35,6 +39,7 @@ class _FormatString:
                 f"    ...\n"
                 f"```"
             )
+            return True
         return self._callable_register[format_string](value)
 
 
