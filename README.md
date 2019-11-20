@@ -30,19 +30,44 @@ PYTHONPATH=. python jsonschema_objects --input /path/to/schema.json
 
 This will write generated python classes to stdout. Optionally specify an `--output` path to write to file.
 
+## Command-line arguments
+* `--input` - specifies the path to the JSON Schema document to be generated.
+* `--output` (optional) - specifies the path to write the output python to. If `output` is a directory, a file matching the name of the input file will be creating within that directory.
+
 See this [example output](https://github.com/jacksmith15/jsonschema-objects/blob/master/tests/models/simple.py).
 
-# Supported features
+# Using custom format keywords
+JSONSchema allows use of custom string formats as specified [here](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.2.3). Custom validation logic for string format may be added like so:
+```python
+from jsonschema_objects.validators import format_checker
+
+@format_checker.register("my_format")
+def _check_my_format(value: str) -> bool:
+    ...
+```
+
+# Supported JSONSchema features
 - [x] Basic types (primitves, array, object)
 - [x] Composite primitive types
 - [x] Type validation on generated classes
-- [x] Validation of `nullable` and `required`
+- [x] Validation of `required`
 - [x] Local references
+- [x] Type-specific validation (pattern, format, minimum, maximum etc)
+- [x] Custom string format validation
 - [ ] Remote references
-- [ ] Type-specific validation (pattern, format, minimum, maximum etc)
-- [ ] Custom string format validation
 - [ ] Composition keywords (allOf, anyOf, oneOf, not)
 - [ ] Custom templates
+
+# Development
+1. Clone the repository: `git clone git@github.com:jacksmith15/jsonschema-objects.git && cd jsonschema-objects`
+2. Install the requirements: `pip install -r requirements.txt -r requirements-test.txt`
+3. Run the tests: `bash run_test.sh -c -a`
+
+This project uses the following QA tools:
+- [PyTest](https://docs.pytest.org/en/latest/) - for running unit tests.
+- [PyLint](https://www.pylint.org/) - for enforcing code style.
+- [MyPy](http://mypy-lang.org/) - for static type checking.
+- [Travis CI](https://travis-ci.org/) - for continuous integration.
 
 # License
 This project is distributed under the MIT license.
