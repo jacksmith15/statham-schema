@@ -59,11 +59,14 @@ fi
 
 clean() {
     find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
-    rm -rf cover
-    rm -rf .coverage
-    rm -f unit_test_results.xml
-    rm -rf .pytest_cache
-    rm -rf .mypy_cache
+    rm -rf cover || true
+    rm -rf .coverage || true
+    rm -f unit_test_results.xml || true
+    rm -rf .pytest_cache || true
+    rm -rf .mypy_cache || true
+    rm -r build || true
+    rm -r dist || true
+    rm -r "*.egg-info" || true
 }
 
 lint() {

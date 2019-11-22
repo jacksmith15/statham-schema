@@ -22,3 +22,7 @@ test_data/
 .pytest_cache/
 *.sql
 docs/
+
+*.egg-info
+build*
+dist*
