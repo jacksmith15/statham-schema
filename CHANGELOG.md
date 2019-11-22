@@ -48,6 +48,9 @@ Types of changes are:
     - `null`
 
 
+## [0.0.0]
+Nothing here.
+
 [Unreleased]: https://github.com/genomicsengland/ed-genomic-record-ms/compare/initial..HEAD
 
 [Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
