@@ -68,16 +68,16 @@ clean() {
 
 lint() {
     PYLINT_CMD="pylint --output-format=colorized" 
-    $PYLINT_CMD --rcfile jsonschema_objects/.pylintrc jsonschema_objects || EXIT_CODE=1 
+    $PYLINT_CMD --rcfile statham/.pylintrc statham || EXIT_CODE=1 
     $PYLINT_CMD --rcfile tests/.pylintrc tests || EXIT_CODE=1
 }
 
 typecheck() {
-    mypy --ignore-missing-imports jsonschema_objects tests || EXIT_CODE=1
+    mypy --ignore-missing-imports statham tests || EXIT_CODE=1
 }
 
 tests() {
-    pytest -v -s --junitxml=unit_test_results.xml --cov="jsonschema_objects" --cov-append --cov-branch --cov-report= tests || EXIT_CODE=1
+    pytest -v -s --junitxml=unit_test_results.xml --cov="statham" --cov-append --cov-branch --cov-report= tests || EXIT_CODE=1
 }
 
 coverage_check() {

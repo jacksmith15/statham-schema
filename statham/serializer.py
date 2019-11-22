@@ -2,9 +2,9 @@ from typing import Iterable, List
 
 from jinja2 import Environment, FileSystemLoader
 
-from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
-from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
-from jsonschema_objects.validators import (
+from statham.constants import NOT_PROVIDED, TypeEnum
+from statham.models import ArraySchema, ObjectSchema, Schema
+from statham.validators import (
     instance_of,
     NotPassed,
     SCHEMA_ATTRIBUTE_VALIDATORS,
@@ -103,7 +103,7 @@ def converter(schema: Schema) -> str:
 
 def serialize_object_schemas(schemas: Iterable[ObjectSchema]) -> str:
     environment = Environment(
-        loader=FileSystemLoader("jsonschema_objects/templates"),
+        loader=FileSystemLoader("statham/templates"),
         trim_blocks=True,
         lstrip_blocks=True,
     )

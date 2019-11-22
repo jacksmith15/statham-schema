@@ -7,11 +7,11 @@ from sys import stdout
 
 import yaml
 
-from jsonschema_objects.constants import JSONElement
-from jsonschema_objects.dependency_resolver import ClassDependencyResolver
-from jsonschema_objects.models import parse_schema
-from jsonschema_objects.parser import dereference_schema
-from jsonschema_objects.serializer import serialize_object_schemas
+from statham.constants import JSONElement
+from statham.dependency_resolver import ClassDependencyResolver
+from statham.models import parse_schema
+from statham.parser import dereference_schema
+from statham.serializer import serialize_object_schemas
 
 
 LOGGER = getLogger(__name__)

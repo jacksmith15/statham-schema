@@ -1,6 +1,6 @@
 from black import assert_equivalent as assert_ast_equal
 
-from jsonschema_objects.__main__ import main
+from statham.__main__ import main
 
 
 def assert_generated_models_match(filename: str) -> None:

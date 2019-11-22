@@ -1,8 +1,8 @@
-import jsonschema_objects
+import statham
 
 
 def test_that_library_version_is_semantic():
-    version_string = jsonschema_objects.__version__
+    version_string = statham.__version__
     version = version_string.split(".")
     assert (
         len(version) == 3
