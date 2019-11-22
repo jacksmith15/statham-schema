@@ -210,8 +210,9 @@ def tag_release(next_version: Version):
     bash(
         f"git commit -i {CHANGELOG} {package.__name__}/__init__.py -m release/{next_version}"
     )
-    bash(f"git tag -a {next_version} -m {next_version}")
     bash(f"git push origin master")
+    bash(f"git tag -a {next_version} -m {next_version}")
+    bash(f"git push origin {next_version}")
 
 
 def verify_release(
@@ -230,15 +231,16 @@ Proceed?
 
 
 def main():
-    # checkout_master()
+    checkout_master()
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
     if not verify_release(current_version, next_version, change_content):
         return
     print(f"Bumping to {next_version}")
     update_versions(current_version, next_version)
-    verify_tag()
-    # tag_release(next_version)
+    if not verify_tag():
+        return
+    tag_release(next_version)
 
 
 if __name__ == "__main__":
