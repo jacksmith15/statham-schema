@@ -55,8 +55,8 @@ def repo_compare(
     old: Optional[Version] = None, new: Optional[Version] = None
 ) -> str:
     return (
-        f"[{new or 'Unreleased'}]: http://github.com/jacksmith15/statham-schema/com"
-        f"pare/{old or 'initial'}..{new or 'HEAD'}"
+        f"[{new or 'Unreleased'}]: http://github.com/jacksmith15/"
+        f"statham-schema/compare/{old or 'initial'}..{new or 'HEAD'}\n"
     )
 
 
@@ -135,7 +135,7 @@ def update_versions(current_version: Version, new_version: Version):
         today = datetime.now().strftime("%Y-%m-%d")
         new_init = [
             *takewhile(lambda l: not re.match(r"^__version__ = .*", l), file),
-            f'__version__ = "{new_version}"',
+            f'__version__ = "{new_version}"\n',
             *file,
         ]
     with open(package.__file__, "w", encoding="utf8") as file:
@@ -146,7 +146,7 @@ def update_versions(current_version: Version, new_version: Version):
             *takewhile(lambda l: not l.startswith("## [Unreleased]"), file),
             "## [Unreleased]\n",
             "\n",
-            f"## [{repr(new_version)}] - {today}",
+            f"## [{repr(new_version)}] - {today}\n",
             *takewhile(lambda l: not re.match("^[Unreleased]:.*", l), file),
             repo_compare(old=new_version),
             repo_compare(old=current_version, new=new_version),
