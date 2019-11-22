@@ -175,6 +175,13 @@ def checkout_master():
     bash("git pull --tags")
 
 
+def verify_tag():
+    foo = bash("git diff")
+    import ipdb
+
+    ipdb.set_trace()
+
+
 def tag_release(next_version: Version):
     bash(
         f"git commit -i {CHANGELOG} {package.__name__}/__init__.py -m release/{next_version}"
@@ -206,6 +213,7 @@ def main():
         return
     print(f"Bumping to {next_version}")
     update_versions(current_version, next_version)
+    verify_tag()
     # tag_release(next_version)
 
 
