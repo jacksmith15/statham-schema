@@ -31,7 +31,7 @@ build: test ## Creates a new build for publishing. Deletes previous builds.
 	pip install -U setuptools wheel
 	python setup.py sdist bdist_wheel
 
-publish:  ## Publishes 1 build package to users default PyPi server specified in .pypirc
+publish: build  ## Publishes 1 build package to users default PyPi server specified in .pypirc
 	python release.py
 	echo "No pypi publishing set up!"
 # 	python setup.py sdist upload -v -r pyshop
