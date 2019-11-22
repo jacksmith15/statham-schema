@@ -4,7 +4,11 @@ from jinja2 import Environment, FileSystemLoader
 
 from jsonschema_objects.constants import NOT_PROVIDED, TypeEnum
 from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
-from jsonschema_objects.validators import NotPassed, SCHEMA_ATTRIBUTE_VALIDATORS
+from jsonschema_objects.validators import (
+    instance_of,
+    NotPassed,
+    SCHEMA_ATTRIBUTE_VALIDATORS,
+)
 
 
 def default(schema: Schema, required: bool) -> str:
@@ -66,7 +70,7 @@ INDENT = " " * 4
 
 def validators(schema: Schema) -> str:
     return ("\n" + INDENT * 3).join(
-        [f"instance_of({validator_type_arg(schema)}),"]
+        [f"val.{instance_of.__name__}({validator_type_arg(schema)}),"]
         + extra_validators(schema)
     )
 
@@ -77,7 +81,7 @@ def extra_validators(schema: Schema) -> List[str]:
     )
     return [
         (
-            f"{validator.__name__}"
+            f"val.{validator.__name__}"
             f"({arg_prefix(validator)}"
             f"{repr(getattr(schema, attribute))}),"
         )
