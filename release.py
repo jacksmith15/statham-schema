@@ -29,6 +29,28 @@ CHANGE_TYPES: Set[str] = {
 }
 
 
+class Version(NamedTuple):
+    major: int
+    minor: int
+    patch: int
+
+    def __repr__(self):
+        return f"{self.major}.{self.minor}.{self.patch}"
+
+    @classmethod
+    def parse_version(cls, version_string: str) -> "Version":
+        if not re.match(r"^\d+\.\d+\.\d+$", version_string):
+            raise ValueError(f"Invalid version: {version_string}")
+        return cls(*(int(v) for v in version_string.split(".")))
+
+    def bump(self, bump_type: Bump) -> "Version":
+        if bump_type is Bump.MAJOR:
+            return Version(self.major + 1, 0, 0)
+        if bump_type is Bump.MINOR:
+            return Version(self.major, self.minor + 1, 0)
+        return Version(self.major, self.minor, self.patch + 1)
+
+
 def repo_compare(
     old: Optional[Version] = None, new: Optional[Version] = None
 ) -> str:
@@ -53,28 +75,6 @@ def bool_input(message, default=True):
     )
 
 
-class Version(NamedTuple):
-    major: int
-    minor: int
-    patch: int
-
-    def __repr__(self):
-        return f"{self.major}.{self.minor}.{self.patch}"
-
-    @classmethod
-    def parse_version(cls, version_string: str) -> "Version":
-        if not re.match(r"^\d+\.\d+\.\d+$", version_string):
-            raise ValueError(f"Invalid version: {version_string}")
-        return cls(*(int(v) for v in version_string.split(".")))
-
-    def bump(self, bump_type: Bump) -> "Version":
-        if bump_type is Bump.MAJOR:
-            return Version(self.major + 1, 0, 0)
-        if bump_type is Bump.MINOR:
-            return Version(self.major, self.minor + 1, 0)
-        return Version(self.major, self.minor, self.patch + 1)
-
-
 def parse_version(version_string):
     if not re.match(r"^\d+\.\d+\.\d+$", version_string):
         raise ValueError(f"Invalid version: {version_string}")
@@ -85,33 +85,34 @@ def consume_to_version(version: Version = None) -> Callable[[str], bool]:
     def _consume(line: str):
         if line.startswith("## "):
             if version:
-                assert (
-                    Version.parse_version(line.replace("## ", "").strip("[]"))
-                    == version
-                ), (
-                    f"Version in {package.__name__}.__version__ "
-                    f"({current_version}) does not match current "
-                    f"version in {CHANGELOG} "
-                    f"({current_version_changelog})"
+                chglog_version = Version.parse_version(
+                    line.replace("## ", "").replace("\n", "").strip("[]")
                 )
-                return True
-            assert (
-                line == "## [Unreleased]"
+                assert chglog_version == version, (
+                    f"Version in {package.__name__}.__version__ "
+                    f"({version}) does not match current "
+                    f"version in {CHANGELOG} "
+                    f"({chglog_version})"
+                )
+                return False
+            assert line.startswith(
+                "## [Unreleased]"
             ), f"No unreleased tag found. It must be the first section."
-            return True
-        return False
+            return False
+        return True
 
     return _consume
 
 
 def get_unreleased(current_version: Version) -> Tuple[Version, str]:
     with open(CHANGELOG, "r", encoding="utf8") as file:
-        _ = takewhile(consume_to_version(), file)
+        _ = [*takewhile(consume_to_version(), file)]
         unreleased_lines = [
             *takewhile(consume_to_version(current_version), file)
         ]
+    assert unreleased_lines, f"No changes found in changelog."
     unreleased_sections = {
-        line.replace("### ", "")
+        line.replace("### ", "").strip("\n")
         for line in unreleased_lines
         if line.startswith("### ")
     }
@@ -123,7 +124,10 @@ def get_unreleased(current_version: Version) -> Tuple[Version, str]:
         bump_type = Bump.MINOR
     if "BREAKING" in "".join(unreleased_lines):
         bump_type = Bump.MAJOR
-    return current_version.bump(bump_type), "\n".join(unreleased_lines)
+    return (
+        current_version.bump(bump_type),
+        "".join(unreleased_lines).rstrip("\n"),
+    )
 
 
 def update_versions(current_version: Version, new_version: Version):
@@ -195,7 +199,7 @@ Proceed?
 
 
 def main():
-    checkout_master()
+    # checkout_master()
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
     if not verify_release(current_version, next_version, change_content):
