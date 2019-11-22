@@ -8,6 +8,12 @@ from typing import Callable, NamedTuple, Optional, Set, Tuple
 import statham as package
 
 
+BLUE = "\033[94m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+RESET = "\033[0m"
+
+
 @unique
 class Bump(Flag):
     PATCH = auto()
@@ -175,11 +181,29 @@ def checkout_master():
     bash("git pull --tags")
 
 
-def verify_tag():
-    foo = bash("git diff")
-    import ipdb
+def color_line(line: str) -> str:
+    if line.startswith("+"):
+        return GREEN + line + RESET
+    if line.startswith("-"):
+        return RED + line + RESET
+    if line.startswith("^"):
+        return BLUE + line + RESET
+    return line
 
-    ipdb.set_trace()
+
+def verify_tag():
+    color_lines = "\n".join(
+        [color_line(line) for line in bash("git diff").split("\n")]
+    )
+    return bool_input(
+        f"""
+Please review release before tag:
+
+{color_lines}
+
+Proceed?
+"""
+    )
 
 
 def tag_release(next_version: Version):
