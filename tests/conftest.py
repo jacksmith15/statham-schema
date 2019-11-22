@@ -2,8 +2,8 @@ from typing import Dict, Mapping
 
 import pytest
 
-from jsonschema_objects.constants import JSONElement
-from jsonschema_objects.models import ObjectSchema
+from statham.constants import JSONElement
+from statham.models import ObjectSchema
 
 
 @pytest.fixture()

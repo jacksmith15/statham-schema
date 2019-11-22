@@ -4,7 +4,7 @@ from typing import Any, ClassVar, Dict, List, Type, Union
 from attr import attrs, attrib, Factory
 from attr.validators import instance_of
 
-from jsonschema_objects.constants import (
+from statham.constants import (
     get_flag,
     get_type,
     JSONElement,
@@ -12,8 +12,8 @@ from jsonschema_objects.constants import (
     NOT_PROVIDED,
     TypeEnum,
 )
-from jsonschema_objects.exceptions import SchemaParseError
-from jsonschema_objects.helpers import all_subclasses, counter, dict_map
+from statham.exceptions import SchemaParseError
+from statham.helpers import all_subclasses, counter, dict_map
 
 
 def convert_int(value: Any) -> Any:

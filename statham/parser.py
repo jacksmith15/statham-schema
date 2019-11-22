@@ -1,11 +1,8 @@
 from functools import partial
 from typing import Any, Dict, Optional
 
-from jsonschema_objects.constants import JSONElement, IGNORED_SCHEMA_KEYWORDS
-from jsonschema_objects.exceptions import (
-    NotImplementedSchemaParserError,
-    SchemaParseError,
-)
+from statham.constants import JSONElement, IGNORED_SCHEMA_KEYWORDS
+from statham.exceptions import NotImplementedSchemaParserError, SchemaParseError
 
 
 def get_ref(

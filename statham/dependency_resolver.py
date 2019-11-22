@@ -2,8 +2,8 @@ from typing import Dict, Set
 
 from attr import attrs
 
-from jsonschema_objects.exceptions import SchemaParseError
-from jsonschema_objects.models import ArraySchema, ObjectSchema, Schema
+from statham.exceptions import SchemaParseError
+from statham.models import ArraySchema, ObjectSchema, Schema
 
 
 # This is a dataclass.

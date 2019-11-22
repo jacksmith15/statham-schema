@@ -7,7 +7,7 @@ from uuid import UUID
 # False positive on `ParserError` import.
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
 
-from jsonschema_objects.exceptions import ValidationError
+from statham.exceptions import ValidationError
 
 
 LOGGER = getLogger(__name__)

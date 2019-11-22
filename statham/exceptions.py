@@ -1,6 +1,6 @@
 from typing import Dict, Set
 
-from jsonschema_objects.constants import JSONElement
+from statham.constants import JSONElement
 
 
 class JSONSchemaObjectError(Exception):

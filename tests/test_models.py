@@ -3,8 +3,8 @@ from typing import Dict, List, Type, Union
 
 import pytest
 
-from jsonschema_objects.constants import TypeEnum
-from jsonschema_objects.models import (
+from statham.constants import TypeEnum
+from statham.models import (
     all_subclasses,
     ArraySchema,
     IntegerSchema,

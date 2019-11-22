@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/jacksmith15/jsonschema-objects.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/jsonschema-objects)
-# JSONSchema Objects
+[![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)
+# Statham Schema
 A tool for generating Python classes from [JSONSchema](https://json-schema.org/) documents.
 
 This project aims to simplify the experience of integrating with external sources, by providing:
@@ -17,7 +17,7 @@ This project is not currently packaged and so must be installed manually.
 
 Clone the project with the following command:
 ```
-git clone https://github.com/jacksmith15/jsonschema-objects.git
+git clone https://github.com/jacksmith15/statham-schema.git
 ```
 
 Package requirements may be installed via `pip install -r requirements.txt`. Use of a [virtualenv](https://virtualenv.pypa.io/) is recommended.
@@ -25,7 +25,7 @@ Package requirements may be installed via `pip install -r requirements.txt`. Use
 # Generating python classes
 From the directory of the cloned repository, run
 ```
-PYTHONPATH=. python jsonschema_objects --input /path/to/schema.json
+PYTHONPATH=. python statham --input /path/to/schema.json
 ```
 
 This will write generated python classes to stdout. Optionally specify an `--output` path to write to file.
@@ -34,12 +34,12 @@ This will write generated python classes to stdout. Optionally specify an `--out
 * `--input` - specifies the path to the JSON Schema document to be generated.
 * `--output` (optional) - specifies the path to write the output python to. If `output` is a directory, a file matching the name of the input file will be creating within that directory.
 
-See this [example output](https://github.com/jacksmith15/jsonschema-objects/blob/master/tests/models/simple.py).
+See this [example output](https://github.com/jacksmith15/statham-schema/blob/master/tests/models/simple.py).
 
 # Using custom format keywords
 JSONSchema allows use of custom string formats as specified [here](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.2.3). Custom validation logic for string format may be added like so:
 ```python
-from jsonschema_objects.validators import format_checker
+from statham.validators import format_checker
 
 @format_checker.register("my_format")
 def _check_my_format(value: str) -> bool:
@@ -66,7 +66,7 @@ def _check_my_format(value: str) -> bool:
 - [ ] `if`, `then`, `else` keywords
 
 # Development
-1. Clone the repository: `git clone git@github.com:jacksmith15/jsonschema-objects.git && cd jsonschema-objects`
+1. Clone the repository: `git clone git@github.com:jacksmith15/statham-schema.git && cd statham-schema`
 2. Install the requirements: `pip install -r requirements.txt -r requirements-test.txt`
 3. Run the tests: `bash run_test.sh -c -a`
 
@@ -79,3 +79,4 @@ This project uses the following QA tools:
 # License
 This project is distributed under the MIT license.
 
+![statham](https://giant.gfycat.com/GrotesqueNauticalCaracal.gif)

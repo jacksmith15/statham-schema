@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 import pytest
 
-from jsonschema_objects.exceptions import ValidationError
+from statham.exceptions import ValidationError
 from tests.models.field_validation import Model
 
 

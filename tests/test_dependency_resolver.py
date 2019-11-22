@@ -2,8 +2,8 @@ from typing import Dict
 
 import pytest
 
-from jsonschema_objects.dependency_resolver import ClassDependencyResolver
-from jsonschema_objects.models import ObjectSchema
+from statham.dependency_resolver import ClassDependencyResolver
+from statham.models import ObjectSchema
 
 
 @pytest.fixture()

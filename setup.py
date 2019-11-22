@@ -7,12 +7,9 @@ https://github.com/pypa/sampleproject
 from codecs import open
 from os import path
 
-from setuptools import (
-    find_packages,
-    setup,
-)
+from setuptools import find_packages, setup
 
-import jsonschema_objects
+import statham
 
 
 REQUIREMENTS_FILE_PATH = path.join(
@@ -21,7 +18,8 @@ REQUIREMENTS_FILE_PATH = path.join(
 
 with open(REQUIREMENTS_FILE_PATH, "r") as f:
     REQUIREMENTS_FILE = [
-        line for line in f.read().splitlines()
+        line
+        for line in f.read().splitlines()
         if not line.startswith("#") and not line.startswith("--")
     ]
 
@@ -32,9 +30,9 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(
-    name="elucidata-serializers",
-    version=jsonschema_objects.__version__,
-    description="Tools for generating python objects from json schema definitions.",
+    name="statham-schema",
+    version=statham.__version__,
+    description="Tools for generating python models from json schema definitions.",
     author="Jack Smith",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
