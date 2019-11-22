@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)
+[![Build Status](https://travis-ci.com/jacksmith15/jsonschema-objects.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/jsonschema-objects)
 # Statham Schema
 A tool for generating Python classes/models from [JSONSchema](https://json-schema.org/) documents.
 
