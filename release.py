@@ -3,6 +3,7 @@ from enum import auto, Flag, unique
 from itertools import takewhile
 import re
 import subprocess
+import shutil
 import sys
 from typing import Callable, NamedTuple, Optional, Set, Tuple
 
@@ -71,6 +72,12 @@ def bash(command: str, capture: bool = True) -> str:
     if not capture:
         subprocess.call(command.split(" "))
     return subprocess.check_output(command.split(" ")).decode("utf-8")
+
+
+def header(heading: str) -> str:
+    width = shutil.get_terminal_size((78, 20)).columns
+    heading_block = "=" * ((width - len(heading) - 4) // 2)
+    return BLUE + f"{heading_block}  {heading}  {heading_block}" + RESET
 
 
 def bool_input(message, default=True):
@@ -234,14 +241,17 @@ def main():
     ):
         sys.exit(1)
     # checkout_master()
+    header("Determining release type")
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
     if not verify_release(current_version, next_version, change_content):
         sys.exit(1)
-    print(f"Bumping to {next_version}")
+    header(f"Bumping to {next_version}")
     update_versions(current_version, next_version)
+    header("Getting release diff")
     if not verify_tag():
         sys.exit(1)
+    header("Committing and tagging")
     # tag_release(next_version)
 
 
