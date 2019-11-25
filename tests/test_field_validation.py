@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import pytest
 
 from statham.exceptions import ValidationError
+from tests.helpers import abstract_model_instantiate_test
 from tests.models.field_validation import Model
 
 
@@ -32,7 +33,7 @@ FIELD_VALIDATION_PARAMS: List[
     (
         {"string_pattern": "baz-foo"},
         ValidationError,
-        "Must match regex pattern r'^(foo|bar).*'.",
+        "Must match regex pattern '^(foo|bar).*'.",
     ),
     (
         {"string_minLength": "fo"},
@@ -155,22 +156,8 @@ def test_field_validation(
     exception_type: Optional[Type[Exception]],
     exception_msg: Optional[str],
 ):
-    if not exception_type:
-        try:
-            assert Model(**kwargs)
-        except Exception as exc:
-            raise AssertionError(f"Failed field validation: {kwargs}") from exc
-        return
-    with pytest.raises(Exception) as excinfo:
-        Model(**kwargs)
-    assert excinfo.type is exception_type, (
-        f"Raised incorrect exception type. Expected {exception_type}, "
-        f"got {excinfo.type}. kwargs: {kwargs}"
-    )
-    actual_msg = str(excinfo.value)
-    assert actual_msg.endswith(exception_msg or ""), (
-        f"Unexpected error message: '{actual_msg}'. Expected to contain "
-        f"'{exception_msg}'."
+    abstract_model_instantiate_test(
+        Model, kwargs, exception_type, exception_msg
     )
 
 

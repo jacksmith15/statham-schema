@@ -187,7 +187,7 @@ def has_format(format_string: str) -> Callable:
 
 def pattern(re_pattern: str) -> Callable:
     @on_types(str)
-    @raises(f"Must match regex pattern r{repr(re_pattern)}.")
+    @raises(f"Must match regex pattern {repr(re_pattern)}.")
     def _pattern(_instance, _attribute, value, error):
         if not re.match(re_pattern, value):
             raise error()
