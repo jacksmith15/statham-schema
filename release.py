@@ -25,7 +25,6 @@ class Bump(Flag):
 
 
 CHANGELOG = "CHANGELOG.md"
-UNRELEASED_TAG = "## [Unreleased]"
 
 
 CHANGE_TYPES: Set[str] = {
@@ -44,6 +43,9 @@ class Version(NamedTuple):
     patch: int
 
     def __repr__(self):
+        return f"Version({self.major}.{self.minor}.{self.patch})"
+
+    def __str__(self):
         return f"{self.major}.{self.minor}.{self.patch}"
 
     @classmethod
@@ -155,10 +157,10 @@ def update_versions(current_version: Version, new_version: Version):
 
     with open(CHANGELOG, "r", encoding="utf8") as file:
         new_changelog = [
-            *takewhile(lambda l: not l.startswith("## [Unreleased]"), file),
+            *takewhile(consume_to_version(), file),
             "## [Unreleased]\n",
             "\n",
-            f"## [{repr(new_version)}] - {today}\n",
+            f"## [{new_version}] - {today}\n",
             *takewhile(lambda l: not re.match("^[Unreleased]:.*", l), file),
             repo_compare(old=new_version),
             repo_compare(old=current_version, new=new_version),
@@ -242,7 +244,7 @@ def main():
         f"This will checkout master and perform release, continue?"
     ):
         sys.exit(1)
-    # checkout_master()
+    checkout_master()
     header("Determining release type")
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
@@ -253,7 +255,7 @@ def main():
     if not verify_tag():
         sys.exit(1)
     header("Committing and tagging")
-    # tag_release(next_version)
+    tag_release(next_version)
 
 
 if __name__ == "__main__":

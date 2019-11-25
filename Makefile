@@ -32,7 +32,7 @@ build: test ## Creates a new build for publishing. Deletes previous builds.
 
 publish: test ## Tags release, builds and publishes to pypi
 	python release.py
-	pip install -U setuptools wheel
+	pip install -U setuptools wheel twine
 	python setup.py sdist bdist_wheel
 	echo "No pypi publishing set up!"
-# 	python setup.py sdist upload -v -r pyshop
+	twine upload dist/*

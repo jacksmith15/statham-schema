@@ -23,23 +23,17 @@ with open(REQUIREMENTS_FILE_PATH, "r") as f:
         if not line.startswith("#") and not line.startswith("--")
     ]
 
-DEPENDENCY_LINKS = [
-    REQUIREMENTS_FILE.pop(index)
-    for index, value_ in enumerate(REQUIREMENTS_FILE)
-    if "git+ssh" in value_
-]
-
 setup(
     name="statham-schema",
     version=statham.__version__,
-    description="Tools for generating python models from json schema definitions.",
+    description="Tools for generating Python models from JSONSchema definitions.",
     author="Jack Smith",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.6",
     ],
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     install_requires=REQUIREMENTS_FILE,
-    dependency_links=DEPENDENCY_LINKS,
+    dependency_links=[],
 )
