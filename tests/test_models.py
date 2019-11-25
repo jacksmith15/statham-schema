@@ -10,6 +10,7 @@ from statham.models import (
     model_from_types,
     NumberSchema,
     ObjectSchema,
+    parse_schema,
     Schema,
     StringSchema,
 )
@@ -89,3 +90,49 @@ def test_that_there_is_no_type_conflict_among_model_types(type_: TypeEnum):
 )
 def test_model_schema_factory_idempotent(args: List[str]):
     assert model_from_types(*args) is model_from_types(*args)
+
+
+@pytest.mark.parametrize(
+    "args,expected_name",
+    [
+        (["integer"], "IntegerSchema"),
+        (["integer", "number"], "IntegerOrNumberSchema"),
+        (["string", "null", "boolean"], "BooleanOrNullOrStringSchema"),
+    ],
+)
+def test_model_schema_factory_union_names(args: List[str], expected_name: str):
+    assert model_from_types(*args).__name__ == expected_name
+
+
+def test_model_schema_factory_union_attributes_integer_number():
+    kwargs = {
+        "type": ["integer", "number"],
+        "title": "foo",
+        "description": "bar",
+        "default": 3,
+        "minimum": 1,
+        "exclusiveMinimum": 1.5,
+        "maximum": 5,
+        "exclusiveMaximum": 5.5,
+        "multipleOf": 0.2,
+    }
+    schema = parse_schema(kwargs)
+
+
+def test_model_schema_factory_union_attributes_integer_string():
+    kwargs = {
+        "type": ["integer", "string"],
+        "title": "foo",
+        "description": "bar",
+        "default": 3,
+        "minimum": 1,
+        "exclusiveMinimum": 1.5,
+        "maximum": 500,
+        "exclusiveMaximum": 500.5,
+        "multipleOf": 0.2,
+        "pattern": r"\d+\.?\d*",
+        "format": "number",
+        "minLength": 1,
+        "maxLength": 5,
+    }
+    schema = parse_schema(kwargs)

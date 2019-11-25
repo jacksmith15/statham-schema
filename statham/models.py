@@ -107,57 +107,36 @@ class BooleanSchema(PrimitiveSchema):
 
 
 @attrs(kw_only=True, frozen=True)
-class NumberSchema(PrimitiveSchema):
-
-    type: ClassVar[TypeEnum] = TypeEnum.NUMBER
-
-    minimum: Union[float, NotProvidedType] = attrib(
-        validator=[instance_of((float, NotProvidedType))],
-        default=NOT_PROVIDED,
-        converter=convert_int,
-    )
-    exclusiveMinimum: Union[float, NotProvidedType] = attrib(
-        validator=[instance_of((float, NotProvidedType))],
-        default=NOT_PROVIDED,
-        converter=convert_int,
-    )
-    maximum: Union[float, NotProvidedType] = attrib(
-        validator=[instance_of((float, NotProvidedType))],
-        default=NOT_PROVIDED,
-        converter=convert_int,
-    )
-    exclusiveMaximum: Union[float, NotProvidedType] = attrib(
-        validator=[instance_of((float, NotProvidedType))],
-        default=NOT_PROVIDED,
-        converter=convert_int,
-    )
-    multipleOf: Union[float, NotProvidedType] = attrib(
-        validator=[instance_of((float, NotProvidedType))],
-        default=NOT_PROVIDED,
-        converter=convert_int,
-    )
-
-
-@attrs(kw_only=True, frozen=True)
 class IntegerSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.INTEGER
 
-    minimum: Union[int, NotProvidedType] = attrib(
-        validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
+    minimum: Union[int, float, NotProvidedType] = attrib(
+        validator=[instance_of((int, float, NotProvidedType))],
+        default=NOT_PROVIDED,
     )
-    exclusiveMinimum: Union[int, NotProvidedType] = attrib(
-        validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
+    exclusiveMinimum: Union[int, float, NotProvidedType] = attrib(
+        validator=[instance_of((int, float, NotProvidedType))],
+        default=NOT_PROVIDED,
     )
-    maximum: Union[int, NotProvidedType] = attrib(
-        validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
+    maximum: Union[int, float, NotProvidedType] = attrib(
+        validator=[instance_of((int, float, NotProvidedType))],
+        default=NOT_PROVIDED,
     )
-    exclusiveMaximum: Union[int, NotProvidedType] = attrib(
-        validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
+    exclusiveMaximum: Union[int, float, NotProvidedType] = attrib(
+        validator=[instance_of((int, float, NotProvidedType))],
+        default=NOT_PROVIDED,
     )
-    multipleOf: Union[int, NotProvidedType] = attrib(
-        validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
+    multipleOf: Union[int, float, NotProvidedType] = attrib(
+        validator=[instance_of((int, float, NotProvidedType))],
+        default=NOT_PROVIDED,
     )
+
+
+@attrs(kw_only=True, frozen=True)
+class NumberSchema(IntegerSchema):
+
+    type: ClassVar[TypeEnum] = TypeEnum.NUMBER
 
 
 @attrs(kw_only=True, frozen=True)
@@ -191,8 +170,8 @@ def _union_model(*models: Type[Schema]) -> Type[Schema]:
     if invalid:
         raise SchemaParseError.unsupported_type_union(invalid, set(models))
     model_type = reduce(lambda x, y: x | y, map(lambda _: _.type, models))
-    type_names = [name.title() for name in get_type(model_type)]
-    name = "Or".join(type_names)
+    type_names = sorted([name.title() for name in get_type(model_type)])
+    name = "Or".join(type_names) + "Schema"
     attribs = {"type": model_type}
     return attrs(kw_only=True, frozen=True)(
         type(name, tuple(model for model in models), attribs)
