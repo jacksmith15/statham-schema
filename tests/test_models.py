@@ -73,19 +73,13 @@ def test_that_model_types_produce_spanning_set_of_types():
     ), f"The following type flag need schema model definitions."
 
 
-def test_that_there_is_no_type_conflict_among_model_types():
-    duplicate_model_type_flags = {
-        key
-        for key, value in Counter(
-            [
-                SubSchema.type
-                for SubSchema in all_subclasses(Schema)
-                if hasattr(SubSchema, "type")
-            ]
-        ).items()
-        if value > 1
-    }
-    assert not duplicate_model_type_flags, (
-        f"The following types are declared on multiple models: "
-        f"{duplicate_model_type_flags}"
-    )
+@pytest.mark.parametrize("type_", TypeEnum)
+def test_that_there_is_no_type_conflict_among_model_types(type_: TypeEnum):
+    declared_models = [
+        SubSchema
+        for SubSchema in all_subclasses(Schema)
+        if hasattr(SubSchema, "type") and SubSchema.type is type_
+    ]
+    assert (
+        len(declared_models) <= 1
+    ), f"There are multiple declared models for {type_}: {declared_models}."
