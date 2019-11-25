@@ -31,7 +31,7 @@ def title_format(string: str) -> str:
     return string.title().replace("_", "").replace(" ", "")
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class Schema:
 
     type: ClassVar[TypeEnum]
@@ -61,7 +61,7 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     return model_from_types(*types)(**schema)  # type: ignore
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class ArraySchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.ARRAY
@@ -83,7 +83,7 @@ def _dict_property_convert(
     return dict_map(parse_schema, dictionary)
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class ObjectSchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.OBJECT
@@ -94,19 +94,19 @@ class ObjectSchema(Schema):
     required: List[str] = attrib(validator=[instance_of(list)], factory=list)
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class PrimitiveSchema(Schema):
 
     default: Any = attrib(default=NOT_PROVIDED)
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class BooleanSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.BOOLEAN
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class NumberSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NUMBER
@@ -138,7 +138,7 @@ class NumberSchema(PrimitiveSchema):
     )
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class IntegerSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.INTEGER
@@ -160,7 +160,7 @@ class IntegerSchema(PrimitiveSchema):
     )
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class StringSchema(PrimitiveSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.STRING
@@ -179,7 +179,7 @@ class StringSchema(PrimitiveSchema):
     )
 
 
-@attrs(kw_only=True, frozen=True, slots=True)
+@attrs(kw_only=True, frozen=True)
 class NullSchema(Schema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NULL
@@ -194,7 +194,7 @@ def _union_model(*models: Type[Schema]) -> Type[Schema]:
     type_names = [name.title() for name in get_type(model_type)]
     name = "Or".join(type_names)
     attribs = {"type": model_type}
-    return attrs(kw_only=True, frozen=True, slots=True)(
+    return attrs(kw_only=True, frozen=True)(
         type(name, tuple(model for model in models), attribs)
     )
 
@@ -207,7 +207,9 @@ def _model_from_types_cached(*types: str) -> Type[Schema]:
         SubSchema
         for SubSchema in all_subclasses(Schema)
         if hasattr(SubSchema, "type")
-        and (flag & SubSchema.type) == SubSchema.type
+        # Ensure the Sub Schema is one of the fundamental set.
+        and (flag & SubSchema.type) is SubSchema.type
+        and SubSchema.type in TypeEnum
     ]
     if not matching_models:
         # This block shouldn't be hit!

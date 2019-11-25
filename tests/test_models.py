@@ -82,3 +82,10 @@ def test_that_there_is_no_type_conflict_among_model_types(type_: TypeEnum):
     assert (
         len(declared_models) <= 1
     ), f"There are multiple declared models for {type_}: {declared_models}."
+
+
+@pytest.mark.parametrize(
+    "args", [["integer"], ["integer", "number"], ["string", "null", "boolean"]]
+)
+def test_model_schema_factory_idempotent(args: List[str]):
+    assert model_from_types(*args) is model_from_types(*args)
