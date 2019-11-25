@@ -45,10 +45,9 @@ class Model:
     string_null: Union[str, None, NotPassed] = attrib(
         validator=[
             val.instance_of(str, type(None)),
-            val.has_format("uuid"),
             val.pattern(
-                r"^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-"
-                r"[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$"
+                "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F"
+                "]{4}\\-[0-9a-fA-F]{12}$"
             ),
         ],
         default=None,

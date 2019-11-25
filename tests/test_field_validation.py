@@ -33,7 +33,7 @@ FIELD_VALIDATION_PARAMS: List[
     (
         {"string_pattern": "baz-foo"},
         ValidationError,
-        "Must match regex pattern r'^(foo|bar).*'.",
+        "Must match regex pattern '^(foo|bar).*'.",
     ),
     (
         {"string_minLength": "fo"},

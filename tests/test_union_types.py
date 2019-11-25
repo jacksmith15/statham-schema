@@ -48,6 +48,21 @@ FIELD_VALIDATION_PARAMS: List[
     ),
     ({"string_integer": 1984}, None, None),
     ({"string_integer": "1984"}, None, None),
+    ({"string_null": 1}, ValidationError, "Must be of type (str, NoneType)."),
+    (
+        {"string_null": "foo"},
+        ValidationError,
+        (
+            "Must match regex pattern "
+            + repr(
+                "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F"
+                "]{4}\\-[0-9a-fA-F]{12}$"
+            )
+            + "."
+        ),
+    ),
+    ({"string_null": "f8ea8f45-f336-4fd8-b104-8f36f23ea7d9"}, None, None),
+    ({"string_null": None}, None, None),
 ]
 
 
