@@ -76,7 +76,7 @@ def validators(schema: Schema) -> str:
 
 def extra_validators(schema: Schema) -> List[str]:
     return [
-        (f"val.{validator.__name__}" f"({repr(getattr(schema, attribute))}),")
+        (f"val.{validator.__name__}({repr(getattr(schema, attribute))}),")
         for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()
         if hasattr(schema, attribute)
         and getattr(schema, attribute) is not NOT_PROVIDED
