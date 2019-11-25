@@ -107,9 +107,7 @@ class BooleanSchema(PrimitiveSchema):
 
 
 @attrs(kw_only=True, frozen=True)
-class IntegerSchema(PrimitiveSchema):
-
-    type: ClassVar[TypeEnum] = TypeEnum.INTEGER
+class BaseNumericSchema(PrimitiveSchema):
 
     minimum: Union[int, float, NotProvidedType] = attrib(
         validator=[instance_of((int, float, NotProvidedType))],
@@ -134,7 +132,13 @@ class IntegerSchema(PrimitiveSchema):
 
 
 @attrs(kw_only=True, frozen=True)
-class NumberSchema(IntegerSchema):
+class IntegerSchema(BaseNumericSchema):
+
+    type: ClassVar[TypeEnum] = TypeEnum.INTEGER
+
+
+@attrs(kw_only=True, frozen=True)
+class NumberSchema(BaseNumericSchema):
 
     type: ClassVar[TypeEnum] = TypeEnum.NUMBER
 

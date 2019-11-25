@@ -1,0 +1,25 @@
+{
+    "title": "Model",
+    "type": "object",
+    "properties": {
+        "number_integer": {
+            "type": ["number", "integer"],
+            "minimum": 2.5,
+            "exclusiveMaximum": 5,
+            "default": 3.5
+        },
+        "string_integer": {
+            "type": ["string", "integer"],
+            "minimum": 1970,
+            "exclusiveMaximum": 2050,
+            "default": 2000,
+            "format": "date-time"
+        },
+        "string_null": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$",
+            "default": null
+        }
+    }
+}

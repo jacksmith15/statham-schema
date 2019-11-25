@@ -61,8 +61,7 @@ def validator_type_arg(schema: Schema) -> str:
     args = [arg for flag, arg in mapping.items() if flag & schema.type]
     if len(args) == 1:
         return next(iter(args))
-    validator_args = ", ".join(args)
-    return f"({validator_args})"
+    return ", ".join(args)
 
 
 INDENT = " " * 4
