@@ -76,6 +76,4 @@ _ENUM_LOOKUP = {enum: keyword for keyword, enum in _JSON_SCHEMA_TYPE_MAP}
 
 def get_type(flag: TypeEnum) -> Union[str, List[str]]:
     """Get jsonschema type representation of type flag."""
-    if flag in _ENUM_LOOKUP:
-        return _ENUM_LOOKUP[flag]
     return [_ENUM_LOOKUP[_flag] for _flag in _ENUM_LOOKUP if _flag & flag]
