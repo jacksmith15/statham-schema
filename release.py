@@ -11,6 +11,7 @@ import statham as package
 
 
 BLUE = "\033[94m"
+HEADING_BLUE = "\033[1;34m"
 GREEN = "\033[92m"
 RED = "\033[91m"
 RESET = "\033[0m"
@@ -74,10 +75,10 @@ def bash(command: str, capture: bool = True) -> str:
     return subprocess.check_output(command.split(" ")).decode("utf-8")
 
 
-def header(heading: str) -> str:
+def header(heading: str) -> None:
     width = shutil.get_terminal_size((78, 20)).columns
     heading_block = "=" * ((width - len(heading) - 4) // 2)
-    return BLUE + f"{heading_block}  {heading}  {heading_block}" + RESET
+    print(HEADING_BLUE + f"{heading_block}  {heading}  {heading_block}" + RESET)
 
 
 def bool_input(message, default=True):
@@ -236,6 +237,7 @@ Proceed?
 
 
 def main():
+    header("Starting release")
     if not bool_input(
         f"This will checkout master and perform release, continue?"
     ):
@@ -248,7 +250,6 @@ def main():
         sys.exit(1)
     header(f"Bumping to {next_version}")
     update_versions(current_version, next_version)
-    header("Getting release diff")
     if not verify_tag():
         sys.exit(1)
     header("Committing and tagging")
