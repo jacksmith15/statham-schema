@@ -116,7 +116,7 @@ def test_model_schema_factory_union_attributes_integer_number():
         "exclusiveMaximum": 5.5,
         "multipleOf": 0.2,
     }
-    schema = parse_schema(kwargs)
+    assert parse_schema(kwargs)
 
 
 def test_model_schema_factory_union_attributes_integer_string():
@@ -135,4 +135,4 @@ def test_model_schema_factory_union_attributes_integer_string():
         "minLength": 1,
         "maxLength": 5,
     }
-    schema = parse_schema(kwargs)
+    assert parse_schema(kwargs)
