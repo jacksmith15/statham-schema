@@ -88,23 +88,20 @@ def parse_version(version_string):
     return Version(*(int(v) for v in version_string.split(".")))
 
 
+VERSION_HEADER_REGEX = re.compile(r"^## \[(?P<version_tag>.*)\].*$")
+
+
 def consume_to_version(version: Version = None) -> Callable[[str], bool]:
+    version_string = str(version) if version else "Unreleased"
+
     def _consume(line: str):
-        if line.startswith("## "):
-            if version:
-                chglog_version = Version.parse_version(
-                    line.replace("## ", "").replace("\n", "").strip("[]")
-                )
-                assert chglog_version == version, (
-                    f"Version in {package.__name__}.__version__ "
-                    f"({version}) does not match current "
-                    f"version in {CHANGELOG} "
-                    f"({chglog_version})"
-                )
-                return False
-            assert line.startswith(
-                "## [Unreleased]"
-            ), f"No unreleased tag found. It must be the first section."
+        match = re.match(VERSION_HEADER_REGEX, line)
+        if match:
+            version_header = match.groupdict()["version_tag"]
+            assert version_header == version_string, (
+                f"Expected next version header to be {version_string}, "
+                f"got {version_header}"
+            )
             return False
         return True
 
@@ -236,7 +233,7 @@ def main():
         f"This will checkout master and perform release, continue?"
     ):
         sys.exit(1)
-    checkout_master()
+    # checkout_master()
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
     if not verify_release(current_version, next_version, change_content):
@@ -245,7 +242,7 @@ def main():
     update_versions(current_version, next_version)
     if not verify_tag():
         sys.exit(1)
-    tag_release(next_version)
+    # tag_release(next_version)
 
 
 if __name__ == "__main__":
