@@ -3,6 +3,7 @@ from enum import auto, Flag, unique
 from itertools import takewhile
 import re
 import subprocess
+import shutil
 import sys
 from typing import Callable, NamedTuple, Optional, Set, Tuple
 
@@ -10,6 +11,7 @@ import statham as package
 
 
 BLUE = "\033[94m"
+HEADING_BLUE = "\033[1;34m"
 GREEN = "\033[92m"
 RED = "\033[91m"
 RESET = "\033[0m"
@@ -23,7 +25,6 @@ class Bump(Flag):
 
 
 CHANGELOG = "CHANGELOG.md"
-UNRELEASED_TAG = "## [Unreleased]"
 
 
 CHANGE_TYPES: Set[str] = {
@@ -42,6 +43,9 @@ class Version(NamedTuple):
     patch: int
 
     def __repr__(self):
+        return f"Version({self.major}.{self.minor}.{self.patch})"
+
+    def __str__(self):
         return f"{self.major}.{self.minor}.{self.patch}"
 
     @classmethod
@@ -73,6 +77,12 @@ def bash(command: str, capture: bool = True) -> str:
     return subprocess.check_output(command.split(" ")).decode("utf-8")
 
 
+def header(heading: str) -> None:
+    width = shutil.get_terminal_size((78, 20)).columns
+    heading_block = "=" * ((width - len(heading) - 4) // 2)
+    print(HEADING_BLUE + f"{heading_block}  {heading}  {heading_block}" + RESET)
+
+
 def bool_input(message, default=True):
     return (
         input(message + (" [Y/n] " if default else " [y/N] "))
@@ -88,23 +98,20 @@ def parse_version(version_string):
     return Version(*(int(v) for v in version_string.split(".")))
 
 
+VERSION_HEADER_REGEX = re.compile(r"^## \[(?P<version_tag>.*)\].*$")
+
+
 def consume_to_version(version: Version = None) -> Callable[[str], bool]:
+    version_string = str(version) if version else "Unreleased"
+
     def _consume(line: str):
-        if line.startswith("## "):
-            if version:
-                chglog_version = Version.parse_version(
-                    line.replace("## ", "").replace("\n", "").strip("[]")
-                )
-                assert chglog_version == version, (
-                    f"Version in {package.__name__}.__version__ "
-                    f"({version}) does not match current "
-                    f"version in {CHANGELOG} "
-                    f"({chglog_version})"
-                )
-                return False
-            assert line.startswith(
-                "## [Unreleased]"
-            ), f"No unreleased tag found. It must be the first section."
+        match = re.match(VERSION_HEADER_REGEX, line)
+        if match:
+            version_header = match.groupdict()["version_tag"]
+            assert version_header == version_string, (
+                f"Expected next version header to be {version_string}, "
+                f"got {version_header}"
+            )
             return False
         return True
 
@@ -150,10 +157,10 @@ def update_versions(current_version: Version, new_version: Version):
 
     with open(CHANGELOG, "r", encoding="utf8") as file:
         new_changelog = [
-            *takewhile(lambda l: not l.startswith("## [Unreleased]"), file),
+            *takewhile(consume_to_version(), file),
             "## [Unreleased]\n",
             "\n",
-            f"## [{repr(new_version)}] - {today}\n",
+            f"## [{new_version}] - {today}\n",
             *takewhile(lambda l: not re.match("^[Unreleased]:.*", l), file),
             repo_compare(old=new_version),
             repo_compare(old=current_version, new=new_version),
@@ -232,19 +239,22 @@ Proceed?
 
 
 def main():
+    header("Starting release")
     if not bool_input(
         f"This will checkout master and perform release, continue?"
     ):
         sys.exit(1)
     checkout_master()
+    header("Determining release type")
     current_version: Version = Version.parse_version(package.__version__)
     next_version, change_content = get_unreleased(current_version)
     if not verify_release(current_version, next_version, change_content):
         sys.exit(1)
-    print(f"Bumping to {next_version}")
+    header(f"Bumping to {next_version}")
     update_versions(current_version, next_version)
     if not verify_tag():
         sys.exit(1)
+    header("Committing and tagging")
     tag_release(next_version)
 
 

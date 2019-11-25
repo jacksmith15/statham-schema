@@ -27,11 +27,12 @@ type: install ## Runs type checker. Does not update requirements or rules.
 	$(RUN_CLEAN_TEST) -t
 
 build: test ## Creates a new build for publishing. Deletes previous builds.
-	rm -rf build/* dist/*
 	pip install -U setuptools wheel
 	python setup.py sdist bdist_wheel
 
-publish: build  ## Publishes 1 build package to users default PyPi server specified in .pypirc
+publish: test ## Tags release, builds and publishes to pypi
 	python release.py
+	pip install -U setuptools wheel twine
+	python setup.py sdist bdist_wheel
 	echo "No pypi publishing set up!"
-# 	python setup.py sdist upload -v -r pyshop
+	twine upload dist/*

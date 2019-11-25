@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+blue='\e[1;34m'
+white='\e[0;37m'
+
+
+header() {
+    local header
+    local len
+    local width
+    header="$1"
+    len="${#header}"
+    width="$(tput cols)"
+    let block="($width-$len - 4)/2"
+    echo -e "$blue"
+    printf '=%.0s' $(eval "echo {1.."$((block))"}")
+    printf '%s' "  $header  "
+    printf '=%.0s' $(eval "echo {1.."$((block))"}")
+    echo -e "$white"
+}
+
 show_help() {
     echo "Usage:"
     echo "  -l, --lint: Run the linter"
@@ -58,6 +77,7 @@ then
 fi
 
 clean() {
+    header "Cleaning files"
     find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
     rm -rf cover || true
     rm -rf .coverage || true
@@ -66,24 +86,28 @@ clean() {
     rm -rf .mypy_cache || true
     rm -r build || true
     rm -r dist || true
-    rm -r "*.egg-info" || true
+    rm -r statham_schema.egg-info || true
 }
 
 lint() {
+    header "Linting"
     PYLINT_CMD="pylint --output-format=colorized" 
     $PYLINT_CMD --rcfile statham/.pylintrc statham || EXIT_CODE=1 
     $PYLINT_CMD --rcfile tests/.pylintrc tests || EXIT_CODE=1
 }
 
 typecheck() {
+    header "Checking types"
     mypy --ignore-missing-imports statham tests || EXIT_CODE=1
 }
 
 tests() {
+    header "Running unit tests"
     pytest -v -s --junitxml=unit_test_results.xml --cov="statham" --cov-append --cov-branch --cov-report= tests || EXIT_CODE=1
 }
 
 coverage_check() {
+    header "Checking coverage"
     coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0} || (echo Failed to meet minimum coverage of "$COVERAGE_MIN_PERCENTAGE"% && EXIT_CODE=1)
 
     coverage html -d "cover"
