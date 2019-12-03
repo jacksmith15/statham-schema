@@ -69,12 +69,14 @@ class ArraySchema(Schema):
     items: Schema = attrib(
         validator=[instance_of(Schema)], converter=parse_schema
     )
+    # pylint: disable=invalid-name
     minItems: Union[int, NotProvidedType] = attrib(
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
     maxItems: Union[int, NotProvidedType] = attrib(
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
+    # pylint: enable=invalid-name
 
 
 def _dict_property_convert(
@@ -113,11 +115,12 @@ class BaseNumericSchema(PrimitiveSchema):
         validator=[instance_of((int, float, NotProvidedType))],
         default=NOT_PROVIDED,
     )
-    exclusiveMinimum: Union[int, float, NotProvidedType] = attrib(
+    maximum: Union[int, float, NotProvidedType] = attrib(
         validator=[instance_of((int, float, NotProvidedType))],
         default=NOT_PROVIDED,
     )
-    maximum: Union[int, float, NotProvidedType] = attrib(
+    # pylint: disable=invalid-name
+    exclusiveMinimum: Union[int, float, NotProvidedType] = attrib(
         validator=[instance_of((int, float, NotProvidedType))],
         default=NOT_PROVIDED,
     )
@@ -129,6 +132,7 @@ class BaseNumericSchema(PrimitiveSchema):
         validator=[instance_of((int, float, NotProvidedType))],
         default=NOT_PROVIDED,
     )
+    # pylint: enable=invalid-name
 
 
 @attrs(kw_only=True, frozen=True)
@@ -154,12 +158,14 @@ class StringSchema(PrimitiveSchema):
     pattern: Union[str, NotProvidedType] = attrib(
         validator=[instance_of((str, NotProvidedType))], default=NOT_PROVIDED
     )
+    # pylint: disable=invalid-name
     minLength: Union[int, NotProvidedType] = attrib(
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
     maxLength: Union[int, NotProvidedType] = attrib(
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
+    # pylint: enable=invalid-name
 
 
 @attrs(kw_only=True, frozen=True)

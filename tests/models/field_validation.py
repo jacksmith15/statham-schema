@@ -1,22 +1,8 @@
-from typing import ClassVar, List, Type, Union
+from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import validators as val
+from statham import converters as con, validators as val
 from statham.validators import NotPassed
-
-
-def instantiate(model: Type):
-    def _convert(kwargs):
-        return model(**kwargs)
-
-    return _convert
-
-
-def map_instantiate(model: Type):
-    def _convert(list_kwargs):
-        return [model(**kwargs) for kwargs in list_kwargs]
-
-    return _convert
 
 
 @attrs(kw_only=True)
