@@ -64,6 +64,7 @@ disable=too-few-public-methods,
         missing-yield-type-doc,
         apply-builtin,
         logging-fstring-interpolation,
+        logging-format-interpolation,
         backtick,
         basestring-builtin,
         buffer-builtin,
@@ -218,7 +219,8 @@ good-names=i,
            ex,
            fd,
            Run,
-           _
+           _,
+           id
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no

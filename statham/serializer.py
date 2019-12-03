@@ -85,11 +85,11 @@ def extra_validators(schema: Schema) -> List[str]:
 
 def converter(schema: Schema) -> str:
     if isinstance(schema, ObjectSchema):
-        return f"instantiate({schema.title})"
+        return f"con.instantiate({schema.title})"
     if isinstance(schema, ArraySchema) and isinstance(
         schema.items, ObjectSchema
     ):
-        return f"map_instantiate({schema.items.title})"
+        return f"con.map_instantiate({schema.items.title})"
     return ""
 
 

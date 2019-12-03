@@ -1,0 +1,40 @@
+{
+    "title": "Model",
+    "description": "Model with references to children and category.",
+    "type": "object",
+    "properties": {
+        "children": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/child"
+            }
+        },
+        "category": {
+            "$ref": "#/definitions/category"
+        }
+    },
+    "definitions": {
+        "child": {
+            "type": "object",
+            "description": "Model with name and reference to category.",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "category": {
+                    "$ref": "#/definitions/category"
+                }
+            }
+        },
+        "category": {
+            "type": "object",
+            "description": "Category with required name.",
+            "required": ["required_name"],
+            "properties": {
+                "required_name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
