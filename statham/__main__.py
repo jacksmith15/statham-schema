@@ -11,6 +11,7 @@ from statham.constants import JSONElement
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
 from statham.parser import dereference_schema
+from statham.parser import FileRefLoader
 from statham.serializer import serialize_object_schemas
 
 
@@ -69,12 +70,13 @@ def convert_schema(schema_dict: Dict[str, Any]) -> str:
 
 
 def main(input_file: str) -> str:
-    schema_dict = _load_schema(input_file)
-    dereferenced_schema: Dict[str, JSONElement] = cast(
-        Dict[str, JSONElement],
-        dereference_schema(schema_dict, f"file://{input_file}", schema_dict),
-    )
-    return convert_schema(dereferenced_schema)
+    # schema_dict = _load_schema(input_file)
+    # dereferenced_schema: Dict[str, JSONElement] = cast(
+    #     Dict[str, JSONElement],
+    #     dereference_schema(schema_dict, f"file://{input_file}", schema_dict),
+    # )
+    schema = FileRefLoader(input_file).load_schema()
+    return convert_schema(schema)
 
 
 if __name__ == "__main__":
