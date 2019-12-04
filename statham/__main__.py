@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
 from typing import Any, Dict, Iterator, TextIO, Tuple
-from sys import stdout
+from sys import argv, stdout
 
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
@@ -18,7 +18,7 @@ LOGGER.setLevel(INFO)
 
 
 @contextmanager
-def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
+def parse_args(args) -> Iterator[Tuple[Namespace, TextIO]]:
     parser = ArgumentParser(
         description="Generate python attrs models from JSONSchema files."
     )
@@ -39,7 +39,7 @@ def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
             "stdout."
         ),
     )
-    parsed = parser.parse_args()
+    parsed = parser.parse_args(args)
     if parsed.output:
         if path.isdir(parsed.output):
             filename = ".".join(path.basename(parsed.input).split(".")[:-1])
@@ -65,5 +65,5 @@ def main(input_file: str) -> str:
 
 
 if __name__ == "__main__":
-    with parse_args() as (args, output):
+    with parse_args(argv[1:]) as (args, output):
         output.write(main(args.input))
