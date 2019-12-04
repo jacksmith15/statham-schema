@@ -22,7 +22,7 @@ class SchemaParseError(JSONSchemaObjectError):
 
     @classmethod
     def missing_type(cls, schema: Dict[str, JSONElement]) -> "SchemaParseError":
-        return cls(f"Not type defined in schema: {schema}")
+        return cls(f"No type defined in schema: {schema}")
 
     @classmethod
     def unsupported_type_union(

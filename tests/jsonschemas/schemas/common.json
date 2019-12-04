@@ -1,6 +1,15 @@
 {
     "remote": {
         "type": "object",
+        "description": "Remote ref in sub-directory.",
+        "properties": {
+            "name": {"type": "string"},
+            "nested": {"$ref": "#/nested_remote"}
+        }
+    },
+    "nested_remote": {
+        "type": "object",
+        "description": "Local reference nested in remote reference",
         "properties": {
             "name": {"type": "string"}
         }

@@ -2,16 +2,16 @@ from argparse import ArgumentParser, Namespace
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
-from typing import Any, cast, Dict, Iterator, TextIO, Tuple
+from typing import Any, Dict, Iterator, TextIO, Tuple
 from sys import stdout
 
 import yaml
 
-from statham.constants import JSONElement
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
-from statham.parser import dereference_schema
-from statham.parser import FileRefLoader
+
+# from statham.parser import dereference_schema
+from statham.parser import get_schema
 from statham.serializer import serialize_object_schemas
 
 
@@ -70,12 +70,7 @@ def convert_schema(schema_dict: Dict[str, Any]) -> str:
 
 
 def main(input_file: str) -> str:
-    # schema_dict = _load_schema(input_file)
-    # dereferenced_schema: Dict[str, JSONElement] = cast(
-    #     Dict[str, JSONElement],
-    #     dereference_schema(schema_dict, f"file://{input_file}", schema_dict),
-    # )
-    schema = FileRefLoader(input_file).load_schema()
+    schema = get_schema(input_file)
     return convert_schema(schema)
 
 
