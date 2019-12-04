@@ -7,8 +7,6 @@ from sys import argv, stdout
 
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
-
-# from statham.parser import dereference_schema
 from statham.parser import get_schema
 from statham.serializer import serialize_object_schemas
 
