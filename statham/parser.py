@@ -13,6 +13,11 @@ T = TypeVar("T", List, Dict, Any)
 
 
 class BaseURI:
+    """Base URI of a schema document.
+
+    Used for computing relative references.
+    """
+
     def __init__(self, base_uri: str):
         self.dir = path.dirname(base_uri)
         self.name = path.basename(base_uri)
@@ -28,12 +33,14 @@ class BaseURI:
 
 @lru_cache(maxsize=None)
 def get_schema_document(uri: BaseURI):
+    """Get a schema document from the file-system."""
     with open(str(uri), "r", encoding="utf8") as file:
         content = file.read()
     return yaml.safe_load(content)
 
 
 def dereference(base_uri: BaseURI, data: T) -> T:
+    """Recursively resource references in a schema document."""
     if isinstance(data, list):
         return [dereference(base_uri, subitem) for subitem in data]
     if not isinstance(data, dict):
@@ -57,5 +64,6 @@ def dereference(base_uri: BaseURI, data: T) -> T:
 
 
 def get_schema(filename: str):
+    """Load a complete dereferenced schema."""
     uri = BaseURI(filename)
     return dereference(uri, get_schema_document(uri))

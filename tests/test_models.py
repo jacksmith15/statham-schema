@@ -3,6 +3,7 @@ from typing import Dict, List, Type, Union
 import pytest
 
 from statham.constants import TypeEnum
+from statham.exceptions import SchemaParseError
 from statham.models import (
     all_subclasses,
     ArraySchema,
@@ -13,6 +14,7 @@ from statham.models import (
     parse_schema,
     Schema,
     StringSchema,
+    _union_model,
 )
 
 
@@ -136,3 +138,13 @@ def test_model_schema_factory_union_attributes_integer_string():
         "maxLength": 5,
     }
     assert parse_schema(kwargs)
+
+
+def test_parse_schema_without_type():
+    with pytest.raises(SchemaParseError):
+        parse_schema({})
+
+
+def test_union_model_fails_for_invalid_types():
+    with pytest.raises(SchemaParseError):
+        _union_model(ObjectSchema, ArraySchema)
