@@ -26,6 +26,9 @@
         "number_multipleOf": {"type": "number", "multipleOf": 2.5},
         "boolean_no_validation": {"type": "boolean"},
         "boolean_default": {"type": "boolean", "default": true},
-        "null_no_validation": {"type": "null"}
+        "null_no_validation": {"type": "null"},
+        "array_no_validation": {"type": "array", "items": {"type": "integer"}},
+        "array_minItems": {"type": "array", "items": {"type": "integer"}, "minItems": 1},
+        "array_maxItems": {"type": "array", "items": {"type": "integer"}, "maxItems": 2}
     }
 }

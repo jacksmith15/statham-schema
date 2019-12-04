@@ -5,8 +5,6 @@ from os import path
 from typing import Any, Dict, Iterator, TextIO, Tuple
 from sys import stdout
 
-import yaml
-
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
 
@@ -53,14 +51,6 @@ def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
         return
     yield parsed, stdout
     return
-
-
-def _load_schema(filepath: str) -> Dict[str, Any]:
-    if not filepath.endswith((".json", ".yaml", ".yml")):
-        raise TypeError(f"File {filepath} has unsupported extension.")
-    with open(filepath, "r", encoding="utf8") as file:
-        content = file.read()
-    return yaml.safe_load(content)
 
 
 def convert_schema(schema_dict: Dict[str, Any]) -> str:

@@ -98,3 +98,12 @@ class Model:
     null_no_validation: Union[None, NotPassed] = attrib(
         validator=[val.instance_of(type(None))], default=NotPassed()
     )
+    array_no_validation: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
+        validator=[val.instance_of(list)], default=NotPassed()
+    )
+    array_minItems: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
+        validator=[val.instance_of(list), val.min_items(1)], default=NotPassed()
+    )
+    array_maxItems: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
+        validator=[val.instance_of(list), val.max_items(2)], default=NotPassed()
+    )
