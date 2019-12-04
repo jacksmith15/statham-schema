@@ -3,6 +3,7 @@ from logging import getLogger
 import re
 from typing import Callable, Dict, Type, Union
 from uuid import UUID
+import warnings
 
 # False positive on `ParserError` import.
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
@@ -29,15 +30,18 @@ class _FormatString:
     def __call__(self, format_string: str, value: str) -> bool:
         if format_string not in self._callable_register:
             full_name = f"{self.__module__}.{self.__name__}"
-            LOGGER.warning(
-                f"No validator found for format string {format_string}. "
-                f"To register new formats, please register a checker with "
-                f"{full_name} as follows:\n"
-                f"```\n"
-                f"@{self.__name__}({format_string})\n"
-                f"def is_{format_string.replace('-', '_')}value) -> bool:\n"
-                f"    ...\n"
-                f"```"
+            warnings.warn(
+                (
+                    f"No validator found for format string {format_string}. "
+                    f"To register new formats, please register a checker with "
+                    f"{full_name} as follows:\n"
+                    f"```\n"
+                    f"@{self.__name__}({format_string})\n"
+                    f"def is_{format_string.replace('-', '_')}value) -> bool:\n"
+                    f"    ...\n"
+                    f"```"
+                ),
+                RuntimeWarning,
             )
             return True
         return self._callable_register[format_string](value)

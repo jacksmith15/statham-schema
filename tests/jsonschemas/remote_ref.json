@@ -1,0 +1,13 @@
+{
+    "title": "Model",
+    "type": "object",
+    "description": "Model defined with remote refs.",
+    "properties": {
+        "filesystem_remote_ref_flat": {
+            "$ref": "multi_object.json#/definitions/category"
+        },
+        "filesystem_remote_ref_directory": {
+            "$ref": "schemas/common.json#/remote"
+        }
+    }
+}

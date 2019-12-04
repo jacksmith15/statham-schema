@@ -2,3 +2,4 @@ PyYAML==5.1.2
 attrs==19.3.0
 Jinja2==2.10.3
 python-dateutil==2.8.1
+jsonpointer==2.0

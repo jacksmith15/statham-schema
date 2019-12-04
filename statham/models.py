@@ -16,17 +16,6 @@ from statham.exceptions import SchemaParseError
 from statham.helpers import all_subclasses, counter, dict_map
 
 
-def convert_int(value: Any) -> Any:
-    """If value is an int, cast it to a float.
-
-    JSON doesn't distinguish, so integer values for float validation are
-    acceptable.
-    """
-    if isinstance(value, int):
-        return float(value)
-    return value
-
-
 def title_format(string: str) -> str:
     return string.title().replace("_", "").replace(" ", "")
 

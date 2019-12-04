@@ -2,15 +2,12 @@ from argparse import ArgumentParser, Namespace
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
-from typing import Any, cast, Dict, Iterator, TextIO, Tuple
-from sys import stdout
+from typing import Any, Dict, Iterator, TextIO, Tuple
+from sys import argv, stdout
 
-import yaml
-
-from statham.constants import JSONElement
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
-from statham.parser import dereference_schema
+from statham.parser import get_schema
 from statham.serializer import serialize_object_schemas
 
 
@@ -19,7 +16,7 @@ LOGGER.setLevel(INFO)
 
 
 @contextmanager
-def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
+def parse_args(args) -> Iterator[Tuple[Namespace, TextIO]]:
     parser = ArgumentParser(
         description="Generate python attrs models from JSONSchema files."
     )
@@ -40,7 +37,7 @@ def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
             "stdout."
         ),
     )
-    parsed = parser.parse_args()
+    parsed = parser.parse_args(args)
     if parsed.output:
         if path.isdir(parsed.output):
             filename = ".".join(path.basename(parsed.input).split(".")[:-1])
@@ -54,14 +51,6 @@ def parse_args() -> Iterator[Tuple[Namespace, TextIO]]:
     return
 
 
-def _load_schema(filepath: str) -> Dict[str, Any]:
-    if not filepath.endswith((".json", ".yaml", ".yml")):
-        raise TypeError(f"File {filepath} has unsupported extension.")
-    with open(filepath, "r", encoding="utf8") as file:
-        content = file.read()
-    return yaml.safe_load(content)
-
-
 def convert_schema(schema_dict: Dict[str, Any]) -> str:
     return serialize_object_schemas(
         ClassDependencyResolver(parse_schema(schema_dict))
@@ -69,14 +58,10 @@ def convert_schema(schema_dict: Dict[str, Any]) -> str:
 
 
 def main(input_file: str) -> str:
-    schema_dict = _load_schema(input_file)
-    dereferenced_schema: Dict[str, JSONElement] = cast(
-        Dict[str, JSONElement],
-        dereference_schema(schema_dict, f"file://{input_file}", schema_dict),
-    )
-    return convert_schema(dereferenced_schema)
+    schema = get_schema(input_file)
+    return convert_schema(schema)
 
 
 if __name__ == "__main__":
-    with parse_args() as (args, output):
+    with parse_args(argv[1:]) as (args, output):
         output.write(main(args.input))
