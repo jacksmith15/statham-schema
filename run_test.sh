@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
+start=`date +%s%N`
+
 
 blue='\e[1;34m'
 white='\e[0;37m'
+red='\e[1;31m'
+green='\e[1;32m'
 
 
 header() {
+    local color
     local header
     local len
     local width
     header="$1"
+    color="$2"
     len="${#header}"
     width="$(tput cols)"
     let block="($width-$len - 4)/2"
-    echo -e "$blue"
+    echo -e "$color"
     printf '=%.0s' $(eval "echo {1.."$((block))"}")
     printf '%s' "  $header  "
     printf '=%.0s' $(eval "echo {1.."$((block))"}")
@@ -77,7 +83,7 @@ then
 fi
 
 clean() {
-    header "Cleaning files"
+    header "Cleaning files" "$blue"
     find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
     rm -rf cover || true
     rm -rf .coverage || true
@@ -90,24 +96,24 @@ clean() {
 }
 
 lint() {
-    header "Linting"
+    header "Linting" "$blue"
     PYLINT_CMD="pylint --output-format=colorized" 
     $PYLINT_CMD --rcfile statham/.pylintrc statham || EXIT_CODE=1 
     $PYLINT_CMD --rcfile tests/.pylintrc tests || EXIT_CODE=1
 }
 
 typecheck() {
-    header "Checking types"
+    header "Checking types" "$blue"
     mypy --ignore-missing-imports statham tests || EXIT_CODE=1
 }
 
 tests() {
-    header "Running unit tests"
+    header "Running unit tests" "$blue"
     pytest -v -s --junitxml=unit_test_results.xml --cov="statham" --cov-append --cov-branch --cov-report= tests || EXIT_CODE=1
 }
 
 coverage_check() {
-    header "Checking coverage"
+    header "Checking coverage" "$blue"
     coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0} || (echo Failed to meet minimum coverage of "$COVERAGE_MIN_PERCENTAGE"% && EXIT_CODE=1)
 
     coverage html -d "cover"
@@ -132,4 +138,15 @@ then
     coverage_check
 fi
 
-exit $EXIT_CODE
+end=$(date +%s%N)
+runtime=$((end-start))
+runtime_seconds=`echo "scale=2;${runtime}/1000000000" | bc`
+
+if [[ "$EXIT_CODE" == 1 ]];
+then
+    header "Failed in ${runtime_seconds} seconds" "$red"
+else
+    header "All tests succeeded in ${runtime_seconds} seconds" "$green"
+fi
+
+exit "$EXIT_CODE"
