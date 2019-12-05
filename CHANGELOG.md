@@ -53,7 +53,7 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: https://github.com/genomicsengland/ed-genomic-record-ms/compare/initial..HEAD
+[Unreleased]: https://github.com/jacksmit15/statham-schema/compare/initial..HEAD
 
 [Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: http://semver.org/spec/v2.0.0.html
