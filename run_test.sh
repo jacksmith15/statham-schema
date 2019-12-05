@@ -114,7 +114,7 @@ tests() {
 
 coverage_check() {
     header "Checking coverage" "$blue"
-    coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0} || (echo Failed to meet minimum coverage of "$COVERAGE_MIN_PERCENTAGE"% && EXIT_CODE=1)
+    coverage report --skip-covered --fail-under=${COVERAGE_MIN_PERCENTAGE:-0} || EXIT_CODE=1 && echo Minimum coverage is "$COVERAGE_MIN_PERCENTAGE"%
 
     coverage html -d "cover"
     coverage xml -o "cover/coverage.xml"
