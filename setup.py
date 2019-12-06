@@ -23,10 +23,17 @@ with open(REQUIREMENTS_FILE_PATH, "r") as f:
         if not line.startswith("#") and not line.startswith("--")
     ]
 
+with open("README.md", "r") as readme_file:
+    LONG_DESCRIPTION = readme_file.read()
+
 setup(
     name="statham-schema",
     version=statham.__version__,
-    description="Tools for generating Python models from JSONSchema definitions.",
+    description=(
+        "Tools for generating Python models from JSONSchema " "definitions."
+    ),
+    long_description=LONG_DESCRIPTION,
+    url="https://github.com/jacksmith15/statham-schema",
     author="Jack Smith",
     classifiers=[
         "Development Status :: 3 - Alpha",

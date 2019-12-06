@@ -17,6 +17,13 @@ RED = "\033[91m"
 RESET = "\033[0m"
 
 
+def color(color_code: str) -> Callable[[str], str]:
+    def _wrap(string: str):
+        return f"{color_code}{string}{RESET}"
+
+    return _wrap
+
+
 @unique
 class Bump(Flag):
     PATCH = auto()
@@ -80,7 +87,7 @@ def bash(command: str, capture: bool = True) -> str:
 def header(heading: str) -> None:
     width = shutil.get_terminal_size((78, 20)).columns
     heading_block = "=" * ((width - len(heading) - 4) // 2)
-    print(HEADING_BLUE + f"{heading_block}  {heading}  {heading_block}" + RESET)
+    print(color(HEADING_BLUE)(f"{heading_block}  {heading}  {heading_block}"))
 
 
 def bool_input(message, default=True):
@@ -161,7 +168,7 @@ def update_versions(current_version: Version, new_version: Version):
             "## [Unreleased]\n",
             "\n",
             f"## [{new_version}] - {today}\n",
-            *takewhile(lambda l: not re.match("^[Unreleased]:.*", l), file),
+            *takewhile(lambda l: not re.match(r"^\[Unreleased\]:.*", l), file),
             repo_compare(old=new_version),
             repo_compare(old=current_version, new=new_version),
             *file,
@@ -191,11 +198,11 @@ def checkout_master():
 
 def color_line(line: str) -> str:
     if line.startswith("+"):
-        return GREEN + line + RESET
+        return color(GREEN)(line)
     if line.startswith("-"):
-        return RED + line + RESET
+        return color(RED)(line)
     if line.startswith("^"):
-        return BLUE + line + RESET
+        return color(BLUE)(line)
     return line
 
 
@@ -216,7 +223,8 @@ Proceed?
 
 def tag_release(next_version: Version):
     bash(
-        f"git commit -i {CHANGELOG} {package.__name__}/__init__.py -m release/{next_version}"
+        f"git commit -i {CHANGELOG} {package.__name__}/__init__.py"
+        f" -m release/{next_version}"
     )
     bash(f"git push origin master")
     bash(f"git tag -a {next_version} -m {next_version}")
