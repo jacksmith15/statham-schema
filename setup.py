@@ -33,6 +33,7 @@ setup(
         "Tools for generating Python models from JSONSchema " "definitions."
     ),
     long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
     url="https://github.com/jacksmith15/statham-schema",
     author="Jack Smith",
     classifiers=[
