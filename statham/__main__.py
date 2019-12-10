@@ -1,13 +1,15 @@
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
 from typing import Any, Dict, Iterator, TextIO, Tuple
 from sys import argv, stdout
 
+from json_ref_dict import materialize, RefDict
+
+from statham.constants import IGNORED_SCHEMA_KEYWORDS
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
-from statham.parser import get_schema
 from statham.serializer import serialize_object_schemas
 
 
@@ -15,8 +17,21 @@ LOGGER = getLogger(__name__)
 LOGGER.setLevel(INFO)
 
 
+def parse_input_arg(input_arg: str) -> str:
+    """Parse input URI as a valid JSONSchema ref.
+
+    This tool accepts bare base URIs, without the JSON Pointer,
+    so these should be converted to a root pointer.
+    """
+    if "#" not in input_arg:
+        return input_arg + "#/"
+    return input_arg
+
+
 @contextmanager
-def parse_args(args) -> Iterator[Tuple[Namespace, TextIO]]:
+def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
+    """Parse arguments, abstracting IO in a context manager."""
+
     parser = ArgumentParser(
         description="Generate python attrs models from JSONSchema files."
     )
@@ -38,6 +53,7 @@ def parse_args(args) -> Iterator[Tuple[Namespace, TextIO]]:
         ),
     )
     parsed = parser.parse_args(args)
+    input_arg: str = parse_input_arg(parsed.input)
     if parsed.output:
         if path.isdir(parsed.output):
             filename = ".".join(path.basename(parsed.input).split(".")[:-1])
@@ -45,23 +61,61 @@ def parse_args(args) -> Iterator[Tuple[Namespace, TextIO]]:
         else:
             output_path = parsed.output
         with open(output_path, "w", encoding="utf8") as file:
-            yield parsed, file
+            yield input_arg, file
         return
-    yield parsed, stdout
+    yield input_arg, stdout
     return
 
 
-def convert_schema(schema_dict: Dict[str, Any]) -> str:
+def _convert_schema(schema_dict: Dict[str, Any]) -> str:
+    """Convert a schema dict to a python module.
+
+    :param schema_dict: Dict containing the schema.
+    :return: Python module contents for generated models, as a string.
+    """
     return serialize_object_schemas(
         ClassDependencyResolver(parse_schema(schema_dict))
     )
 
 
-def main(input_file: str) -> str:
-    schema = get_schema(input_file)
-    return convert_schema(schema)
+def _get_title(reference: str) -> Tuple[str, str]:
+    """Convert JSONSchema references to title fields.
+
+    If the reference has a pointer, use the final segment, otherwise
+    use the final segment of the base uri stripping any content type
+    extension.
+
+    :param reference: The JSONPointer reference.
+    """
+    key = "title"
+    reference = reference.rstrip("/")
+    base, pointer = reference.split("#")
+    if not pointer:
+        return key, base.split("/")[-1].split(".")[0]
+    return key, pointer.split("/")[-1]
 
 
-if __name__ == "__main__":
-    with parse_args(argv[1:]) as (args, output):
-        output.write(main(args.input))
+def main(input_uri: str) -> str:
+    """Get the schema, and then return the generated python module.
+
+    Example:
+    ```
+    main("https://json-schema.org/draft-04/schema#/")
+    ```
+
+    :param input_uri: This must follow the conventions of a JSONSchema
+        '$ref' attribute, and minimally at least specify "/" as the
+        pointer (for the root of the document). Example:
+    :return: Python module contents for generated models, as a string.
+    """
+    schema = materialize(
+        RefDict(input_uri),
+        exclude_keys=IGNORED_SCHEMA_KEYWORDS,
+        context_labeller=_get_title,
+    )
+    return _convert_schema(schema)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    with parse_args(argv[1:]) as (uri, output):  # pragma: no cover
+        output.write(main(uri))  # pragma: no cover

@@ -14,8 +14,8 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
-* Resolve local and remote file-system references in JSONSchema
-  documents.
+* Resolve local and remote JSONSchema references to load and
+  parse JSONSchema documents.
 * Class-generation based on singular types.
 * Class-generation based on combinations of
     - `boolean`

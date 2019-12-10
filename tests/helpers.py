@@ -14,7 +14,7 @@ def assert_generated_models_match(filename: str) -> None:
     out black's message (which is very specific). If black's error
     reporting changes this may need to be updated.
     """
-    generated = main(f"tests/jsonschemas/{filename}.json")
+    generated = main(f"tests/jsonschemas/{filename}.json#/")
     with open(f"tests/models/{filename}.py") as file:
         expected = file.read()
     try:

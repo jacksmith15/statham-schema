@@ -13,7 +13,7 @@ from statham.constants import (
     TypeEnum,
 )
 from statham.exceptions import SchemaParseError
-from statham.helpers import all_subclasses, counter, dict_map
+from statham.helpers import all_subclasses, counter, dict_map, dict_filter
 
 
 def title_format(string: str) -> str:
@@ -71,7 +71,9 @@ class ArraySchema(Schema):
 def _dict_property_convert(
     dictionary: Dict[str, JSONElement]
 ) -> Dict[str, Schema]:
-    return dict_map(parse_schema, dictionary)
+    return dict_map(
+        parse_schema, dict_filter(lambda val: isinstance(val, dict), dictionary)
+    )
 
 
 @attrs(kw_only=True, frozen=True)

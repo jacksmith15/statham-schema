@@ -3,13 +3,13 @@ from unittest.mock import patch, mock_open
 
 import pytest
 
-from statham.__main__ import parse_args
+from statham.__main__ import parse_args, parse_input_arg
 
 
 def test_arg_parser_stdout():
-    with parse_args(["--input", "foo.py"]) as (args, output):
+    with parse_args(["--input", "foo.py"]) as (input_uri, output):
         assert output == stdout
-        assert args.input == "foo.py"
+        assert input_uri == "foo.py#/"
 
 
 @pytest.fixture()
@@ -26,6 +26,14 @@ def _is_dir(request):
 
 
 def test_arg_parser_output_dir(_mock_open_file, _is_dir):
-    with parse_args(["--input", "foo.py", "--output", "bar"]) as (args, output):
-        assert args.input == "foo.py"
+    with parse_args(["--input", "foo.py", "--output", "bar"]) as (
+        input_uri,
+        output,
+    ):
+        assert input_uri == "foo.py#/"
         assert output.read() == "data"
+
+
+@pytest.mark.parametrize("input_arg", ["foo.json", "foo.json#/"])
+def test_input_argparse(input_arg: str):
+    assert parse_input_arg(input_arg) == "foo.json#/"

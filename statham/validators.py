@@ -111,7 +111,7 @@ def raises(message: str) -> Callable:
 
 def min_items(minimum_items: int) -> Callable:
     @on_types(list)
-    @raises(f"Must contain not more than {minimum_items} items.")
+    @raises(f"Must contain at least {minimum_items} items.")
     def _min_items(_instance, _attribute, value, error):
         if len(value) < minimum_items:
             raise error()
@@ -121,7 +121,7 @@ def min_items(minimum_items: int) -> Callable:
 
 def max_items(maximum_items: int) -> Callable:
     @on_types(list)
-    @raises(f"Must contain no fewer than {maximum_items} items.")
+    @raises(f"Must contain fewer than {maximum_items} items.")
     def _max_items(_instance, _attribute, value, error):
         if len(value) > maximum_items:
             raise error()

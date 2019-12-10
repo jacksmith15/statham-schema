@@ -34,10 +34,6 @@ class SchemaParseError(JSONSchemaObjectError):
         )
 
     @classmethod
-    def unresolvable_pointer(cls, reference: str) -> "SchemaParseError":
-        return cls(f"Couldn't resolve JSON pointer: {reference}")
-
-    @classmethod
     def no_class_equivalent_schemas(cls) -> "SchemaParseError":
         return cls(
             "Schema document contains no object schemas from which to "
@@ -50,18 +46,3 @@ class SchemaParseError(JSONSchemaObjectError):
             "Schema document has an unresolvable declaration tree. This "
             "generally occurs due to cyclical references."
         )
-
-
-class NotImplementedSchemaParserError(SchemaParseError):
-    """Exceptions for JSONSchema features which aren't supported."""
-
-    @classmethod
-    def remote_refs(cls) -> "SchemaParseError":
-        return cls(
-            "Remote references are not yet supported. Please see "
-            "project homepage for more information."
-        )
-
-    @classmethod
-    def non_object_refs(cls) -> "SchemaParseError":
-        return cls("Only refs to object schemas are currently supported.")

@@ -145,6 +145,14 @@ FIELD_VALIDATION_PARAMS: List[
     ),
     ({"null_no_validation": None}, None, None),
     ({"null_no_validation": 1}, ValidationError, "Must be of type (NoneType)."),
+    ({"array_minItems": [1]}, None, None),
+    ({"array_minItems": []}, ValidationError, "Must contain at least 1 items."),
+    ({"array_maxItems": [1, 2]}, None, None),
+    (
+        {"array_maxItems": [1, 2, 3]},
+        ValidationError,
+        "Must contain fewer than 2 items.",
+    ),
 ]
 
 

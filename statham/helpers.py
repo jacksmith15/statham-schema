@@ -10,7 +10,7 @@ class _Counter:  # pylint: disable=too-few-public-methods
 
     def __call__(self, key: str) -> str:
         self.counts[key] = self.counts[key] + 1
-        return f"{key}{self.counts['key']}"
+        return f"{key}{self.counts[key]}"
 
 
 counter: Callable = _Counter()
@@ -21,6 +21,13 @@ def dict_map(
 ) -> Dict[Any, Any]:
     """Similar to `map`, but operates on a dictionary's values."""
     return {key: function(value) for key, value in dictionary.items()}
+
+
+def dict_filter(
+    function: Callable[[Any], bool], dictionary: Dict[Any, Any]
+) -> Dict[Any, Any]:
+    """Similar to `filter`, but operates on a dictionary's values."""
+    return {key: value for key, value in dictionary.items() if function(value)}
 
 
 def all_subclasses(klass: Type) -> Set[Type]:
