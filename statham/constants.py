@@ -23,11 +23,22 @@ NOT_PROVIDED: NotProvidedType = NotProvidedType()
 
 
 IGNORED_SCHEMA_KEYWORDS = (
+    # Metadata
+    "$id",
     "$schema",
     "definitions",
     "$comment",
     "contentMediaType",
     "contentEncoding",
+    # Not implemented
+    "additionalProperties",
+    "propertyNames",
+    "patternProperties",
+    "minProperties",
+    "maxProperties",
+    "enum",
+    "const",
+    "uniqueItems",
 )
 """Keywords to ignore from jsonschemas when parsing."""
 
