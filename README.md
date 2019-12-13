@@ -19,7 +19,7 @@ pip install statham-schema
 ```
 
 # Generating python classes
-From the directory of the cloned repository, run
+Class definitions may be generated with the following command:
 ```
 statham --input /path/to/schema.json
 ```
