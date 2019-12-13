@@ -13,19 +13,15 @@ The tool will generate [attrs](http://www.attrs.org/en/stable/index.html) datacl
 This package is currently tested for Python 3.6.
 
 # Installation
-This project is not currently packaged and so must be installed manually.
-
-Clone the project with the following command:
+This project may be installed using [pip](https://pip.pypa.io/en/stable/):
 ```
-git clone https://github.com/jacksmith15/statham-schema.git
+pip install statham-schema
 ```
-
-Package requirements may be installed via `pip install -r requirements.txt`. Use of a [virtualenv](https://virtualenv.pypa.io/) is recommended.
 
 # Generating python classes
 From the directory of the cloned repository, run
 ```
-PYTHONPATH=. python statham --input /path/to/schema.json
+statham --input /path/to/schema.json
 ```
 
 This will write generated python classes to stdout. Optionally specify an `--output` path to write to file.
