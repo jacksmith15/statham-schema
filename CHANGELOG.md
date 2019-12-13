@@ -14,6 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
+* Command run as `statham --input {reference} [--output {output}]`
 * Resolve local and remote JSONSchema references to load and
   parse JSONSchema documents.
 * Class-generation based on singular types.
