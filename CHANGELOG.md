@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.1.1] - 2019-12-13
 ### Fixed
 * Fix documentation now that package is available via `pip`.
 
@@ -58,7 +60,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.1.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.1.1..HEAD
+[0.1.1]: http://github.com/jacksmith15/statham-schema/compare/0.1.0..0.1.1
 [0.1.0]: http://github.com/jacksmith15/statham-schema/compare/initial..0.1.0
 
 [Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
