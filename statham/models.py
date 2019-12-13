@@ -13,11 +13,13 @@ from statham.constants import (
     TypeEnum,
 )
 from statham.exceptions import SchemaParseError
-from statham.helpers import all_subclasses, counter, dict_map, dict_filter
-
-
-def title_format(string: str) -> str:
-    return string.title().replace("_", "").replace(" ", "")
+from statham.helpers import (
+    all_subclasses,
+    counter,
+    dict_map,
+    dict_filter,
+    _title_format,
+)
 
 
 @attrs(kw_only=True, frozen=True)
@@ -27,7 +29,7 @@ class Schema:
 
     _type: Union[str, List[str]] = attrib(validator=[instance_of((str, list))])
 
-    title: str = attrib(validator=[instance_of(str)], converter=title_format)
+    title: str = attrib(validator=[instance_of(str)], converter=_title_format)
     description: str = attrib(
         validator=[instance_of(str)],
         default=Factory(lambda self: self.title, takes_self=True),
