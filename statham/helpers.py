@@ -1,5 +1,8 @@
 from collections import defaultdict
+from itertools import chain
+import re
 from typing import Any, Callable, Dict, Set, Type
+
 
 # This is a stateful function.
 class _Counter:  # pylint: disable=too-few-public-methods
@@ -34,3 +37,15 @@ def all_subclasses(klass: Type) -> Set[Type]:
     return set(klass.__subclasses__()).union(
         [s for c in klass.__subclasses__() for s in all_subclasses(c)]
     )
+
+
+def _title_format(string: str) -> str:
+    """Convert titles in schemas to class names."""
+    words = re.split(r"[ _]", string)
+    segments = chain.from_iterable(
+        [
+            re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])
+            for word in words
+        ]
+    )
+    return "".join(segment.title() for segment in segments)

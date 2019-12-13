@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
@@ -33,24 +33,41 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
     """Parse arguments, abstracting IO in a context manager."""
 
     parser = ArgumentParser(
-        description="Generate python attrs models from JSONSchema files."
+        description="Generate python attrs models from JSONSchema files.",
+        formatter_class=RawTextHelpFormatter,
+        add_help=False,
     )
-    parser.add_argument(
+    required = parser.add_argument_group("Required arguments")
+    required.add_argument(
         "--input",
         type=str,
         required=True,
-        help="Specify path to top-level schema document.",
+        help="""Specify the path to the JSON Schema to be generated.
+
+If the target schema is not at the root of a document, specify the
+JSON Pointer in the same format as a JSONSchema `$ref`, e.g.
+`--input path/to/document.json#/definitions/schema`
+
+""",
     )
-    parser.add_argument(
+    optional = parser.add_argument_group("Optional arguments")
+    optional.add_argument(
         "--output",
         type=str,
         default=None,
-        help=(
-            "Output directory or file to write the output to. If this "
-            "is a directory, the command will derive the name from the "
-            "input file. If not passed, the command will write to "
-            "stdout."
-        ),
+        help="""Output directory or file in which to write the output.
+
+If the provided path is a directory, the command will derive the name
+from the input argument. If not passed, the command will write to
+stdout.
+
+""",
+    )
+    optional.add_argument(
+        "-h",
+        "--help",
+        action="help",
+        help="Display this help message and exit.",
     )
     parsed = parser.parse_args(args)
     input_arg: str = parse_input_arg(parsed.input)

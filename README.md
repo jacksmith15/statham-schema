@@ -31,8 +31,24 @@ PYTHONPATH=. python statham --input /path/to/schema.json
 This will write generated python classes to stdout. Optionally specify an `--output` path to write to file.
 
 ## Command-line arguments
-* `--input` - specifies the path to the JSON Schema document to be generated.
-* `--output` (optional) - specifies the path to write the output python to. If `output` is a directory, a file matching the name of the input file will be creating within that directory.
+```
+Required arguments:
+  --input INPUT    Specify the path to the JSON Schema to be generated.
+
+                   If the target schema is not at the root of a document, specify the
+                   JSON Pointer in the same format as a JSONSchema `$ref`, e.g.
+                   `--input path/to/document.json#/definitions/schema`
+
+
+Optional arguments:
+  --output OUTPUT  Output directory or file in which to write the output.
+
+                   If the provided path is a directory, the command will derive the name
+                   from the input argument. If not passed, the command will write to
+                   stdout.
+
+  -h, --help       Display this help message and exit.
+```
 
 See this [example output](https://github.com/jacksmith15/statham-schema/blob/master/tests/models/simple.py).
 

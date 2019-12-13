@@ -30,6 +30,10 @@ IGNORED_SCHEMA_KEYWORDS = (
     "$comment",
     "contentMediaType",
     "contentEncoding",
+    "examples",
+    "readOnly",
+    "writeOnly",
+    "deprecated",
     # Not implemented
     "additionalProperties",
     "propertyNames",
@@ -39,6 +43,9 @@ IGNORED_SCHEMA_KEYWORDS = (
     "enum",
     "const",
     "uniqueItems",
+    # OpenAPI/Swagger
+    "example",
+    "nullable",
 )
 """Keywords to ignore from jsonschemas when parsing."""
 
