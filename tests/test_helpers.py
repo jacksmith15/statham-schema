@@ -34,6 +34,9 @@ def test_not_provided_repr():
         ("Foo1Bar", "Foo1Bar"),
         ("Foo1bar", "Foo1Bar"),
         ("foo1Bar", "Foo1Bar"),
+        ("Foo-Bar", "FooBar"),
+        ("foo-Bar", "FooBar"),
+        ("Foo-bar", "FooBar"),
     ],
 )
 def test_title_format_produces_expected_output(title: str, expected: str):

@@ -41,7 +41,7 @@ def all_subclasses(klass: Type) -> Set[Type]:
 
 def _title_format(string: str) -> str:
     """Convert titles in schemas to class names."""
-    words = re.split(r"[ _]", string)
+    words = re.split(r"[ _-]", string)
     segments = chain.from_iterable(
         [
             re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])
