@@ -133,6 +133,14 @@ def main(input_uri: str) -> str:
     return _convert_schema(schema)
 
 
-if __name__ == "__main__":  # pragma: no cover
+def entry_point():
+    """Entry point for command.
+
+    Parse arguments, read from input and write to output.
+    """
     with parse_args(argv[1:]) as (uri, output):  # pragma: no cover
         output.write(main(uri))  # pragma: no cover
+
+
+if __name__ == "__main__":  # pragma: no cover
+    entry_point()  # pragma: no cover
