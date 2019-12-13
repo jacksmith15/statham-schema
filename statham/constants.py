@@ -35,6 +35,8 @@ IGNORED_SCHEMA_KEYWORDS = (
     "writeOnly",
     "deprecated",
     # Not implemented
+    "additionalItems",
+    "contains",
     "additionalProperties",
     "propertyNames",
     "patternProperties",
