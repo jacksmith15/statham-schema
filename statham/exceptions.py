@@ -1,3 +1,4 @@
+import json
 from typing import Dict, Set
 
 from statham.constants import JSONElement
@@ -45,4 +46,13 @@ class SchemaParseError(JSONSchemaObjectError):
         return cls(
             "Schema document has an unresolvable declaration tree. This "
             "generally occurs due to cyclical references."
+        )
+
+    @classmethod
+    def from_exception(
+        cls, schema: Dict[str, JSONElement], exception: Exception
+    ) -> "SchemaParseError":
+        return cls(
+            "Failed to parse the following schema:\nError: "
+            f"{str(exception)}:\nSchema: {json.dumps(schema)}"
         )

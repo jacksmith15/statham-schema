@@ -49,7 +49,10 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     types = type_prop if isinstance(type_prop, list) else [type_prop]
     schema["title"] = schema.get("title") or counter(".".join(types))
     schema["description"] = schema.get("description") or schema["title"]
-    return model_from_types(*types)(**schema)  # type: ignore
+    try:
+        return model_from_types(*types)(**schema)  # type: ignore
+    except TypeError as exc:
+        raise SchemaParseError.from_exception(schema, exc) from exc
 
 
 @attrs(kw_only=True, frozen=True)
