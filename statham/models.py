@@ -20,6 +20,7 @@ from statham.helpers import (
     dict_filter,
     _title_format,
 )
+from statham.validators import min_items
 
 
 @attrs(kw_only=True, frozen=True)
@@ -36,6 +37,47 @@ class Schema:
     )
 
 
+def _dict_property_convert(
+    dictionary: Dict[str, JSONElement]
+) -> Dict[str, Schema]:
+    return dict_map(
+        parse_schema, dict_filter(lambda val: isinstance(val, dict), dictionary)
+    )
+
+
+def _list_schema_convert(array: List[Dict[str, JSONElement]]) -> List[Schema]:
+    return [parse_schema(schema) for schema in array]
+
+
+@attrs(kw_only=True, frozen=True)
+class AnyOfSchema(Schema):
+
+    _type: Union[str, List[str]] = attrib(
+        validator=[instance_of((str, list))], default="anyOf"
+    )
+
+    anyOf: List[Schema] = attrib(
+        validator=[instance_of(list), min_items(1)],
+        converter=_list_schema_convert,
+    )
+
+
+COMPOSITION_SCHEMAS = (AnyOfSchema,)
+
+
+def _get_composition_schema(schema: Dict[str, JSONElement]) -> Schema:
+    for SchemaModel in COMPOSITION_SCHEMAS:
+        try:
+            return SchemaModel(**schema)
+        except Exception as exc:  # TODO(Jack): Explicit catch.
+            print(exc)
+            import ipdb
+
+            ipdb.set_trace()
+            continue
+    raise Exception  # TODO(Jack): Raise proper error.
+
+
 def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     """Convert a JSON Schema schema to a Model Instance.
 
@@ -45,7 +87,10 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     try:
         type_prop = schema["type"]
     except KeyError:
-        raise SchemaParseError.missing_type(schema)
+        try:
+            return _get_composition_schema(schema)
+        except:
+            raise SchemaParseError.missing_type(schema)
     types = type_prop if isinstance(type_prop, list) else [type_prop]
     schema["title"] = schema.get("title") or counter(".".join(types))
     schema["description"] = schema.get("description") or schema["title"]
@@ -71,14 +116,6 @@ class ArraySchema(Schema):
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
     # pylint: enable=invalid-name
-
-
-def _dict_property_convert(
-    dictionary: Dict[str, JSONElement]
-) -> Dict[str, Schema]:
-    return dict_map(
-        parse_schema, dict_filter(lambda val: isinstance(val, dict), dictionary)
-    )
 
 
 @attrs(kw_only=True, frozen=True)

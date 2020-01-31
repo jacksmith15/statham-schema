@@ -1,5 +1,6 @@
 from typing import Type
 
+from statham.exceptions import ValidationError
 from statham.validators import NotPassed
 
 
@@ -32,3 +33,16 @@ def map_instantiate(model: Type):
         return [_factory(data) for data in list_data]
 
     return _convert
+
+
+def any_of_instantiate(*models: Type):
+    def _convert(data):
+        if not isinstance(data, (dict, list)):
+            return data
+        for model in models:
+            instance = instantiate(model)(data)
+            if isinstance(data, model):
+                return instance
+        raise ValidationError(
+            None, None, data, f"Does not match any accepted model."
+        )
