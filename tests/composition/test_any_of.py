@@ -74,7 +74,6 @@ class TestObjectAnyOf:
         assert "Does not match any accepted model." in str(excinfo.value)
 
 
-@pytest.mark.foo
 class TestMixedAnyOf:
     @staticmethod
     def test_mixed_schema_accepts_primitive_string():
