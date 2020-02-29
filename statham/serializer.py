@@ -4,7 +4,13 @@ from typing import Iterable, List
 from jinja2 import Environment, FileSystemLoader
 
 from statham.constants import NOT_PROVIDED, TypeEnum
-from statham.models import AnyOfSchema, ArraySchema, ObjectSchema, Schema
+from statham.models import (
+    AnyOfSchema,
+    ArraySchema,
+    CompositionSchema,
+    ObjectSchema,
+    Schema,
+)
 from statham.validators import (
     instance_of,
     NotPassed,
@@ -100,7 +106,7 @@ def validators(schema: Schema) -> str:
 
 
 def extra_validators(schema: Schema) -> List[str]:
-    if hasattr(schema, "schemas"):
+    if isinstance(schema, CompositionSchema):
         return list(
             chain.from_iterable(
                 extra_validators(sub_schema) for sub_schema in schema.schemas

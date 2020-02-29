@@ -1,3 +1,4 @@
+from abc import abstractproperty
 from functools import lru_cache, reduce
 from typing import Any, ClassVar, Dict, List, Type, Union
 
@@ -50,8 +51,14 @@ def _list_schema_convert(array: List[Dict[str, JSONElement]]) -> List[Schema]:
     return [parse_schema(schema) for schema in array]
 
 
+class CompositionSchema(Schema):
+    @abstractproperty
+    def schemas(self) -> List[Schema]:
+        ...
+
+
 @attrs(kw_only=True, frozen=True)
-class AnyOfSchema(Schema):
+class AnyOfSchema(CompositionSchema):
 
     _type: Union[str, List[str]] = attrib(
         validator=[instance_of((str, list))], default="anyOf"
@@ -67,13 +74,13 @@ class AnyOfSchema(Schema):
         return self.anyOf
 
 
-COMPOSITION_SCHEMAS = (AnyOfSchema,)
+COMPOSITION_SCHEMAS = all_subclasses(CompositionSchema)
 
 
 def _get_composition_schema(schema: Dict[str, JSONElement]) -> Schema:
-    for CompositionSchema in COMPOSITION_SCHEMAS:
+    for composition_schema in COMPOSITION_SCHEMAS:
         try:
-            return CompositionSchema(**schema)  # type: ignore
+            return composition_schema(**schema)  # type: ignore
         except (TypeError, ValidationError) as exc:
             continue
     raise SchemaParseError.invalid_composition_schema(schema)

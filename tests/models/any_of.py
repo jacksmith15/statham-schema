@@ -53,9 +53,9 @@ class Model:
     )
     objects: Union[FooStringMinLength, BarIntegerFooString, NotPassed] = attrib(
         validator=[val.instance_of(FooStringMinLength, BarIntegerFooString)],
-        converter=con.any_of_instantiate(
+        converter=con.any_of_instantiate(  # type: ignore
             FooStringMinLength, BarIntegerFooString
-        ),  # type: ignore
+        ),
         default=NotPassed(),
     )
     mixed: Union[FooString, str, NotPassed] = attrib(
