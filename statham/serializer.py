@@ -28,10 +28,10 @@ def default(schema: Schema, required: bool) -> str:
 
 
 def type_annotation(schema: Schema, required: bool) -> str:
-    if hasattr(schema, "type"):
-        annotations = standard_type_annotations(schema)
-    else:
+    if isinstance(schema, CompositionSchema):
         annotations = composition_type_annotations(schema)
+    else:
+        annotations = standard_type_annotations(schema)
     if not required:
         annotations.append(NotPassed.__name__)
     if len(annotations) == 1:
@@ -60,17 +60,17 @@ def standard_type_annotations(schema: Schema) -> List[str]:
     return [arg for flag, arg in mapping.items() if flag & schema.type]
 
 
-def composition_type_annotations(schema: Schema) -> List[str]:
+def composition_type_annotations(schema: CompositionSchema) -> List[str]:
     if not isinstance(schema, AnyOfSchema):
-        raise Exception
+        raise NotImplementedError
     return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
 
 
 def validator_type_arg(schema: Schema) -> str:
-    if hasattr(schema, "type"):
-        args = standard_validator_type_args(schema)
-    else:
+    if isinstance(schema, CompositionSchema):
         args = composition_validator_type_args(schema)
+    else:
+        args = standard_validator_type_args(schema)
     if len(args) == 1:
         return next(iter(args))
     return ", ".join(args)
@@ -89,9 +89,9 @@ def standard_validator_type_args(schema: Schema):
     return [arg for flag, arg in mapping.items() if flag & schema.type]
 
 
-def composition_validator_type_args(schema: Schema):
+def composition_validator_type_args(schema: CompositionSchema):
     if not isinstance(schema, AnyOfSchema):
-        raise Exception
+        raise NotImplementedError
     return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
 
 
