@@ -148,3 +148,17 @@ def test_parse_schema_without_type():
 def test_union_model_fails_for_invalid_types():
     with pytest.raises(SchemaParseError):
         _union_model(ObjectSchema, ArraySchema)
+
+
+def test_parse_schema_fails_with_unknown_properties():
+    with pytest.raises(SchemaParseError) as excinfo:
+        parse_schema({"type": "string", "foo": "bar"})
+    assert "Failed to parse the following schema" in str(excinfo.value)
+
+
+def test_parse_schema_fails_for_bad_composition_schema():
+    with pytest.raises(SchemaParseError) as excinfo:
+        parse_schema({"anyOf": [{"type": "string"}], "foo": "bar"})
+    assert "Failed to parse schema with composition keyword" in str(
+        excinfo.value
+    )

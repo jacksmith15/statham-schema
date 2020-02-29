@@ -46,13 +46,6 @@ class SchemaParseError(JSONSchemaObjectError):
         )
 
     @classmethod
-    def no_class_equivalent_schemas(cls) -> "SchemaParseError":
-        return cls(
-            "Schema document contains no object schemas from which to "
-            "derive a class."
-        )
-
-    @classmethod
     def unresolvable_declaration(cls) -> "SchemaParseError":
         return cls(
             "Schema document has an unresolvable declaration tree. This "
@@ -71,6 +64,6 @@ class SchemaParseError(JSONSchemaObjectError):
     @classmethod
     def invalid_composition_schema(cls, schema) -> "SchemaParseError":
         return cls(
-            "Failed to parse schema with composition keyword(s):\n"
+            "Failed to parse schema with composition keyword:\n"
             f"Schema: {json.dumps(schema, indent=2)}"
         )

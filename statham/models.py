@@ -54,7 +54,7 @@ def _list_schema_convert(array: List[Dict[str, JSONElement]]) -> List[Schema]:
 class CompositionSchema(Schema):
     @abstractproperty
     def schemas(self) -> List[Schema]:
-        ...
+        """List of schemas in the composition."""
 
 
 @attrs(kw_only=True, frozen=True)
