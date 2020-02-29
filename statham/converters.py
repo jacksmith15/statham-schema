@@ -47,3 +47,29 @@ def any_of_instantiate(*models: Type):
         raise ValidationError.from_composition(models, data)
 
     return _convert
+
+
+def safe_instantiate(model: Type):
+    instantiator = instantiate(model)
+
+    def _convert(data):
+        try:
+            return instantiator(data)
+        except (TypeError, ValidationError):
+            return None
+
+
+def one_of_instantiate(*models: Type):
+    def _convert(data):
+        if not isinstance(data, (dict, list)):
+            return data
+        instantiated = list(
+            filter(None, [safe_instantiate(model)(data) for model in models])
+        )
+        if not instantiated:
+            raise ValidationError
+        if len(instantiated) > 1:
+            raise ValidationError
+        return instantiated[0]
+
+    return _convert

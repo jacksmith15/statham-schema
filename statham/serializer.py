@@ -9,6 +9,7 @@ from statham.models import (
     ArraySchema,
     CompositionSchema,
     ObjectSchema,
+    OneOfSchema,
     Schema,
 )
 from statham.validators import (
@@ -61,9 +62,9 @@ def standard_type_annotations(schema: Schema) -> List[str]:
 
 
 def composition_type_annotations(schema: CompositionSchema) -> List[str]:
-    if not isinstance(schema, AnyOfSchema):
+    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
         raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
+    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
 
 
 def validator_type_arg(schema: Schema) -> str:
@@ -92,7 +93,7 @@ def standard_validator_type_args(schema: Schema):
 def composition_validator_type_args(schema: CompositionSchema):
     if not isinstance(schema, AnyOfSchema):
         raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
+    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
 
 
 INDENT = " " * 4
@@ -127,16 +128,19 @@ def converter(schema: Schema) -> str:
         schema.items, ObjectSchema
     ):
         return f"con.map_instantiate({schema.items.title})"
-    if isinstance(schema, AnyOfSchema):
+    if isinstance(schema, CompositionSchema):
         types = ", ".join(
             [
                 sub_schema.title
-                for sub_schema in schema.anyOf
+                for sub_schema in schema.schemas
                 if isinstance(sub_schema, ObjectSchema)
             ]
         )
-        if types:
+        if isinstance(schema, AnyOfSchema):
             return f"con.any_of_instantiate({types})"
+        if isinstance(schema, OneOfSchema):
+            return f"con.one_of_instantiate({types})"
+        raise NotImplementedError
     return ""
 
 
