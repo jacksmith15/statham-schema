@@ -15,13 +15,7 @@ from statham.constants import (
     TypeEnum,
 )
 from statham.exceptions import SchemaParseError, ValidationError
-from statham.helpers import (
-    all_subclasses,
-    counter,
-    dict_map,
-    dict_filter,
-    _title_format,
-)
+from statham.helpers import all_subclasses, dict_map, dict_filter, _title_format
 from statham.validators import min_items
 
 
@@ -99,8 +93,9 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     except KeyError:
         raise SchemaParseError.missing_type(schema)
     types = type_prop if isinstance(type_prop, list) else [type_prop]
-    schema["title"] = schema.get("title") or counter(".".join(types))
-    schema["description"] = schema.get("description") or schema["title"]
+    if not schema.get("title"):
+        raise SchemaParseError.missing_title(schema)
+    schema["description"] = schema.get("description") or schema.get("title")
     try:
         return model_from_types(*types)(**schema)  # type: ignore
     except TypeError as exc:

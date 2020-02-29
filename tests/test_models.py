@@ -16,6 +16,7 @@ from statham.models import (
     StringSchema,
     _union_model,
 )
+from tests.conftest import label_schema
 
 
 def test_schema_instantiates_without_error(valid_schema):
@@ -152,13 +153,15 @@ def test_union_model_fails_for_invalid_types():
 
 def test_parse_schema_fails_with_unknown_properties():
     with pytest.raises(SchemaParseError) as excinfo:
-        parse_schema({"type": "string", "foo": "bar"})
+        parse_schema(label_schema({"type": "string", "foo": "bar"}))
     assert "Failed to parse the following schema" in str(excinfo.value)
 
 
 def test_parse_schema_fails_for_bad_composition_schema():
     with pytest.raises(SchemaParseError) as excinfo:
-        parse_schema({"anyOf": [{"type": "string"}], "foo": "bar"})
+        parse_schema(
+            label_schema({"anyOf": [{"type": "string"}], "foo": "bar"})
+        )
     assert "Failed to parse schema with composition keyword" in str(
         excinfo.value
     )

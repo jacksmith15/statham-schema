@@ -11,6 +11,7 @@ from statham.constants import IGNORED_SCHEMA_KEYWORDS
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
 from statham.serializer import serialize_object_schemas
+from statham.titles import title_labeller
 
 
 LOGGER = getLogger(__name__)
@@ -95,23 +96,6 @@ def _convert_schema(schema_dict: Dict[str, Any]) -> str:
     )
 
 
-def _get_title(reference: str) -> Tuple[str, str]:
-    """Convert JSONSchema references to title fields.
-
-    If the reference has a pointer, use the final segment, otherwise
-    use the final segment of the base uri stripping any content type
-    extension.
-
-    :param reference: The JSONPointer reference.
-    """
-    key = "title"
-    reference = reference.rstrip("/")
-    base, pointer = reference.split("#")
-    if not pointer:
-        return key, base.split("/")[-1].split(".")[0]
-    return key, pointer.split("/")[-1]
-
-
 def main(input_uri: str) -> str:
     """Get the schema, and then return the generated python module.
 
@@ -128,7 +112,7 @@ def main(input_uri: str) -> str:
     schema = materialize(
         RefDict(input_uri),
         exclude_keys=IGNORED_SCHEMA_KEYWORDS,
-        context_labeller=_get_title,
+        context_labeller=title_labeller(),
     )
     return _convert_schema(schema)
 
