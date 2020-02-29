@@ -1,0 +1,25 @@
+{
+    "title": "Autoname",
+    "type": "object",
+    "description": "Test schema for checking auto-naming logic for anonymous schemas.",
+    "properties": {
+        "list_of_strings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "string_property": {"type": "string"}
+                }
+            }
+        },
+        "list_of_integers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "integer_property": {"type": "integer"}
+                }
+            }
+        }
+    }
+}

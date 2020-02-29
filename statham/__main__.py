@@ -1,8 +1,9 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
+from collections import defaultdict
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
-from typing import Any, Dict, Iterator, TextIO, Tuple
+from typing import Any, Callable, DefaultDict, Dict, Iterator, TextIO, Tuple
 from sys import argv, stdout
 
 from json_ref_dict import materialize, RefDict
@@ -95,7 +96,7 @@ def _convert_schema(schema_dict: Dict[str, Any]) -> str:
     )
 
 
-def _get_title(reference: str) -> Tuple[str, str]:
+def _get_title_from_reference(reference: str) -> str:
     """Convert JSONSchema references to title fields.
 
     If the reference has a pointer, use the final segment, otherwise
@@ -104,12 +105,31 @@ def _get_title(reference: str) -> Tuple[str, str]:
 
     :param reference: The JSONPointer reference.
     """
-    key = "title"
     reference = reference.rstrip("/")
     base, pointer = reference.split("#")
     if not pointer:
-        return key, base.split("/")[-1].split(".")[0]
-    return key, pointer.split("/")[-1]
+        return base.split("/")[-1].split(".")[0]
+    return pointer.split("/")[-1]
+
+
+def _get_title_labeller() -> Callable[[str], Tuple[str, str]]:
+    """Create a title labeller, enumerating repeated titles.
+
+    Used to assign meaningful names to schemas which have no specified
+    title.
+    """
+    counter: DefaultDict[str, Iterator[int]] = defaultdict(
+        lambda: iter(range(0, 1000))
+    )
+
+    def _get_title(reference: str) -> Tuple[str, str]:
+        name = _get_title_from_reference(reference)
+        count = next(counter[name])
+        if count:
+            name = f"{name}{count}"
+        return "title", name
+
+    return _get_title
 
 
 def main(input_uri: str) -> str:
@@ -128,7 +148,7 @@ def main(input_uri: str) -> str:
     schema = materialize(
         RefDict(input_uri),
         exclude_keys=IGNORED_SCHEMA_KEYWORDS,
-        context_labeller=_get_title,
+        context_labeller=_get_title_labeller(),
     )
     return _convert_schema(schema)
 

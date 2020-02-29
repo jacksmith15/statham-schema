@@ -9,11 +9,11 @@ class _Counter:  # pylint: disable=too-few-public-methods
     """Callable which returns the number of calls for the given argument."""
 
     def __init__(self):
-        self.counts = defaultdict(lambda: 0)
+        self.counts = defaultdict(lambda: -1)
 
     def __call__(self, key: str) -> str:
         self.counts[key] = self.counts[key] + 1
-        return f"{key}{self.counts[key]}"
+        return f"{key}{self.counts[key]}" if self.counts[key] else key
 
 
 counter: Callable = _Counter()
