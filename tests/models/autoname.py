@@ -6,8 +6,8 @@ from statham.validators import NotPassed
 
 
 @attrs(kw_only=True)
-class Items:
-    """items"""
+class ListOfStringsItem:
+    """list_of_stringsItem"""
 
     _required: ClassVar[List[str]] = []
 
@@ -17,8 +17,8 @@ class Items:
 
 
 @attrs(kw_only=True)
-class Items1:
-    """items1"""
+class ListOfIntegersItem:
+    """list_of_integersItem"""
 
     _required: ClassVar[List[str]] = []
 
@@ -33,13 +33,17 @@ class Autoname:
 
     _required: ClassVar[List[str]] = []
 
-    list_of_strings: Union[List[Union[Items, NotPassed]], NotPassed] = attrib(
+    list_of_strings: Union[
+        List[Union[ListOfStringsItem, NotPassed]], NotPassed
+    ] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(Items),  # type: ignore
+        converter=con.map_instantiate(ListOfStringsItem),  # type: ignore
         default=NotPassed(),
     )
-    list_of_integers: Union[List[Union[Items1, NotPassed]], NotPassed] = attrib(
+    list_of_integers: Union[
+        List[Union[ListOfIntegersItem, NotPassed]], NotPassed
+    ] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(Items1),  # type: ignore
+        converter=con.map_instantiate(ListOfIntegersItem),  # type: ignore
         default=NotPassed(),
     )
