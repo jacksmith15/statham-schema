@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import Iterable, List
 
 from jinja2 import Environment, FileSystemLoader
@@ -99,6 +100,12 @@ def validators(schema: Schema) -> str:
 
 
 def extra_validators(schema: Schema) -> List[str]:
+    if hasattr(schema, "schemas"):
+        return list(
+            chain.from_iterable(
+                extra_validators(sub_schema) for sub_schema in schema.schemas
+            )
+        )
     return [
         (f"val.{validator.__name__}({repr(getattr(schema, attribute))}),")
         for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()

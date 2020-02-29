@@ -1,4 +1,4 @@
-from enum import auto, Flag, unique
+from enum import auto, Enum, Flag, unique
 from functools import reduce
 from typing import Any, Dict, Iterator, List, Tuple, Union
 
@@ -100,3 +100,13 @@ _ENUM_LOOKUP = {enum: keyword for keyword, enum in _JSON_SCHEMA_TYPE_MAP}
 def get_type(flag: TypeEnum) -> Union[str, List[str]]:
     """Get jsonschema type representation of type flag."""
     return [_ENUM_LOOKUP[_flag] for _flag in _ENUM_LOOKUP if _flag & flag]
+
+
+@unique
+class CompositionTypeEnum(Enum):
+    ANY_OF = "anyOf"
+
+
+COMPOSITION_KEYWORDS = {
+    composition_type.value for composition_type in CompositionTypeEnum
+}

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 
 from statham.exceptions import ValidationError
@@ -41,8 +43,14 @@ class TestObjectAnyOf:
         assert instance.objects.foo == "barbaz"
 
     @staticmethod
-    def test_input_matching_only_second_schema_resolves_to_that_type():
-        instance = Model(objects={"bar": 1, "foo": 2})
+    @pytest.mark.parametrize("foo", [None, "fo", "foo"])
+    def test_input_matching_only_second_schema_resolves_to_that_type(
+        foo: Optional[str]
+    ):
+        if not foo:
+            instance = Model(objects={"bar": 1})
+        else:
+            instance = Model(objects={"bar": 1, "foo": foo})
         assert isinstance(instance.objects, BarIntegerFooString)
         assert instance.objects.bar == 1
 

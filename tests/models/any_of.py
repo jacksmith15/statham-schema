@@ -44,7 +44,12 @@ class Model:
     _required: ClassVar[List[str]] = []
 
     primitive: Union[str, int, NotPassed] = attrib(
-        validator=[val.instance_of(str, int)], default=NotPassed()
+        validator=[
+            val.instance_of(str, int),
+            val.min_length(3),
+            val.minimum(3),
+        ],
+        default=NotPassed(),
     )
     objects: Union[FooStringMinLength, BarIntegerFooString, NotPassed] = attrib(
         validator=[val.instance_of(FooStringMinLength, BarIntegerFooString)],

@@ -40,9 +40,10 @@ def any_of_instantiate(*models: Type):
         if not isinstance(data, (dict, list)):
             return data
         for model in models:
-            instance = instantiate(model)(data)
-            if isinstance(data, model):
-                return instance
-        raise ValidationError(
-            None, None, data, f"Does not match any accepted model."
-        )
+            try:
+                return instantiate(model)(data)
+            except (TypeError, ValidationError):
+                continue
+        raise ValidationError.from_composition(models, data)
+
+    return _convert

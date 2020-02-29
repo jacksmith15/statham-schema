@@ -5,6 +5,7 @@ from attr import attrs, attrib, Factory
 from attr.validators import instance_of
 
 from statham.constants import (
+    COMPOSITION_KEYWORDS,
     get_flag,
     get_type,
     JSONElement,
@@ -12,7 +13,7 @@ from statham.constants import (
     NOT_PROVIDED,
     TypeEnum,
 )
-from statham.exceptions import SchemaParseError
+from statham.exceptions import SchemaParseError, ValidationError
 from statham.helpers import (
     all_subclasses,
     counter,
@@ -61,21 +62,21 @@ class AnyOfSchema(Schema):
         converter=_list_schema_convert,
     )
 
+    @property
+    def schemas(self):
+        return self.anyOf
+
 
 COMPOSITION_SCHEMAS = (AnyOfSchema,)
 
 
 def _get_composition_schema(schema: Dict[str, JSONElement]) -> Schema:
-    for SchemaModel in COMPOSITION_SCHEMAS:
+    for CompositionSchema in COMPOSITION_SCHEMAS:
         try:
-            return SchemaModel(**schema)
-        except Exception as exc:  # TODO(Jack): Explicit catch.
-            print(exc)
-            import ipdb
-
-            ipdb.set_trace()
+            return CompositionSchema(**schema)  # type: ignore
+        except (TypeError, ValidationError) as exc:
             continue
-    raise Exception  # TODO(Jack): Raise proper error.
+    raise SchemaParseError.invalid_composition_schema(schema)
 
 
 def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
@@ -84,13 +85,12 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     Looks up subclasses of Schema and matches on the `type` class
     variable.
     """
+    if set(COMPOSITION_KEYWORDS) & set(schema):
+        return _get_composition_schema(schema)
     try:
         type_prop = schema["type"]
     except KeyError:
-        try:
-            return _get_composition_schema(schema)
-        except:
-            raise SchemaParseError.missing_type(schema)
+        raise SchemaParseError.missing_type(schema)
     types = type_prop if isinstance(type_prop, list) else [type_prop]
     schema["title"] = schema.get("title") or counter(".".join(types))
     schema["description"] = schema.get("description") or schema["title"]
