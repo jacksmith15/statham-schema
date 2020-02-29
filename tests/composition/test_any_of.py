@@ -3,7 +3,12 @@ from typing import Optional
 import pytest
 
 from statham.exceptions import ValidationError
-from tests.models.any_of import StringWrapper, StringAndIntegerWrapper, Model
+from tests.models.any_of import (
+    Model,
+    OtherStringWrapper,
+    StringWrapper,
+    StringAndIntegerWrapper,
+)
 
 
 class TestPrimitiveAnyOf:
@@ -67,3 +72,27 @@ class TestObjectAnyOf:
         with pytest.raises(ValidationError) as excinfo:
             Model(objects={"string_prop": "barbaz", "integer_prop": 1})
         assert "Does not match any accepted model." in str(excinfo.value)
+
+
+@pytest.mark.foo
+class TestMixedAnyOf:
+    @staticmethod
+    def test_mixed_schema_accepts_primitive_string():
+        instance = Model(mixed="foo")
+        assert instance.mixed == "foo"
+
+    @staticmethod
+    def test_mixed_schema_accepts_string_wrapper():
+        instance = Model(mixed={"string_prop": "foo"})
+        assert isinstance(instance.mixed, OtherStringWrapper)
+        assert instance.mixed.string_prop == "foo"
+
+    @staticmethod
+    def test_bad_primitive_raises_validation_error():
+        with pytest.raises(ValidationError):
+            _ = Model(mixed=1)
+
+    @staticmethod
+    def test_bad_object_raises_validation_error():
+        with pytest.raises(ValidationError):
+            _ = Model(mixed={"string_prop": 1})
