@@ -11,7 +11,7 @@ from statham.constants import IGNORED_SCHEMA_KEYWORDS
 from statham.dependency_resolver import ClassDependencyResolver
 from statham.models import parse_schema
 from statham.serializer import serialize_object_schemas
-from statham.title_generator import title_labeller
+from statham.titles import title_labeller
 
 
 LOGGER = getLogger(__name__)

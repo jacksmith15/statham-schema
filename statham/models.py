@@ -93,8 +93,8 @@ def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     except KeyError:
         raise SchemaParseError.missing_type(schema)
     types = type_prop if isinstance(type_prop, list) else [type_prop]
-    # TODO: We shouldn't need to set title here.
-    schema["title"] = schema.get("title", "unknown")
+    if not schema.get("title"):
+        raise SchemaParseError.missing_title(schema)
     schema["description"] = schema.get("description") or schema.get("title")
     try:
         return model_from_types(*types)(**schema)  # type: ignore

@@ -37,6 +37,16 @@ class SchemaParseError(JSONSchemaObjectError):
         return cls(f"No type defined in schema: {json.dumps(schema, indent=2)}")
 
     @classmethod
+    def missing_title(
+        cls, schema: Dict[str, JSONElement]
+    ) -> "SchemaParseError":
+        return cls(
+            "No title defined in schema. Use "
+            "`statham.title_generator.title_labeller` to pre-process the "
+            f"schema: {schema}"
+        )
+
+    @classmethod
     def unsupported_type_union(
         cls, invalid: Set, requested: Set
     ) -> "SchemaParseError":
