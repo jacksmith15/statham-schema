@@ -45,7 +45,6 @@ IGNORED_SCHEMA_KEYWORDS = (
     "enum",
     "const",
     "uniqueItems",
-    "oneOf",
     "allOf",
     "not",
     # OpenAPI/Swagger

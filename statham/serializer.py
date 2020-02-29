@@ -91,7 +91,7 @@ def standard_validator_type_args(schema: Schema):
 
 
 def composition_validator_type_args(schema: CompositionSchema):
-    if not isinstance(schema, AnyOfSchema):
+    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
         raise NotImplementedError
     return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
 
