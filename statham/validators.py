@@ -101,7 +101,13 @@ def raises(message: str) -> Callable:
                 instance,
                 attribute,
                 value,
-                partial(ValidationError, instance, attribute, value, message),
+                partial(
+                    ValidationError.from_validator,
+                    instance,
+                    attribute,
+                    value,
+                    message,
+                ),
             )
 
         return inner_validator

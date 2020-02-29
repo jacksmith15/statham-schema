@@ -1,3 +1,4 @@
+from abc import abstractproperty
 from functools import lru_cache, reduce
 from typing import Any, ClassVar, Dict, List, Type, Union
 
@@ -5,6 +6,7 @@ from attr import attrs, attrib, Factory
 from attr.validators import instance_of
 
 from statham.constants import (
+    COMPOSITION_KEYWORDS,
     get_flag,
     get_type,
     JSONElement,
@@ -12,7 +14,7 @@ from statham.constants import (
     NOT_PROVIDED,
     TypeEnum,
 )
-from statham.exceptions import SchemaParseError
+from statham.exceptions import SchemaParseError, ValidationError
 from statham.helpers import (
     all_subclasses,
     counter,
@@ -20,6 +22,7 @@ from statham.helpers import (
     dict_filter,
     _title_format,
 )
+from statham.validators import min_items
 
 
 @attrs(kw_only=True, frozen=True)
@@ -36,12 +39,61 @@ class Schema:
     )
 
 
+def _dict_property_convert(
+    dictionary: Dict[str, JSONElement]
+) -> Dict[str, Schema]:
+    return dict_map(
+        parse_schema, dict_filter(lambda val: isinstance(val, dict), dictionary)
+    )
+
+
+def _list_schema_convert(array: List[Dict[str, JSONElement]]) -> List[Schema]:
+    return [parse_schema(schema) for schema in array]
+
+
+class CompositionSchema(Schema):
+    @abstractproperty
+    def schemas(self) -> List[Schema]:
+        """List of schemas in the composition."""
+
+
+@attrs(kw_only=True, frozen=True)
+class AnyOfSchema(CompositionSchema):
+
+    _type: Union[str, List[str]] = attrib(
+        validator=[instance_of((str, list))], default="anyOf"
+    )
+
+    anyOf: List[Schema] = attrib(
+        validator=[instance_of(list), min_items(1)],
+        converter=_list_schema_convert,
+    )
+
+    @property
+    def schemas(self):
+        return self.anyOf
+
+
+COMPOSITION_SCHEMAS = all_subclasses(CompositionSchema)
+
+
+def _get_composition_schema(schema: Dict[str, JSONElement]) -> Schema:
+    for composition_schema in COMPOSITION_SCHEMAS:
+        try:
+            return composition_schema(**schema)  # type: ignore
+        except (TypeError, ValidationError) as exc:
+            continue
+    raise SchemaParseError.invalid_composition_schema(schema)
+
+
 def parse_schema(schema: Dict[str, JSONElement]) -> Schema:
     """Convert a JSON Schema schema to a Model Instance.
 
     Looks up subclasses of Schema and matches on the `type` class
     variable.
     """
+    if set(COMPOSITION_KEYWORDS) & set(schema):
+        return _get_composition_schema(schema)
     try:
         type_prop = schema["type"]
     except KeyError:
@@ -71,14 +123,6 @@ class ArraySchema(Schema):
         validator=[instance_of((int, NotProvidedType))], default=NOT_PROVIDED
     )
     # pylint: enable=invalid-name
-
-
-def _dict_property_convert(
-    dictionary: Dict[str, JSONElement]
-) -> Dict[str, Schema]:
-    return dict_map(
-        parse_schema, dict_filter(lambda val: isinstance(val, dict), dictionary)
-    )
 
 
 @attrs(kw_only=True, frozen=True)

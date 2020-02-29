@@ -13,6 +13,11 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* `anyOf` composition keyword now supported.
+    - Creates models for each schema provided in the list.
+    - Generated models will instantiate the first compatible model,
+      based on the order they are presented.
 
 ## [0.1.1] - 2019-12-13
 ### Fixed

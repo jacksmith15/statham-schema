@@ -1,9 +1,10 @@
-from typing import Dict, Set
+from itertools import chain
+from typing import Dict, List, Set
 
 from attr import attrs
 
 from statham.exceptions import SchemaParseError
-from statham.models import ArraySchema, ObjectSchema, Schema
+from statham.models import ArraySchema, CompositionSchema, ObjectSchema, Schema
 
 
 # This is a dataclass.
@@ -14,12 +15,19 @@ class ClassDef:
     depends: Set[str]
 
 
-def _get_first_class_schema(schema: Schema) -> ObjectSchema:
+def _get_first_class_schemas(schema: Schema) -> List[ObjectSchema]:
     if isinstance(schema, ObjectSchema):
-        return schema
+        return [schema]
     if isinstance(schema, ArraySchema):
-        return _get_first_class_schema(schema.items)
-    raise SchemaParseError.no_class_equivalent_schemas()
+        return _get_first_class_schemas(schema.items)
+    if isinstance(schema, CompositionSchema):
+        return list(
+            chain.from_iterable(
+                _get_first_class_schemas(sub_schema)
+                for sub_schema in schema.schemas
+            )
+        )
+    return []
 
 
 class ClassDependencyResolver:
@@ -27,18 +35,18 @@ class ClassDependencyResolver:
 
     def __init__(self, schema: Schema):
         self._class_defs: Dict[str, ClassDef] = {}
-        _ = self._extract_schemas(_get_first_class_schema(schema))
+        for object_schema in _get_first_class_schemas(schema):
+            self._extract_schemas(object_schema)
 
     def _extract_schemas(self, schema: ObjectSchema) -> Set[str]:
         if schema.title in self._class_defs:
             return self[schema.title].depends
         deps = {schema.title}
         for nested in schema.properties.values():
-            try:
-                next_schema: ObjectSchema = _get_first_class_schema(nested)
-            except SchemaParseError:
-                continue
-            deps = deps | self._extract_schemas(next_schema)
+            next_schemas: List[ObjectSchema] = _get_first_class_schemas(nested)
+            deps = deps | set(
+                chain.from_iterable(map(self._extract_schemas, next_schemas))
+            )
         self._add(
             schema.title, ClassDef(schema=schema, depends=deps - {schema.title})
         )

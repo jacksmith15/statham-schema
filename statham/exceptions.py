@@ -11,10 +11,21 @@ class JSONSchemaObjectError(Exception):
 class ValidationError(JSONSchemaObjectError):
     """Validation failure in generated models."""
 
-    def __init__(self, instance, attribute, value, message) -> None:
-        super().__init__(
+    @classmethod
+    def from_validator(
+        cls, instance, attribute, value, message
+    ) -> "ValidationError":
+        return cls(
             f"Failed validating `{type(instance).__name__}."
             f"{attribute.name} = {repr(value)}`. {message}"
+        )
+
+    @classmethod
+    def from_composition(cls, models, data) -> "ValidationError":
+        return cls(
+            f"Does not match any accepted model.\n"
+            f"Data: {data}\n"
+            f"Models: {models}"
         )
 
 
@@ -23,7 +34,7 @@ class SchemaParseError(JSONSchemaObjectError):
 
     @classmethod
     def missing_type(cls, schema: Dict[str, JSONElement]) -> "SchemaParseError":
-        return cls(f"No type defined in schema: {schema}")
+        return cls(f"No type defined in schema: {json.dumps(schema, indent=2)}")
 
     @classmethod
     def unsupported_type_union(
@@ -32,13 +43,6 @@ class SchemaParseError(JSONSchemaObjectError):
         return cls(
             f"Can't produce a union for these types: {invalid}. "
             f"The following union was requested: {requested}"
-        )
-
-    @classmethod
-    def no_class_equivalent_schemas(cls) -> "SchemaParseError":
-        return cls(
-            "Schema document contains no object schemas from which to "
-            "derive a class."
         )
 
     @classmethod
@@ -54,5 +58,12 @@ class SchemaParseError(JSONSchemaObjectError):
     ) -> "SchemaParseError":
         return cls(
             "Failed to parse the following schema:\nError: "
-            f"{str(exception)}:\nSchema: {json.dumps(schema)}"
+            f"{str(exception)}:\nSchema: {json.dumps(schema, indent=2)}"
+        )
+
+    @classmethod
+    def invalid_composition_schema(cls, schema) -> "SchemaParseError":
+        return cls(
+            "Failed to parse schema with composition keyword:\n"
+            f"Schema: {json.dumps(schema, indent=2)}"
         )

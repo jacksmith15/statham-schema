@@ -1,9 +1,16 @@
+from itertools import chain
 from typing import Iterable, List
 
 from jinja2 import Environment, FileSystemLoader
 
 from statham.constants import NOT_PROVIDED, TypeEnum
-from statham.models import ArraySchema, ObjectSchema, Schema
+from statham.models import (
+    AnyOfSchema,
+    ArraySchema,
+    CompositionSchema,
+    ObjectSchema,
+    Schema,
+)
 from statham.validators import (
     instance_of,
     NotPassed,
@@ -21,6 +28,18 @@ def default(schema: Schema, required: bool) -> str:
 
 
 def type_annotation(schema: Schema, required: bool) -> str:
+    if isinstance(schema, CompositionSchema):
+        annotations = composition_type_annotations(schema)
+    else:
+        annotations = standard_type_annotations(schema)
+    if not required:
+        annotations.append(NotPassed.__name__)
+    if len(annotations) == 1:
+        return next(iter(annotations))
+    return f"Union[{', '.join(annotations)}]"
+
+
+def standard_type_annotations(schema: Schema) -> List[str]:
     schema_items = getattr(schema, "items", NOT_PROVIDED)
     mapping = {
         TypeEnum.OBJECT: schema.title,
@@ -38,17 +57,26 @@ def type_annotation(schema: Schema, required: bool) -> str:
         TypeEnum.NULL: str(None),
         TypeEnum.BOOLEAN: bool.__name__,
     }
-    args = [arg for flag, arg in mapping.items() if flag & schema.type]
+    return [arg for flag, arg in mapping.items() if flag & schema.type]
 
-    if not required:
-        args.append(NotPassed.__name__)
-    if len(args) == 1:
-        return next(iter(args))
-    validator_args = ", ".join(args)
-    return f"Union[{validator_args}]"
+
+def composition_type_annotations(schema: CompositionSchema) -> List[str]:
+    if not isinstance(schema, AnyOfSchema):
+        raise NotImplementedError
+    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
 
 
 def validator_type_arg(schema: Schema) -> str:
+    if isinstance(schema, CompositionSchema):
+        args = composition_validator_type_args(schema)
+    else:
+        args = standard_validator_type_args(schema)
+    if len(args) == 1:
+        return next(iter(args))
+    return ", ".join(args)
+
+
+def standard_validator_type_args(schema: Schema):
     mapping = {
         TypeEnum.OBJECT: schema.title,
         TypeEnum.ARRAY: list.__name__,
@@ -58,10 +86,13 @@ def validator_type_arg(schema: Schema) -> str:
         TypeEnum.NULL: "type(None)",
         TypeEnum.BOOLEAN: bool.__name__,
     }
-    args = [arg for flag, arg in mapping.items() if flag & schema.type]
-    if len(args) == 1:
-        return next(iter(args))
-    return ", ".join(args)
+    return [arg for flag, arg in mapping.items() if flag & schema.type]
+
+
+def composition_validator_type_args(schema: CompositionSchema):
+    if not isinstance(schema, AnyOfSchema):
+        raise NotImplementedError
+    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
 
 
 INDENT = " " * 4
@@ -75,6 +106,12 @@ def validators(schema: Schema) -> str:
 
 
 def extra_validators(schema: Schema) -> List[str]:
+    if isinstance(schema, CompositionSchema):
+        return list(
+            chain.from_iterable(
+                extra_validators(sub_schema) for sub_schema in schema.schemas
+            )
+        )
     return [
         (f"val.{validator.__name__}({repr(getattr(schema, attribute))}),")
         for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()
@@ -90,6 +127,16 @@ def converter(schema: Schema) -> str:
         schema.items, ObjectSchema
     ):
         return f"con.map_instantiate({schema.items.title})"
+    if isinstance(schema, AnyOfSchema):
+        types = ", ".join(
+            [
+                sub_schema.title
+                for sub_schema in schema.anyOf
+                if isinstance(sub_schema, ObjectSchema)
+            ]
+        )
+        if types:
+            return f"con.any_of_instantiate({types})"
     return ""
 
 
