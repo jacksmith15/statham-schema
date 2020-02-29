@@ -4,7 +4,7 @@ from typing import Dict, List, Set
 from attr import attrs
 
 from statham.exceptions import SchemaParseError
-from statham.models import AnyOfSchema, ArraySchema, ObjectSchema, Schema
+from statham.models import ArraySchema, CompositionSchema, ObjectSchema, Schema
 
 
 # This is a dataclass.
@@ -20,11 +20,11 @@ def _get_first_class_schemas(schema: Schema) -> List[ObjectSchema]:
         return [schema]
     if isinstance(schema, ArraySchema):
         return _get_first_class_schemas(schema.items)
-    if isinstance(schema, AnyOfSchema):
+    if isinstance(schema, CompositionSchema):
         return list(
             chain.from_iterable(
                 _get_first_class_schemas(sub_schema)
-                for sub_schema in schema.anyOf
+                for sub_schema in schema.schemas
             )
         )
     return []
