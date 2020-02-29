@@ -18,12 +18,12 @@
       "anyOf": [
         {
           "type": "object",
-          "title": "FooStringMinLength",
+          "title": "StringWrapper",
           "required": [
-            "foo"
+            "string_prop"
           ],
           "properties": {
-            "foo": {
+            "string_prop": {
               "type": "string",
               "minLength": 3
             }
@@ -31,16 +31,16 @@
         },
         {
           "type": "object",
-          "title": "BarIntegerFooString",
+          "title": "StringAndIntegerWrapper",
           "required": [
-            "bar"
+            "integer_prop"
           ],
           "properties": {
-            "foo": {
+            "string_prop": {
               "type": "string",
               "maxLength": 5
             },
-            "bar": {
+            "integer_prop": {
               "type": "integer"
             }
           }
@@ -51,9 +51,9 @@
       "anyOf": [
         {
           "type": "object",
-          "title": "FooString",
+          "title": "OtherStringWrapper",
           "properties": {
-            "foo": {
+            "string_prop": {
               "type": "string"
             }
           }

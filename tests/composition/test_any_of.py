@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 from statham.exceptions import ValidationError
-from tests.models.any_of import FooStringMinLength, BarIntegerFooString, Model
+from tests.models.any_of import StringWrapper, StringAndIntegerWrapper, Model
 
 
 class TestPrimitiveAnyOf:
@@ -38,30 +38,32 @@ class TestPrimitiveAnyOf:
 class TestObjectAnyOf:
     @staticmethod
     def test_input_matching_only_first_schema_resolves_to_that_type():
-        instance = Model(objects={"foo": "barbaz"})
-        assert isinstance(instance.objects, FooStringMinLength)
-        assert instance.objects.foo == "barbaz"
+        instance = Model(objects={"string_prop": "barbaz"})
+        assert isinstance(instance.objects, StringWrapper)
+        assert instance.objects.string_prop == "barbaz"
 
     @staticmethod
-    @pytest.mark.parametrize("foo", [None, "fo", "foo"])
+    @pytest.mark.parametrize("string_prop", [None, "fo", "foo"])
     def test_input_matching_only_second_schema_resolves_to_that_type(
-        foo: Optional[str]
+        string_prop: Optional[str]
     ):
-        if not foo:
-            instance = Model(objects={"bar": 1})
+        if not string_prop:
+            instance = Model(objects={"integer_prop": 1})
         else:
-            instance = Model(objects={"bar": 1, "foo": foo})
-        assert isinstance(instance.objects, BarIntegerFooString)
-        assert instance.objects.bar == 1
+            instance = Model(
+                objects={"integer_prop": 1, "string_prop": string_prop}
+            )
+        assert isinstance(instance.objects, StringAndIntegerWrapper)
+        assert instance.objects.integer_prop == 1
 
     @staticmethod
     def test_input_matching_both_schemas_resolves_to_first_type():
-        instance = Model(objects={"foo": "bar"})
-        assert isinstance(instance.objects, FooStringMinLength)
-        assert instance.objects.foo == "bar"
+        instance = Model(objects={"string_prop": "bar"})
+        assert isinstance(instance.objects, StringWrapper)
+        assert instance.objects.string_prop == "bar"
 
     @staticmethod
     def test_input_matching_neither_schemas_raises_validation_error():
         with pytest.raises(ValidationError) as excinfo:
-            Model(objects={"foo": "barbaz", "bar": 1})
+            Model(objects={"string_prop": "barbaz", "integer_prop": 1})
         assert "Does not match any accepted model." in str(excinfo.value)

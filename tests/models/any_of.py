@@ -6,33 +6,35 @@ from statham.validators import NotPassed
 
 
 @attrs(kw_only=True)
-class FooStringMinLength:
-    """FooStringMinLength"""
+class StringWrapper:
+    """StringWrapper"""
 
-    _required: ClassVar[List[str]] = ["foo"]
+    _required: ClassVar[List[str]] = ["string_prop"]
 
-    foo: str = attrib(validator=[val.instance_of(str), val.min_length(3)])
+    string_prop: str = attrib(
+        validator=[val.instance_of(str), val.min_length(3)]
+    )
 
 
 @attrs(kw_only=True)
-class BarIntegerFooString:
-    """BarIntegerFooString"""
+class StringAndIntegerWrapper:
+    """StringAndIntegerWrapper"""
 
-    _required: ClassVar[List[str]] = ["bar"]
+    _required: ClassVar[List[str]] = ["integer_prop"]
 
-    foo: Union[str, NotPassed] = attrib(
+    string_prop: Union[str, NotPassed] = attrib(
         validator=[val.instance_of(str), val.max_length(5)], default=NotPassed()
     )
-    bar: int = attrib(validator=[val.instance_of(int)])
+    integer_prop: int = attrib(validator=[val.instance_of(int)])
 
 
 @attrs(kw_only=True)
-class FooString:
-    """FooString"""
+class OtherStringWrapper:
+    """OtherStringWrapper"""
 
     _required: ClassVar[List[str]] = []
 
-    foo: Union[str, NotPassed] = attrib(
+    string_prop: Union[str, NotPassed] = attrib(
         validator=[val.instance_of(str)], default=NotPassed()
     )
 
@@ -51,15 +53,15 @@ class Model:
         ],
         default=NotPassed(),
     )
-    objects: Union[FooStringMinLength, BarIntegerFooString, NotPassed] = attrib(
-        validator=[val.instance_of(FooStringMinLength, BarIntegerFooString)],
+    objects: Union[StringWrapper, StringAndIntegerWrapper, NotPassed] = attrib(
+        validator=[val.instance_of(StringWrapper, StringAndIntegerWrapper)],
         converter=con.any_of_instantiate(  # type: ignore
-            FooStringMinLength, BarIntegerFooString
+            StringWrapper, StringAndIntegerWrapper
         ),
         default=NotPassed(),
     )
-    mixed: Union[FooString, str, NotPassed] = attrib(
-        validator=[val.instance_of(FooString, str)],
-        converter=con.any_of_instantiate(FooString),  # type: ignore
+    mixed: Union[OtherStringWrapper, str, NotPassed] = attrib(
+        validator=[val.instance_of(OtherStringWrapper, str)],
+        converter=con.any_of_instantiate(OtherStringWrapper),  # type: ignore
         default=NotPassed(),
     )
