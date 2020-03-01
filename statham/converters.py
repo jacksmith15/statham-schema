@@ -35,21 +35,8 @@ def map_instantiate(model: Type):
     return _convert
 
 
-def any_of_instantiate(*models: Type):
-    def _convert(data):
-        if not isinstance(data, (dict, list)):
-            return data
-        for model in models:
-            try:
-                return instantiate(model)(data)
-            except (TypeError, ValidationError):
-                continue
-        raise ValidationError.no_composition_match(models, data)
-
-    return _convert
-
-
-def safe_instantiate(model: Type):
+def _safe_instantiate(model: Type):
+    """Converter which attempts to instantiate, returning None on a failure."""
     instantiator = instantiate(model)
 
     def _convert(data):
@@ -61,12 +48,38 @@ def safe_instantiate(model: Type):
     return _convert
 
 
+def any_of_instantiate(*models: Type):
+    """Instantiate against any of the provided models.
+
+    Fail if none of the models instantiate succesfully.
+    """
+
+    def _convert(data):
+        if not isinstance(data, (dict, list)):
+            return data
+        try:
+            return next(
+                filter(
+                    None, [_safe_instantiate(model)(data) for model in models]
+                )
+            )
+        except StopIteration:
+            raise ValidationError.no_composition_match(models, data)
+
+    return _convert
+
+
 def one_of_instantiate(*models: Type):
+    """Instantiate against one of the provided models.
+
+    Fails if more than one model matches the input.
+    """
+
     def _convert(data):
         if not isinstance(data, (dict, list)):
             return data
         instantiated = list(
-            filter(None, [safe_instantiate(model)(data) for model in models])
+            filter(None, [_safe_instantiate(model)(data) for model in models])
         )
         if not instantiated:
             raise ValidationError.no_composition_match(models, data)
