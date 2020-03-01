@@ -3,7 +3,7 @@ import pytest
 from tests.models.autoname import Autoname
 
 
-@pytest.mark.github_issue_29
+@pytest.mark.github_issue(29)
 def test_anonymous_arrays_do_not_overwrite_themselves():
     """Regression test for issue #29."""
     assert Autoname(
