@@ -20,6 +20,25 @@
                     "integer_property": {"type": "integer"}
                 }
             }
+        },
+        "list_any_of": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "string_prop": {"type": "string"}
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "integer_prop": {"type": "integer"}
+                        }
+                    }
+                ]
+            }
         }
     }
 }

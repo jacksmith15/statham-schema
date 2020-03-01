@@ -28,6 +28,28 @@ class ListOfIntegersItem:
 
 
 @attrs(kw_only=True)
+class ListAnyOfItem0:
+    """list_any_ofItem0"""
+
+    _required: ClassVar[List[str]] = []
+
+    string_prop: Union[str, NotPassed] = attrib(
+        validator=[val.instance_of(str)], default=NotPassed()
+    )
+
+
+@attrs(kw_only=True)
+class ListAnyOfItem1:
+    """list_any_ofItem1"""
+
+    _required: ClassVar[List[str]] = []
+
+    integer_prop: Union[int, NotPassed] = attrib(
+        validator=[val.instance_of(int)], default=NotPassed()
+    )
+
+
+@attrs(kw_only=True)
 class Autoname:
     """Test schema for checking auto-naming logic for anonymous schemas."""
 
@@ -47,3 +69,6 @@ class Autoname:
         converter=con.map_instantiate(ListOfIntegersItem),  # type: ignore
         default=NotPassed(),
     )
+    list_any_of: Union[
+        List[Union[ListAnyOfItem0, ListAnyOfItem1, NotPassed]], NotPassed
+    ] = attrib(validator=[val.instance_of(list)], default=NotPassed())

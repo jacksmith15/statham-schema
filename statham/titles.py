@@ -1,6 +1,13 @@
 from collections import defaultdict
 from typing import Callable, DefaultDict, Iterator, Tuple
 
+from statham.constants import COMPOSITION_KEYWORDS
+
+
+def _pop(reference: str) -> str:
+    base, pointer = reference.split("#")
+    return "#".join([base, "/".join(pointer.split("/")[:-1])])
+
 
 def _get_title_from_reference(reference: str) -> str:
     """Convert JSONSchema references to title fields.
@@ -17,12 +24,13 @@ def _get_title_from_reference(reference: str) -> str:
         return base.split("/")[-1].split(".")[0]
     title = pointer.split("/")[-1]
     if title == "items":
-        return (
-            _get_title_from_reference(
-                "#".join([base, "/".join(pointer.split("/")[:-1])])
-            )
-            + "Item"
-        )
+        return _get_title_from_reference(_pop(reference)) + "Item"
+    if title.isdigit():
+        # Handle anonymous schemas in an array.
+        # E.G `{"anyOf": [{"type": "object"}]}`
+        return _get_title_from_reference(_pop(reference)) + title
+    if title in COMPOSITION_KEYWORDS:
+        return _get_title_from_reference(_pop(reference))
     return title
 
 
