@@ -18,6 +18,10 @@ Types of changes are:
     - Creates models for each schema provided in the list.
     - Generated models will instantiate the first compatible model,
       based on the order they are presented.
+* `oneOf` composition keyword now supported.
+    - Creates models for each schema provided in the list.
+    - Generated models will instantiate any compatible model, but
+      fail if more than one succeeds.
 
 ### Changed
 * BREAKING Naming of anonymous schemas declared within the items
