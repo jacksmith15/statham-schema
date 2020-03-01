@@ -1,4 +1,3 @@
-from collections import defaultdict
 from itertools import chain
 import re
 from typing import Any, Callable, Dict, Set, Type
