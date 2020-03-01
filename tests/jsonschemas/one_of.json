@@ -33,7 +33,7 @@
           "type": "object",
           "title": "StringAndIntegerWrapper",
           "required": [
-            "integer_prop"
+            "string_prop"
           ],
           "properties": {
             "string_prop": {

@@ -44,7 +44,7 @@ def any_of_instantiate(*models: Type):
                 return instantiate(model)(data)
             except (TypeError, ValidationError):
                 continue
-        raise ValidationError.from_composition(models, data)
+        raise ValidationError.no_composition_match(models, data)
 
     return _convert
 
@@ -58,6 +58,8 @@ def safe_instantiate(model: Type):
         except (TypeError, ValidationError):
             return None
 
+    return _convert
+
 
 def one_of_instantiate(*models: Type):
     def _convert(data):
@@ -67,9 +69,11 @@ def one_of_instantiate(*models: Type):
             filter(None, [safe_instantiate(model)(data) for model in models])
         )
         if not instantiated:
-            raise ValidationError
+            raise ValidationError.no_composition_match(models, data)
         if len(instantiated) > 1:
-            raise ValidationError
+            raise ValidationError.mutliple_composition_match(
+                [type(instance) for instance in instantiated], data
+            )
         return instantiated[0]
 
     return _convert

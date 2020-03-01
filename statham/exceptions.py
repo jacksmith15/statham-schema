@@ -21,11 +21,19 @@ class ValidationError(JSONSchemaObjectError):
         )
 
     @classmethod
-    def from_composition(cls, models, data) -> "ValidationError":
+    def no_composition_match(cls, models, data) -> "ValidationError":
         return cls(
             f"Does not match any accepted model.\n"
             f"Data: {data}\n"
             f"Models: {models}"
+        )
+
+    @classmethod
+    def mutliple_composition_match(cls, matching_models, data):
+        return cls(
+            "Matches multiple possible models. Must only match one.\n"
+            f"Data: {data}\n"
+            f"Models: {matching_models}"
         )
 
 

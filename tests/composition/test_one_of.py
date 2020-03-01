@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 from statham.exceptions import ValidationError
-from tests.models.any_of import (
+from tests.models.one_of import (
     Model,
     OtherStringWrapper,
     StringWrapper,
@@ -11,7 +11,7 @@ from tests.models.any_of import (
 )
 
 
-class TestPrimitiveAnyOf:
+class TestPrimitiveOneOf:
     @staticmethod
     def test_model_instantiates_with_no_args():
         assert Model()
@@ -40,7 +40,7 @@ class TestPrimitiveAnyOf:
             Model(primitive=1)
 
 
-class TestObjectAnyOf:
+class TestObjectOneOf:
     @staticmethod
     def test_input_matching_only_first_schema_resolves_to_that_type():
         instance = Model(objects={"string_prop": "barbaz"})
@@ -50,7 +50,7 @@ class TestObjectAnyOf:
     @staticmethod
     @pytest.mark.parametrize("string_prop", ["fo", "foo"])
     def test_input_matching_only_second_schema_resolves_to_that_type(
-        string_prop: str
+        string_prop: Optional[str]
     ):
         instance = Model(
             objects={"integer_prop": 1, "string_prop": string_prop}
@@ -59,10 +59,12 @@ class TestObjectAnyOf:
         assert instance.objects.integer_prop == 1
 
     @staticmethod
-    def test_input_matching_both_schemas_resolves_to_first_type():
-        instance = Model(objects={"string_prop": "bar"})
-        assert isinstance(instance.objects, StringWrapper)
-        assert instance.objects.string_prop == "bar"
+    def test_input_matching_both_schemas_raises_validation_error():
+        with pytest.raises(ValidationError) as excinfo:
+            _ = Model(objects={"string_prop": "bar"})
+        assert (
+            "Matches multiple possible models. Must only match one."
+        ) in str(excinfo.value)
 
     @staticmethod
     def test_input_matching_neither_schemas_raises_validation_error():
@@ -71,7 +73,7 @@ class TestObjectAnyOf:
         assert "Does not match any accepted model." in str(excinfo.value)
 
 
-class TestMixedAnyOf:
+class TestMixedOneOf:
     @staticmethod
     def test_mixed_schema_accepts_primitive_string():
         instance = Model(mixed="foo")

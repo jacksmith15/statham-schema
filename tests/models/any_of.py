@@ -20,12 +20,14 @@ class StringWrapper:
 class StringAndIntegerWrapper:
     """StringAndIntegerWrapper"""
 
-    _required: ClassVar[List[str]] = ["integer_prop"]
+    _required: ClassVar[List[str]] = ["string_prop"]
 
-    string_prop: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.max_length(5)], default=NotPassed()
+    string_prop: str = attrib(
+        validator=[val.instance_of(str), val.max_length(5)]
     )
-    integer_prop: int = attrib(validator=[val.instance_of(int)])
+    integer_prop: Union[int, NotPassed] = attrib(
+        validator=[val.instance_of(int)], default=NotPassed()
+    )
 
 
 @attrs(kw_only=True)
@@ -51,6 +53,7 @@ class Model:
             val.min_length(3),
             val.minimum(3),
         ],
+        converter=con.any_of_instantiate(),  # type: ignore
         default=NotPassed(),
     )
     objects: Union[StringWrapper, StringAndIntegerWrapper, NotPassed] = attrib(
