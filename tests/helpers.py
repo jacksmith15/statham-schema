@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Dict, Optional, Type
 
 from black import assert_equivalent as assert_ast_equal
@@ -49,3 +50,12 @@ def abstract_model_instantiate_test(
         f"Unexpected error message: '{actual_msg}'. Expected to contain "
         f"'{exception_msg}'."
     )
+
+
+@contextmanager
+def no_raise(*exception_types: Exception):
+    types = exception_types or Exception
+    try:
+        yield
+    except types as exc:  # pylint: disable=broad-except
+        assert False, str(exc)
