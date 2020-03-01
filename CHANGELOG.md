@@ -34,6 +34,17 @@ Types of changes are:
 * Name collisions where the last segment of the JSON Pointer for
   a schema's location was the same as another.
 
+### Changed
+* BREAKING Naming of anonymous schemas declared within the items
+  of an array now use the context of the array name.
+    - For example, items of a list declared under field `volumes`,
+      would previously have been named `Items`, but would now be
+      named `VolumesItem`.
+
+### Fixed
+* Name collisions where the last segment of the JSON Pointer for
+  a schema's location was the same as another.
+
 ## [0.1.1] - 2019-12-13
 ### Fixed
 * Fix documentation now that package is available via `pip`.
