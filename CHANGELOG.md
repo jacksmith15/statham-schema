@@ -31,6 +31,7 @@ Types of changes are:
       named `VolumesItem`.
 * BREAKING Generated models now use a composable syntax for
   converters, to support combinations of `anyOf`, `oneOf`, `array`.
+  See `statham/converters.py` for more details.
 
 ### Fixed
 * Name collisions where the last segment of the JSON Pointer for
