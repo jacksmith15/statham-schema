@@ -77,3 +77,13 @@ def test_nesting_array_within_a_composition(input_):
     factory = instantiate(AnyOf(StringWrapper, Array(StringWrapper)))
     with no_raise():
         _ = factory(input_)
+
+
+def test_converter_tree_representation():
+    tree = Array(
+        AnyOf(OneOf(Array(StringWrapper), StringWrapper), IntegerWrapper)
+    )
+    assert repr(tree) == (
+        "Array(AnyOf("
+        "OneOf(Array(StringWrapper), StringWrapper), IntegerWrapper))"
+    )

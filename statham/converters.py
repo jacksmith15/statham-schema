@@ -10,6 +10,10 @@ class Constructor(ABC):
     """Constructor for composing instantiation logic."""
 
     @abstractmethod
+    def __repr__(self):
+        """Representation should show full hierarchy."""
+
+    @abstractmethod
     def instantiate(self, data):
         """Allow different instantiation logic per sentinel."""
 
@@ -17,10 +21,21 @@ class Constructor(ABC):
 TypeItem = Union[Type, Constructor]
 
 
+def _repr(type_item: TypeItem) -> str:
+    if isinstance(type_item, Constructor):
+        return repr(type_item)
+    return type_item.__name__
+
+
 class Array(Constructor):
+    """Constructor for instantiating objects in a list."""
+
     def __init__(self, model: TypeItem):
         self.model = model
         self._factory = instantiate(model)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({_repr(self.model)})"
 
     def instantiate(self, data):
         if isinstance(data, NotPassed):
@@ -29,8 +44,14 @@ class Array(Constructor):
 
 
 class AnyOf(Constructor):
+    """Constructor for any one of a list of possible models/sub-schemas."""
+
     def __init__(self, *models: Type):
         self.models = models
+
+    def __repr__(self):
+        models = ", ".join((_repr(model) for model in self.models))
+        return f"{type(self).__name__}({models})"
 
     def instantiate(self, data):
         if not isinstance(data, (dict, list)):
@@ -47,8 +68,14 @@ class AnyOf(Constructor):
 
 
 class OneOf(Constructor):
+    """Constructor for exactly one of a list of possible models/sub-schemas."""
+
     def __init__(self, *models: Type):
         self.models = models
+
+    def __repr__(self):
+        models = ", ".join((_repr(model) for model in self.models))
+        return f"{type(self).__name__}({models})"
 
     def instantiate(self, data):
         if not isinstance(data, (dict, list)):
