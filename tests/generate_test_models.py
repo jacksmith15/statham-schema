@@ -10,6 +10,8 @@ OUTPUT_DIR = "tests/models"
 
 def _generate():
     for filename in os.listdir(SCHEMA_DIR):
+        if not os.path.isfile(filename):
+            continue
         sys.stdout.write("*")
         subprocess.check_call(
             [
