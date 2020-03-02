@@ -1,7 +1,12 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+
+# pylint: disable=unused-import
+from statham.converters import AnyOf, Array, instantiate, OneOf
+
+# pylint: enable=unused-import
 from statham.validators import NotPassed
 
 
@@ -16,8 +21,7 @@ class NestedSchema:
             val.instance_of(str),
             val.has_format("uuid"),
             val.pattern(
-                "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F"
-                "]{4}\\-[0-9a-fA-F]{12}$"
+                "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$"
             ),
         ]
     )
@@ -26,9 +30,7 @@ class NestedSchema:
             val.instance_of(str),
             val.has_format("date-time"),
             val.pattern(
-                "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[1"
-                "2][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]"
-                "+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+                "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
             ),
         ],
         default=NotPassed(),
@@ -49,13 +51,13 @@ class SimpleSchema:
 
     related: NestedSchema = attrib(
         validator=[val.instance_of(NestedSchema)],
-        converter=con.instantiate(NestedSchema),  # type: ignore
+        converter=instantiate(NestedSchema),  # type: ignore
     )
     amount: Union[float, NotPassed] = attrib(
         validator=[val.instance_of(float)], default=NotPassed()
     )
     children: Union[List[Union[NestedSchema, NotPassed]], NotPassed] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(NestedSchema),  # type: ignore
+        converter=instantiate(Array(NestedSchema)),  # type: ignore
         default=NotPassed(),
     )

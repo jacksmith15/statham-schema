@@ -45,7 +45,6 @@ IGNORED_SCHEMA_KEYWORDS = (
     "enum",
     "const",
     "uniqueItems",
-    "oneOf",
     "allOf",
     "not",
     # OpenAPI/Swagger
@@ -105,6 +104,7 @@ def get_type(flag: TypeEnum) -> Union[str, List[str]]:
 @unique
 class CompositionTypeEnum(Enum):
     ANY_OF = "anyOf"
+    ONE_OF = "oneOf"
 
 
 COMPOSITION_KEYWORDS = {

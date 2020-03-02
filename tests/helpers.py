@@ -1,4 +1,5 @@
-from typing import Dict, Optional, Type
+from contextlib import contextmanager
+from typing import Dict, Optional, Tuple, Type, Union
 
 from black import assert_equivalent as assert_ast_equal
 import pytest
@@ -49,3 +50,22 @@ def abstract_model_instantiate_test(
         f"Unexpected error message: '{actual_msg}'. Expected to contain "
         f"'{exception_msg}'."
     )
+
+
+@contextmanager
+def no_raise(*exception_types: Type[Exception]):
+    """Simply assert that a given code block does nto raise.
+
+    Essentially the inverse of `pytest.raises`.
+
+    :param exception_types: The type of exceptions to fail on. Does
+        not implement handling on other exceptions - these will raise
+        normally.
+    """
+    types: Union[
+        Type[Exception], Tuple[Type[Exception], ...]
+    ] = exception_types or Exception
+    try:
+        yield
+    except types as exc:  # pylint: disable=broad-except
+        assert False, str(exc)

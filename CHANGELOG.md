@@ -18,6 +18,10 @@ Types of changes are:
     - Creates models for each schema provided in the list.
     - Generated models will instantiate the first compatible model,
       based on the order they are presented.
+* `oneOf` composition keyword now supported.
+    - Creates models for each schema provided in the list.
+    - Generated models will instantiate any compatible model, but
+      fail if more than one succeeds.
 
 ### Changed
 * BREAKING Naming of anonymous schemas declared within the items
@@ -25,6 +29,9 @@ Types of changes are:
     - For example, items of a list declared under field `volumes`,
       would previously have been named `Items`, but would now be
       named `VolumesItem`.
+* BREAKING Generated models now use a composable syntax for
+  converters, to support combinations of `anyOf`, `oneOf`, `array`.
+  See `statham/converters.py` for more details.
 
 ### Fixed
 * Name collisions where the last segment of the JSON Pointer for

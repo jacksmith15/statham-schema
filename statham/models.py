@@ -68,6 +68,23 @@ class AnyOfSchema(CompositionSchema):
         return self.anyOf
 
 
+@attrs(kw_only=True, frozen=True)
+class OneOfSchema(CompositionSchema):
+
+    _type: Union[str, List[str]] = attrib(
+        validator=[instance_of((str, list))], default="oneOf"
+    )
+
+    oneOf: List[Schema] = attrib(
+        validator=[instance_of(list), min_items(1)],
+        converter=_list_schema_convert,
+    )
+
+    @property
+    def schemas(self):
+        return self.oneOf
+
+
 COMPOSITION_SCHEMAS = all_subclasses(CompositionSchema)
 
 

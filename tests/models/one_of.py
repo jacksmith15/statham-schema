@@ -58,18 +58,18 @@ class Model:
             val.min_length(3),
             val.minimum(3),
         ],
-        converter=instantiate(AnyOf()),  # type: ignore
+        converter=instantiate(OneOf()),  # type: ignore
         default=NotPassed(),
     )
     objects: Union[StringWrapper, StringAndIntegerWrapper, NotPassed] = attrib(
         validator=[val.instance_of(StringWrapper, StringAndIntegerWrapper)],
         converter=instantiate(  # type: ignore
-            AnyOf(StringWrapper, StringAndIntegerWrapper)
+            OneOf(StringWrapper, StringAndIntegerWrapper)
         ),
         default=NotPassed(),
     )
     mixed: Union[OtherStringWrapper, str, NotPassed] = attrib(
         validator=[val.instance_of(OtherStringWrapper, str)],
-        converter=instantiate(AnyOf(OtherStringWrapper)),  # type: ignore
+        converter=instantiate(OneOf(OtherStringWrapper)),  # type: ignore
         default=NotPassed(),
     )

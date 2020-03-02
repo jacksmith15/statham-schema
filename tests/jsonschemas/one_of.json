@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "primitive": {
-      "anyOf": [
+      "oneOf": [
         {
           "type": "string",
           "minLength": 3
@@ -15,7 +15,7 @@
       ]
     },
     "objects": {
-      "anyOf": [
+      "oneOf": [
         {
           "type": "object",
           "title": "StringWrapper",
@@ -48,7 +48,7 @@
       ]
     },
     "mixed": {
-      "anyOf": [
+      "oneOf": [
         {
           "type": "object",
           "title": "OtherStringWrapper",

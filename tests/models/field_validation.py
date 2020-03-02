@@ -1,7 +1,12 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+
+# pylint: disable=unused-import
+from statham.converters import AnyOf, Array, instantiate, OneOf
+
+# pylint: enable=unused-import
 from statham.validators import NotPassed
 
 
@@ -30,7 +35,7 @@ class Model:
         default=NotPassed(),
     )
     string_pattern: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.pattern(r"^(foo|bar).*")],
+        validator=[val.instance_of(str), val.pattern("^(foo|bar).*")],
         default=NotPassed(),
     )
     string_minLength: Union[str, NotPassed] = attrib(

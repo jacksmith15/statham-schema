@@ -9,6 +9,8 @@ from statham.models import (
     ArraySchema,
     CompositionSchema,
     ObjectSchema,
+    OneOfSchema,
+    PrimitiveSchema,
     Schema,
 )
 from statham.validators import (
@@ -61,9 +63,9 @@ def standard_type_annotations(schema: Schema) -> List[str]:
 
 
 def composition_type_annotations(schema: CompositionSchema) -> List[str]:
-    if not isinstance(schema, AnyOfSchema):
+    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
         raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
+    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
 
 
 def validator_type_arg(schema: Schema) -> str:
@@ -90,9 +92,9 @@ def standard_validator_type_args(schema: Schema):
 
 
 def composition_validator_type_args(schema: CompositionSchema):
-    if not isinstance(schema, AnyOfSchema):
+    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
         raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.anyOf]
+    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
 
 
 INDENT = " " * 4
@@ -120,23 +122,32 @@ def extra_validators(schema: Schema) -> List[str]:
     ]
 
 
-def converter(schema: Schema) -> str:
+def _build_converter(schema: Schema):
     if isinstance(schema, ObjectSchema):
-        return f"con.instantiate({schema.title})"
-    if isinstance(schema, ArraySchema) and isinstance(
-        schema.items, ObjectSchema
+        return schema.title
+    if isinstance(schema, ArraySchema) and not isinstance(
+        schema.items, PrimitiveSchema
     ):
-        return f"con.map_instantiate({schema.items.title})"
-    if isinstance(schema, AnyOfSchema):
-        types = ", ".join(
-            [
-                sub_schema.title
-                for sub_schema in schema.anyOf
-                if isinstance(sub_schema, ObjectSchema)
-            ]
+        return f"Array({_build_converter(schema.items)})"
+    if isinstance(schema, CompositionSchema):
+        schemas = ", ".join(
+            filter(
+                None,
+                (_build_converter(sub_schema) for sub_schema in schema.schemas),
+            )
         )
-        if types:
-            return f"con.any_of_instantiate({types})"
+        if isinstance(schema, OneOfSchema):
+            return f"OneOf({schemas})"
+        if isinstance(schema, AnyOfSchema):
+            return f"AnyOf({schemas})"
+        raise NotImplementedError
+    return None
+
+
+def converter(schema: Schema) -> str:
+    tree = _build_converter(schema)
+    if tree:
+        return f"instantiate({tree})"
     return ""
 
 
