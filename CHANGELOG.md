@@ -29,6 +29,8 @@ Types of changes are:
     - For example, items of a list declared under field `volumes`,
       would previously have been named `Items`, but would now be
       named `VolumesItem`.
+* BREAKING Generated models now use a composable syntax for
+  converters, to support combinations of `anyOf`, `oneOf`, `array`.
 
 ### Fixed
 * Name collisions where the last segment of the JSON Pointer for
