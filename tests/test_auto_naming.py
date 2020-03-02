@@ -19,7 +19,7 @@ class TestAnonymousAnyOfObjects:
     @pytest.fixture(scope="class")
     def instance() -> Autoname:
         return Autoname(
-            list_any_of=[{"string_prop": "foo"}, {"integer_prop": "bar"}]
+            list_any_of=[{"string_prop": "foo"}, {"integer_prop": 1}]
         )
 
     @staticmethod

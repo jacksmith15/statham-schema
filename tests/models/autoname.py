@@ -1,7 +1,8 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+from statham.converters import AnyOf, Array, instantiate, OneOf
 from statham.validators import NotPassed
 
 
@@ -59,16 +60,22 @@ class Autoname:
         List[Union[ListOfStringsItem, NotPassed]], NotPassed
     ] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(ListOfStringsItem),  # type: ignore
+        converter=instantiate(Array(ListOfStringsItem)),  # type: ignore
         default=NotPassed(),
     )
     list_of_integers: Union[
         List[Union[ListOfIntegersItem, NotPassed]], NotPassed
     ] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(ListOfIntegersItem),  # type: ignore
+        converter=instantiate(Array(ListOfIntegersItem)),  # type: ignore
         default=NotPassed(),
     )
     list_any_of: Union[
         List[Union[ListAnyOfItem0, ListAnyOfItem1, NotPassed]], NotPassed
-    ] = attrib(validator=[val.instance_of(list)], default=NotPassed())
+    ] = attrib(
+        validator=[val.instance_of(list)],
+        converter=instantiate(
+            Array(AnyOf(ListAnyOfItem0, ListAnyOfItem1))
+        ),  # type: ignore
+        default=NotPassed(),
+    )

@@ -6,18 +6,18 @@ from statham.exceptions import ValidationError
 from statham.validators import NotPassed
 
 
-class Sentinel(ABC):
-    """Sentinel for composing instantiation logic."""
+class Constructor(ABC):
+    """Constructor for composing instantiation logic."""
 
     @abstractmethod
     def instantiate(self, data):
         """Allow different instantiation logic per sentinel."""
 
 
-TypeItem = Union[Type, Sentinel]
+TypeItem = Union[Type, Constructor]
 
 
-class Array(Sentinel):
+class Array(Constructor):
     def __init__(self, model: TypeItem):
         self.model = model
         self._factory = instantiate(model)
@@ -28,7 +28,7 @@ class Array(Sentinel):
         return [self._factory(data) for data in data]
 
 
-class AnyOf(Sentinel):
+class AnyOf(Constructor):
     def __init__(self, *models: Type):
         self.models = models
 
@@ -46,7 +46,7 @@ class AnyOf(Sentinel):
             raise ValidationError.no_composition_match(self.models, data)
 
 
-class OneOf(Sentinel):
+class OneOf(Constructor):
     def __init__(self, *models: Type):
         self.models = models
 
@@ -75,7 +75,7 @@ def instantiate(model: TypeItem):
     """
 
     def _convert(data):
-        if isinstance(model, Sentinel):
+        if isinstance(model, Constructor):
             return model.instantiate(data)
         if isinstance(data, (model, NotPassed)):
             return data
@@ -97,61 +97,61 @@ def _safe_instantiate(model: TypeItem):
     return _convert
 
 
-# def map_instantiate(model: TypeItem):
-#     """Converter factory for instantiating a list of models.
+def map_instantiate(model: TypeItem):
+    """Converter factory for instantiating a list of models.
 
-#     This allows passing a mixed list of instances and dictionaries and
-#     receiving a list of instances.
-#     """
-#     _factory = instantiate(model)
+    This allows passing a mixed list of instances and dictionaries and
+    receiving a list of instances.
+    """
+    _factory = instantiate(model)
 
-#     def _convert(list_data):
-#         if isinstance(list_data, NotPassed):
-#             return list_data
-#         return [_factory(data) for data in list_data]
+    def _convert(list_data):
+        if isinstance(list_data, NotPassed):
+            return list_data
+        return [_factory(data) for data in list_data]
 
-#     return _convert
-
-
-# def any_of_instantiate(*models: Type):
-#     """Instantiate against any of the provided models.
-
-#     Fail if none of the models instantiate succesfully.
-#     """
-
-#     def _convert(data):
-#         if not isinstance(data, (dict, list)):
-#             return data
-#         try:
-#             return next(
-#                 filter(
-#                     None, [_safe_instantiate(model)(data) for model in models]
-#                 )
-#             )
-#         except StopIteration:
-#             raise ValidationError.no_composition_match(models, data)
-
-#     return _convert
+    return _convert
 
 
-# def one_of_instantiate(*models: Type):
-#     """Instantiate against one of the provided models.
+def any_of_instantiate(*models: Type):
+    """Instantiate against any of the provided models.
 
-#     Fails if more than one model matches the input.
-#     """
+    Fail if none of the models instantiate succesfully.
+    """
 
-#     def _convert(data):
-#         if not isinstance(data, (dict, list)):
-#             return data
-#         instantiated = list(
-#             filter(None, [_safe_instantiate(model)(data) for model in models])
-#         )
-#         if not instantiated:
-#             raise ValidationError.no_composition_match(models, data)
-#         if len(instantiated) > 1:
-#             raise ValidationError.mutliple_composition_match(
-#                 [type(instance) for instance in instantiated], data
-#             )
-#         return instantiated[0]
+    def _convert(data):
+        if not isinstance(data, (dict, list)):
+            return data
+        try:
+            return next(
+                filter(
+                    None, [_safe_instantiate(model)(data) for model in models]
+                )
+            )
+        except StopIteration:
+            raise ValidationError.no_composition_match(models, data)
 
-#     return _convert
+    return _convert
+
+
+def one_of_instantiate(*models: Type):
+    """Instantiate against one of the provided models.
+
+    Fails if more than one model matches the input.
+    """
+
+    def _convert(data):
+        if not isinstance(data, (dict, list)):
+            return data
+        instantiated = list(
+            filter(None, [_safe_instantiate(model)(data) for model in models])
+        )
+        if not instantiated:
+            raise ValidationError.no_composition_match(models, data)
+        if len(instantiated) > 1:
+            raise ValidationError.mutliple_composition_match(
+                [type(instance) for instance in instantiated], data
+            )
+        return instantiated[0]
+
+    return _convert

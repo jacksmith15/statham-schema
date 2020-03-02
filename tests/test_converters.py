@@ -9,7 +9,7 @@ from statham.converters import (
     Array,
     instantiate,
     OneOf,
-    Sentinel,
+    Constructor,
     TypeItem,
 )
 from tests.helpers import no_raise
