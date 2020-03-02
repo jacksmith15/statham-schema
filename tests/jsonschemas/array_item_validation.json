@@ -1,0 +1,10 @@
+{
+    "title": "Model",
+    "type": "object",
+    "properties": {
+        "list_of_strings": {
+            "type": "array",
+            "items": {"type": "string"}
+        }
+    }
+}
