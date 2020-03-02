@@ -9,9 +9,9 @@ OUTPUT_DIR = "tests/models"
 
 
 def _generate():
-    for idx, filename in enumerate(os.listdir(SCHEMA_DIR)):
+    for filename in os.listdir(SCHEMA_DIR):
         sys.stdout.write("*")
-        subprocess.call(
+        subprocess.check_call(
             [
                 "python",
                 "statham",
