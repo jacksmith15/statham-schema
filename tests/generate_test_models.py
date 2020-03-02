@@ -10,18 +10,12 @@ OUTPUT_DIR = "tests/models"
 
 def _generate():
     for filename in os.listdir(SCHEMA_DIR):
-        if not os.path.isfile(filename):
+        path = os.path.join(SCHEMA_DIR, filename)
+        if not os.path.isfile(path):
             continue
         sys.stdout.write("*")
         subprocess.check_call(
-            [
-                "python",
-                "statham",
-                "--input",
-                f"{SCHEMA_DIR}/{filename}",
-                "--output",
-                OUTPUT_DIR,
-            ]
+            ["python", "statham", "--input", path, "--output", OUTPUT_DIR]
         )
 
 
