@@ -1,7 +1,12 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+
+# pylint: disable=unused-import
+from statham.converters import AnyOf, Array, instantiate, OneOf
+
+# pylint: enable=unused-import
 from statham.validators import NotPassed
 
 
@@ -53,18 +58,18 @@ class Model:
             val.min_length(3),
             val.minimum(3),
         ],
-        converter=con.one_of_instantiate(),  # type: ignore
+        converter=instantiate(OneOf()),  # type: ignore
         default=NotPassed(),
     )
     objects: Union[StringWrapper, StringAndIntegerWrapper, NotPassed] = attrib(
         validator=[val.instance_of(StringWrapper, StringAndIntegerWrapper)],
-        converter=con.one_of_instantiate(  # type: ignore
-            StringWrapper, StringAndIntegerWrapper
+        converter=instantiate(  # type: ignore
+            OneOf(StringWrapper, StringAndIntegerWrapper)
         ),
         default=NotPassed(),
     )
     mixed: Union[OtherStringWrapper, str, NotPassed] = attrib(
         validator=[val.instance_of(OtherStringWrapper, str)],
-        converter=con.one_of_instantiate(OtherStringWrapper),  # type: ignore
+        converter=instantiate(OneOf(OtherStringWrapper)),  # type: ignore
         default=NotPassed(),
     )

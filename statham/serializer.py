@@ -10,6 +10,7 @@ from statham.models import (
     CompositionSchema,
     ObjectSchema,
     OneOfSchema,
+    PrimitiveSchema,
     Schema,
 )
 from statham.validators import (
@@ -121,26 +122,32 @@ def extra_validators(schema: Schema) -> List[str]:
     ]
 
 
-def converter(schema: Schema) -> str:
+def _build_converter(schema: Schema):
     if isinstance(schema, ObjectSchema):
-        return f"con.instantiate({schema.title})"
-    if isinstance(schema, ArraySchema) and isinstance(
-        schema.items, ObjectSchema
+        return schema.title
+    if isinstance(schema, ArraySchema) and not isinstance(
+        schema.items, PrimitiveSchema
     ):
-        return f"con.map_instantiate({schema.items.title})"
+        return f"Array({_build_converter(schema.items)})"
     if isinstance(schema, CompositionSchema):
-        types = ", ".join(
-            [
-                sub_schema.title
-                for sub_schema in schema.schemas
-                if isinstance(sub_schema, ObjectSchema)
-            ]
+        schemas = ", ".join(
+            filter(
+                None,
+                (_build_converter(sub_schema) for sub_schema in schema.schemas),
+            )
         )
-        if isinstance(schema, AnyOfSchema):
-            return f"con.any_of_instantiate({types})"
         if isinstance(schema, OneOfSchema):
-            return f"con.one_of_instantiate({types})"
+            return f"OneOf({schemas})"
+        if isinstance(schema, AnyOfSchema):
+            return f"AnyOf({schemas})"
         raise NotImplementedError
+    return None
+
+
+def converter(schema: Schema) -> str:
+    tree = _build_converter(schema)
+    if tree:
+        return f"instantiate({tree})"
     return ""
 
 

@@ -1,7 +1,12 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+
+# pylint: disable=unused-import
+from statham.converters import AnyOf, Array, instantiate, OneOf
+
+# pylint: enable=unused-import
 from statham.validators import NotPassed
 
 
@@ -36,7 +41,7 @@ class Remote:
     )
     nested: Union[NestedRemote, NotPassed] = attrib(
         validator=[val.instance_of(NestedRemote)],
-        converter=con.instantiate(NestedRemote),  # type: ignore
+        converter=instantiate(NestedRemote),  # type: ignore
         default=NotPassed(),
     )
 
@@ -49,11 +54,11 @@ class Model:
 
     filesystem_remote_ref_flat: Union[Category, NotPassed] = attrib(
         validator=[val.instance_of(Category)],
-        converter=con.instantiate(Category),  # type: ignore
+        converter=instantiate(Category),  # type: ignore
         default=NotPassed(),
     )
     filesystem_remote_ref_directory: Union[Remote, NotPassed] = attrib(
         validator=[val.instance_of(Remote)],
-        converter=con.instantiate(Remote),  # type: ignore
+        converter=instantiate(Remote),  # type: ignore
         default=NotPassed(),
     )
