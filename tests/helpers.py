@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Tuple, Type, Union
 
 from black import assert_equivalent as assert_ast_equal
 import pytest
@@ -53,8 +53,10 @@ def abstract_model_instantiate_test(
 
 
 @contextmanager
-def no_raise(*exception_types: Exception):
-    types = exception_types or Exception
+def no_raise(*exception_types: Type[Exception]):
+    types: Union[
+        Type[Exception], Tuple[Type[Exception], ...]
+    ] = exception_types or Exception
     try:
         yield
     except types as exc:  # pylint: disable=broad-except

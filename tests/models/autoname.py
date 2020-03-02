@@ -78,8 +78,8 @@ class Autoname:
         List[Union[ListAnyOfItem0, ListAnyOfItem1, NotPassed]], NotPassed
     ] = attrib(
         validator=[val.instance_of(list)],
-        converter=instantiate(
+        converter=instantiate(  # type: ignore
             Array(AnyOf(ListAnyOfItem0, ListAnyOfItem1))
-        ),  # type: ignore
+        ),
         default=NotPassed(),
     )

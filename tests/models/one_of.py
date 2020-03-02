@@ -63,9 +63,9 @@ class Model:
     )
     objects: Union[StringWrapper, StringAndIntegerWrapper, NotPassed] = attrib(
         validator=[val.instance_of(StringWrapper, StringAndIntegerWrapper)],
-        converter=instantiate(
+        converter=instantiate(  # type: ignore
             OneOf(StringWrapper, StringAndIntegerWrapper)
-        ),  # type: ignore
+        ),
         default=NotPassed(),
     )
     mixed: Union[OtherStringWrapper, str, NotPassed] = attrib(
