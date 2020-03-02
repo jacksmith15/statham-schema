@@ -1,7 +1,7 @@
 from functools import partial
 from logging import getLogger
 import re
-from typing import Callable, Dict, Type, Union
+from typing import Any, Callable, Dict, Type, Union
 from uuid import UUID
 import warnings
 
@@ -84,7 +84,11 @@ def on_types(*type_args: Type) -> Callable:
     return _validate_if_types
 
 
-def raises(message: str) -> Callable:
+Validator = Callable[[Any, str, Any], None]
+PreValidator = Callable[[Any, str, Any, Callable[[], Exception]], None]
+
+
+def raises(message: str) -> Callable[[PreValidator], Validator]:
     """Decorator factory which declares error message for validator."""
 
     def validate_with_error_message(validator: Callable) -> Callable:
@@ -260,6 +264,15 @@ def instance_of(*types: Type) -> Callable:
             raise error()
 
     return _instance_of
+
+
+def required(is_required: bool) -> Callable[[Any, str, Any], None]:
+    @raises(f"Not passed but is required.")
+    def _required(_instance, _attribute, value, error):
+        if value == NotPassed() and is_required:
+            raise error()
+
+    return _required
 
 
 SCHEMA_ATTRIBUTE_VALIDATORS: Dict[str, Callable] = {
