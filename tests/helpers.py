@@ -54,6 +54,14 @@ def abstract_model_instantiate_test(
 
 @contextmanager
 def no_raise(*exception_types: Type[Exception]):
+    """Simply assert that a given code block does nto raise.
+
+    Essentially the inverse of `pytest.raises`.
+
+    :param exception_types: The type of exceptions to fail on. Does
+        not implement handling on other exceptions - these will raise
+        normally.
+    """
     types: Union[
         Type[Exception], Tuple[Type[Exception], ...]
     ] = exception_types or Exception
