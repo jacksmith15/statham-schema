@@ -36,7 +36,8 @@
                         "properties": {
                             "integer_prop": {"type": "integer"}
                         }
-                    }
+                    },
+                    {"type": "string"}
                 ]
             }
         }

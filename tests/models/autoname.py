@@ -75,7 +75,7 @@ class Autoname:
         default=NotPassed(),
     )
     list_any_of: Union[
-        List[Union[ListAnyOfItem0, ListAnyOfItem1, NotPassed]], NotPassed
+        List[Union[ListAnyOfItem0, ListAnyOfItem1, str, NotPassed]], NotPassed
     ] = attrib(
         validator=[val.instance_of(list)],
         converter=instantiate(  # type: ignore

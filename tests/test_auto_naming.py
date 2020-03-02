@@ -19,14 +19,22 @@ class TestAnonymousAnyOfObjects:
     @pytest.fixture(scope="class")
     def instance() -> Autoname:
         return Autoname(
-            list_any_of=[{"string_prop": "foo"}, {"integer_prop": 1}]
+            list_any_of=[
+                {"string_prop": "foo"},
+                {"integer_prop": 1},
+                "A string",
+            ]
         )
 
     @staticmethod
     def test_successful_top_level_instantiation(instance: Autoname):
         assert isinstance(instance, Autoname)
 
-    PARAMS: List[Tuple[int, Type]] = [(0, ListAnyOfItem0), (1, ListAnyOfItem1)]
+    PARAMS: List[Tuple[int, Type]] = [
+        (0, ListAnyOfItem0),
+        (1, ListAnyOfItem1),
+        (2, str),
+    ]
 
     @staticmethod
     @pytest.mark.parametrize("index,model", PARAMS)
