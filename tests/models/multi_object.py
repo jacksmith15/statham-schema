@@ -1,7 +1,12 @@
 from typing import ClassVar, List, Union
 
 from attr import attrs, attrib
-from statham import converters as con, validators as val
+from statham import validators as val
+
+# pylint: disable=unused-import
+from statham.converters import AnyOf, Array, instantiate, OneOf
+
+# pylint: enable=unused-import
 from statham.validators import NotPassed
 
 
@@ -25,7 +30,7 @@ class Child:
     )
     category: Union[Category, NotPassed] = attrib(
         validator=[val.instance_of(Category)],
-        converter=con.instantiate(Category),  # type: ignore
+        converter=instantiate(Category),  # type: ignore
         default=NotPassed(),
     )
 
@@ -38,11 +43,11 @@ class Model:
 
     children: Union[List[Union[Child, NotPassed]], NotPassed] = attrib(
         validator=[val.instance_of(list)],
-        converter=con.map_instantiate(Child),  # type: ignore
+        converter=instantiate(Array(Child)),  # type: ignore
         default=NotPassed(),
     )
     category: Union[Category, NotPassed] = attrib(
         validator=[val.instance_of(Category)],
-        converter=con.instantiate(Category),  # type: ignore
+        converter=instantiate(Category),  # type: ignore
         default=NotPassed(),
     )

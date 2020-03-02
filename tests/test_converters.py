@@ -3,15 +3,7 @@ from attr import attrs, attrib
 import pytest
 
 from statham import validators as val
-from statham.converters import (
-    _safe_instantiate,
-    AnyOf,
-    Array,
-    instantiate,
-    OneOf,
-    Constructor,
-    TypeItem,
-)
+from statham.converters import _safe_instantiate, AnyOf, Array, OneOf
 from tests.helpers import no_raise
 
 

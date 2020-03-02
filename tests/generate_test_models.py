@@ -1,7 +1,6 @@
 """Helper for regenerating test models from schemas."""
 import os
 import subprocess
-import sys
 
 
 SCHEMA_DIR = "tests/jsonschemas"
@@ -13,7 +12,6 @@ def _generate():
         path = os.path.join(SCHEMA_DIR, filename)
         if not os.path.isfile(path):
             continue
-        sys.stdout.write("*")
         subprocess.check_call(
             ["python", "statham", "--input", path, "--output", OUTPUT_DIR]
         )
