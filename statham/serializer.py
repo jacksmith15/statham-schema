@@ -131,7 +131,10 @@ def _build_converter(schema: Schema):
         return f"Array({_build_converter(schema.items)})"
     if isinstance(schema, CompositionSchema):
         schemas = ", ".join(
-            [_build_converter(sub_schema) for sub_schema in schema.schemas]
+            filter(
+                None,
+                (_build_converter(sub_schema) for sub_schema in schema.schemas),
+            )
         )
         if isinstance(schema, OneOfSchema):
             return f"OneOf({schemas})"
