@@ -1,18 +1,24 @@
 from functools import wraps
 from logging import getLogger
 import re
-from typing import Any, Callable, Dict, Type, Union
+from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union
 from uuid import UUID
 import warnings
 
-# False positive on `ParserError` import.
-from attr import Attribute
+from attr import Attribute as AttrAttribute
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
 
 from statham.exceptions import ValidationError
 
 
 LOGGER = getLogger(__name__)
+
+
+class Attribute(NamedTuple):
+    """Schema in context of enclosing attribute."""
+
+    name: str
+    schema: Optional[Any] = None
 
 
 class _FormatString:
@@ -85,7 +91,7 @@ def on_types(*type_args: Type) -> Callable:
     return _validate_if_types
 
 
-Validator = Callable[[Any, Attribute, Any], None]
+Validator = Callable[[Any, Union[AttrAttribute, Attribute], Any], None]
 
 
 def raises(message: str) -> Callable[[Validator], Validator]:
