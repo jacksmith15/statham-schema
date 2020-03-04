@@ -3,6 +3,7 @@ from typing import Any
 from statham import validators as val
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
+from statham.dsl.helpers import custom_repr
 
 
 class Property:
@@ -13,7 +14,7 @@ class Property:
     parent: Any
     element: Element
 
-    def __init__(self, element: Element, required: bool = False):
+    def __init__(self, element: Element, *, required: bool = False):
         self.element = element
         self.required = required
 
@@ -34,6 +35,9 @@ class Property:
             value = self.element.default
         val.required(self.required)(self, value)
         return self.element(self, value)
+
+    def __repr__(self):
+        return custom_repr(self)
 
 
 UNBOUND_PROPERTY = Property(Element(), required=False)

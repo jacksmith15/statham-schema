@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Dict, Union
+from typing import Any, ClassVar, Dict, overload, Tuple, Union
 
 from statham.dsl.elements.meta import JSONSchemaModelMeta
 from statham.dsl.elements.base import Element
@@ -17,7 +17,7 @@ class JSONSchemaModel(metaclass=JSONSchemaModelMeta):
     default: ClassVar[Any]
 
     @classmethod
-    def _parse_args(cls, *args):
+    def _parse_args(cls, *args) -> Tuple[Property, Any]:
         max_args = 2
         min_args = 1
         if len(args) > max_args:
@@ -34,6 +34,14 @@ class JSONSchemaModel(metaclass=JSONSchemaModelMeta):
             return UNBOUND_PROPERTY, args[0]
         return args[0], args[1]
 
+    @overload
+    def __new__(cls, _value: Any):
+        ...
+
+    @overload
+    def __new__(cls, _property: Property, _value: Any):
+        ...
+
     def __new__(cls, *args):
         property_, value = cls._parse_args(*args)
         for validator in cls.validators:
@@ -41,6 +49,14 @@ class JSONSchemaModel(metaclass=JSONSchemaModelMeta):
         if isinstance(value, (NotPassed, cls)):
             return value
         return object.__new__(cls)
+
+    @overload
+    def __init__(self, _value: Any):
+        ...
+
+    @overload
+    def __init__(self, _property: Property, _value: Any):
+        ...
 
     def __init__(self, *args):
         property_, value = self._parse_args(*args)
