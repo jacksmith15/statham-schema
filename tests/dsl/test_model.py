@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.elements.model import JSONSchemaModel
+from statham.dsl import JSONSchemaModel
 from statham.dsl.elements import Array, Object, OneOf, String
 from statham.exceptions import ValidationError
 from tests.helpers import no_raise
@@ -44,7 +44,6 @@ def test_string_wrapper_fails_on_invalid_arguments(param):
                 StringWrapper({"value": "foo"}),
             ]
         ),
-        dict(list_of_stuff=[1, {"value": "foo"}]),
     ],
 )
 def test_list_wrapper_accepts_valid_arguments(param):
