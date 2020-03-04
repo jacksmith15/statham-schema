@@ -5,7 +5,7 @@ from statham.dsl.elements.base import Element
 from statham.dsl.constants import NotPassed
 
 
-class String(Element):
+class String(Element[str]):
     """JSONSchema string element.
 
     Provides supported validation settings via keyword arguments.

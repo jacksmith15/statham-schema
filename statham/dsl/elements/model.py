@@ -1,19 +1,19 @@
 from typing import Any, ClassVar, Dict, overload, Tuple, Union
 
-from statham.dsl.elements.meta import JSONSchemaModelMeta
+from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.elements.base import Element
 from statham.dsl.property import Property, UNBOUND_PROPERTY
 from statham.exceptions import ValidationError
 from statham.dsl.constants import NotPassed
 
 
-class JSONSchemaModel(metaclass=JSONSchemaModelMeta):
+class Object(metaclass=ObjectMeta):
     """Base model for JSONSchema objects.
 
     Recursively validates and construct properties.
     """
 
-    schema_properties: ClassVar[Dict[str, Union[JSONSchemaModelMeta, Element]]]
+    properties: ClassVar[Dict[str, Union[ObjectMeta, Element]]]
     default: ClassVar[Any]
 
     @classmethod
@@ -62,24 +62,21 @@ class JSONSchemaModel(metaclass=JSONSchemaModelMeta):
         property_, value = self._parse_args(*args)
         if value is self:
             return
-        unexpected_kwargs = set(value) - set(self.schema_properties)
+        unexpected_kwargs = set(value) - set(self.properties)
         if unexpected_kwargs:
             raise ValidationError(
                 f"Unexpected attributes passed to {self.__class__}: "
                 f"{unexpected_kwargs}. Accepted kwargs: "
-                f"{set(self.schema_properties)}"
+                f"{set(self.properties)}"
             )
-        for attr_name, property_ in self.schema_properties.items():
+        for attr_name, property_ in self.properties.items():
             setattr(
                 self, attr_name, property_(value.get(attr_name, NotPassed()))
             )
 
     def __repr__(self):
         attr_repr = ", ".join(
-            [
-                f"{attr}={repr(getattr(self, attr))}"
-                for attr in self.schema_properties
-            ]
+            [f"{attr}={repr(getattr(self, attr))}" for attr in self.properties]
         )
         return f"{self.__class__.__name__}({attr_repr})"
 

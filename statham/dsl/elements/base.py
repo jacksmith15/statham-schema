@@ -1,11 +1,14 @@
 from abc import ABC
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.helpers import custom_repr
 
 
-class Element(ABC):
+T = TypeVar("T")
+
+
+class Element(Generic[T]):
     """Schema element for composing instantiation logic."""
 
     default: Any
@@ -23,10 +26,10 @@ class Element(ABC):
     def construct(self, _property, value):
         return value
 
-    def __call__(self, property_, value):
+    def __call__(self, property_, value) -> Union[T, NotPassed]:
         """Allow different instantiation logic per sentinel."""
         if not isinstance(self.default, NotPassed) and isinstance(
-            value, NotPassed()
+            value, NotPassed
         ):
             value = self.default
         for validator in self.validators:

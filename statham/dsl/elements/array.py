@@ -1,11 +1,14 @@
-from typing import Union
+from typing import List, TypeVar, Union
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import NotPassed
 
 
-class Array(Element):
+T = TypeVar("T")
+
+
+class Array(Element[List[T]]):
     """JSONSchema array element.
 
     Requires schema element for "items" keyword as first positional
@@ -14,7 +17,7 @@ class Array(Element):
 
     def __init__(
         self,
-        items: Element,
+        items: Element[T],
         *,
         default: Union[list, NotPassed] = NotPassed(),
         # Bad name to match JSONSchema keywords.

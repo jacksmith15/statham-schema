@@ -1,21 +1,28 @@
+from typing import List, Union
 import pytest
 
-from statham.dsl.elements import Array, JSONSchemaModel, OneOf, String
+from statham.dsl.constants import NotPassed, Maybe
+from statham.dsl.elements import Array, Object, OneOf, String
 from statham.dsl.property import Property
 from statham.exceptions import ValidationError
 from tests.helpers import no_raise
 
 
-class StringWrapper(JSONSchemaModel):
+class StringWrapper(Object):
 
-    value = Property(String(minLength=3), required=True)
+    value: Maybe[str] = Property(String(minLength=3), required=True)
 
 
-class ListWrapper(JSONSchemaModel):
+class ListWrapper(Object):
 
-    list_of_stuff = Property(
+    list_of_stuff: Maybe[List[Union[StringWrapper, str]]] = Property(
         Array(OneOf(StringWrapper, String(minLength=3)), minItems=1)
     )
+
+
+class ObjectWrapper(Object):
+
+    obj: StringWrapper = Property(StringWrapper, required=True)
 
 
 @pytest.mark.parametrize("param", [dict(value="foo")])

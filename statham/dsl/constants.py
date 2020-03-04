@@ -1,3 +1,6 @@
+from typing import TypeVar, Union
+
+
 class NotPassed:
     """Singleton similar to NoneType.
 
@@ -18,3 +21,8 @@ class NotPassed:
 
     def __bool__(self) -> bool:
         return False
+
+
+T = TypeVar("T")
+
+Maybe = Union[T, NotPassed]

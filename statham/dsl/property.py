@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from statham import validators as val
 from statham.dsl.constants import NotPassed
@@ -6,7 +6,10 @@ from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr
 
 
-class Property:
+T = TypeVar("T")
+
+
+class _Property(Generic[T]):
     """Descriptor for a property on an object."""
 
     required: bool
@@ -14,13 +17,15 @@ class Property:
     parent: Any
     element: Element
 
-    def __init__(self, element: Element, *, required: bool = False):
+    def __init__(self, element: Element[T], *, required: bool = False):
         self.element = element
         self.required = required
 
-    def evolve(self, name: str) -> "Property":
+    def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""
-        property_ = Property(element=self.element, required=self.required)
+        property_: _Property[T] = _Property(
+            element=self.element, required=self.required
+        )
         property_.bind(self.parent, name)
         return property_
 
@@ -40,5 +45,9 @@ class Property:
         return custom_repr(self)
 
 
-UNBOUND_PROPERTY = Property(Element(), required=False)
+UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
 UNBOUND_PROPERTY.bind(Element(), "<unbound>")
+
+
+def Property(element: Element, *, required: bool = False):
+    return _Property(element, required=required)
