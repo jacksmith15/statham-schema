@@ -12,12 +12,10 @@ class ValidationError(JSONSchemaObjectError):
     """Validation failure in generated models."""
 
     @classmethod
-    def from_validator(
-        cls, instance, attribute, value, message
-    ) -> "ValidationError":
+    def from_validator(cls, property_, value, message) -> "ValidationError":
         return cls(
-            f"Failed validating `{type(instance).__name__}."
-            f"{attribute.name} = {repr(value)}`. {message}"
+            f"Failed validating `{repr(property_.parent)}."
+            f"{property_.name} = {repr(value)}`. {message}"
         )
 
     @classmethod

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Type, Union
 
 from statham.exceptions import ValidationError
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 
 
 class Constructor(ABC):

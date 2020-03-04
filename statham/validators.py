@@ -1,24 +1,17 @@
 from functools import wraps
 from logging import getLogger
 import re
-from typing import Any, Callable, Dict, NamedTuple, Optional, Type, Union
+from typing import Any, Callable, Dict, Type, Union
 from uuid import UUID
 import warnings
 
-from attr import Attribute as AttrAttribute
 from dateutil.parser import parse as parse_datetime, ParserError  # type: ignore
 
 from statham.exceptions import ValidationError
+from statham.dsl.constants import NotPassed
 
 
 LOGGER = getLogger(__name__)
-
-
-class Attribute(NamedTuple):
-    """Schema in context of enclosing attribute."""
-
-    name: str
-    schema: Optional[Any] = None
 
 
 class _FormatString:
@@ -75,23 +68,23 @@ def _is_date_time(value: str) -> bool:
     return True
 
 
-def on_types(*type_args: Type) -> Callable:
+Validator = Callable[[Any, Any], None]
+
+
+def on_types(*type_args: Type) -> Callable[[Validator], Validator]:
     """Decorator factory to limit scope of validators to given types."""
 
-    def _validate_if_types(validator: Callable) -> Callable:
+    def _validate_if_types(validator: Validator) -> Validator:
         """Return a wrapped version of `validator` to negotiate type."""
 
-        def _inner_validator(instance, attribute, value) -> None:
+        def _inner_validator(property_, value) -> None:
             if not isinstance(value, type_args):
                 return
-            validator(instance, attribute, value)
+            validator(property_, value)
 
         return _inner_validator
 
     return _validate_if_types
-
-
-Validator = Callable[[Any, Union[AttrAttribute, Attribute], Any], None]
 
 
 def raises(message: str) -> Callable[[Validator], Validator]:
@@ -107,27 +100,25 @@ def raises(message: str) -> Callable[[Validator], Validator]:
         """
 
         @wraps(validator)
-        def inner_validator(instance, attribute, value) -> None:
+        def inner_validator(property_, value) -> None:
             try:
-                validator(instance, attribute, value)
+                validator(property_, value)
             except ValidationError:
-                raise ValidationError.from_validator(
-                    instance, attribute, value, message
-                )
+                raise ValidationError.from_validator(property_, value, message)
 
         return inner_validator
 
     return validate_with_error_message
 
 
-def null(_instance, _attribute, _value):
+def null(_property, _value):
     pass
 
 
 def min_items(minimum_items: int) -> Validator:
     @on_types(list)
     @raises(f"Must contain at least {minimum_items} items.")
-    def _min_items(_instance, _attribute, value):
+    def _min_items(_property, value):
         if len(value) < minimum_items:
             raise ValidationError
 
@@ -137,7 +128,7 @@ def min_items(minimum_items: int) -> Validator:
 def max_items(maximum_items: int) -> Validator:
     @on_types(list)
     @raises(f"Must contain fewer than {maximum_items} items.")
-    def _max_items(_instance, _attribute, value):
+    def _max_items(_property, value):
         if len(value) > maximum_items:
             raise ValidationError
 
@@ -147,7 +138,7 @@ def max_items(maximum_items: int) -> Validator:
 def minimum(minimum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be greater than or equal to {minimum_value}.")
-    def _minimum(_instance, _attribute, value):
+    def _minimum(_property, value):
         if value < minimum_value:
             raise ValidationError
 
@@ -157,7 +148,7 @@ def minimum(minimum_value: Union[int, float]) -> Validator:
 def maximum(maximum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be less than or equal to {maximum_value}.")
-    def _maximum(_instance, _attribute, value):
+    def _maximum(_property, value):
         if value > maximum_value:
             raise ValidationError
 
@@ -167,7 +158,7 @@ def maximum(maximum_value: Union[int, float]) -> Validator:
 def exclusive_minimum(exclusive_minimum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be strictly greater than {exclusive_minimum_value}.")
-    def _exclusive_minimum(_instance, _attribute, value):
+    def _exclusive_minimum(_property, value):
         if value <= exclusive_minimum_value:
             raise ValidationError
 
@@ -177,7 +168,7 @@ def exclusive_minimum(exclusive_minimum_value: Union[int, float]) -> Validator:
 def exclusive_maximum(exclusive_maximum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be strictly less than {exclusive_maximum_value}.")
-    def _exclusive_maximum(_instance, _attribute, value):
+    def _exclusive_maximum(_property, value):
         if value >= exclusive_maximum_value:
             raise ValidationError
 
@@ -187,7 +178,7 @@ def exclusive_maximum(exclusive_maximum_value: Union[int, float]) -> Validator:
 def multiple_of(multiple_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be a multiple of {multiple_value}.")
-    def _multiple_of(_instance, _attribute, value):
+    def _multiple_of(_property, value):
         if value % multiple_value:
             raise ValidationError
 
@@ -197,7 +188,7 @@ def multiple_of(multiple_value: Union[int, float]) -> Validator:
 def has_format(format_string: str) -> Validator:
     @on_types(str)
     @raises(f"Must match format described by {repr(format_string)}.")
-    def _format(_instance, _attribute, value):
+    def _format(_property, value):
         if not format_checker(format_string, value):
             raise ValidationError
 
@@ -207,7 +198,7 @@ def has_format(format_string: str) -> Validator:
 def pattern(re_pattern: str) -> Validator:
     @on_types(str)
     @raises(f"Must match regex pattern {repr(re_pattern)}.")
-    def _pattern(_instance, _attribute, value):
+    def _pattern(_property, value):
         if not re.match(re_pattern, value):
             raise ValidationError
 
@@ -217,7 +208,7 @@ def pattern(re_pattern: str) -> Validator:
 def min_length(min_length_value: int) -> Validator:
     @on_types(str)
     @raises(f"Must be at least {min_length_value} characters long.")
-    def _min_length_value(_instance, _attribute, value):
+    def _min_length_value(_property, value):
         if len(value) < min_length_value:
             raise ValidationError
 
@@ -227,45 +218,19 @@ def min_length(min_length_value: int) -> Validator:
 def max_length(max_length_value: int) -> Validator:
     @on_types(str)
     @raises(f"Must be at most {max_length_value} characters long.")
-    def _max_length_value(_instance, _attribute, value):
+    def _max_length_value(_property, value):
         if len(value) > max_length_value:
             raise ValidationError
 
     return _max_length_value
 
 
-class NotPassed:
-    """Singleton similar to NoneType.
-
-    To distinguish between arguments not passed, and arguments passed as
-    None.
-    """
-
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        """Enforce singleton."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
-
-    def __repr__(self) -> str:
-        return "NotPassed"
-
-    def __bool__(self) -> bool:
-        return False
-
-
 def instance_of(*types: Type) -> Validator:
     type_names = f"({', '.join((type_.__name__ for type_ in types))})"
 
     @raises(f"Must be of type {type_names}.")
-    def _instance_of(instance, attribute, value):
-        # Validator acts as a method.
-        # pylint: disable=protected-access
-        if value == NotPassed() and attribute.name not in getattr(
-            instance, "_required", tuple()
-        ):
+    def _instance_of(_property, value):
+        if value == NotPassed():
             return
         if not isinstance(value, types):
             raise ValidationError
@@ -275,7 +240,7 @@ def instance_of(*types: Type) -> Validator:
 
 def required(is_required: bool) -> Validator:
     @raises(f"Not passed but is required.")
-    def _required(_instance, _attribute, value):
+    def _required(_property, value):
         if value == NotPassed() and is_required:
             raise ValidationError
 

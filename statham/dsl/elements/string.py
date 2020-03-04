@@ -2,7 +2,7 @@ from typing import Any, List, Union
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 
 
 class String(Element):
@@ -14,7 +14,6 @@ class String(Element):
     def __init__(
         self,
         *,
-        required: bool = False,
         default: Any = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=redefined-builtin
@@ -26,7 +25,6 @@ class String(Element):
         minLength: Union[int, NotPassed] = NotPassed(),
         maxLength: Union[int, NotPassed] = NotPassed(),
     ):
-        self.required = required
         self.default = default
         self.format = format
         self.pattern = pattern

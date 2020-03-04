@@ -1,7 +1,7 @@
 from typing import Any, cast, Type
 
 from statham import validators as val
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
 from statham.dsl.elements.model import JSONSchemaModel
 from statham.dsl.elements.meta import JSONSchemaModelMeta

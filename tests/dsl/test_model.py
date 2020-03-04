@@ -1,20 +1,20 @@
 import pytest
 
-from statham.dsl import JSONSchemaModel
-from statham.dsl.elements import Array, Object, OneOf, String
+from statham.dsl.elements import Array, JSONSchemaModel, OneOf, String
+from statham.dsl.property import Property
 from statham.exceptions import ValidationError
 from tests.helpers import no_raise
 
 
 class StringWrapper(JSONSchemaModel):
 
-    value = String(minLength=3, required=True)
+    value = Property(String(minLength=3), required=True)
 
 
 class ListWrapper(JSONSchemaModel):
 
-    list_of_stuff = Array(
-        OneOf(Object(StringWrapper), String(minLength=3)), minItems=1
+    list_of_stuff = Property(
+        Array(OneOf(StringWrapper, String(minLength=3)), minItems=1)
     )
 
 

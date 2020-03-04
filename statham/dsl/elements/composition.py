@@ -2,9 +2,9 @@ from abc import abstractmethod
 from typing import Any, Iterator, List, Tuple, Union
 
 from statham.dsl.elements.base import Element
-from statham.dsl.elements.meta import JSONSchemaModelMeta
+from statham.dsl.property import Property
 from statham.exceptions import ValidationError
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 
 
 class CompositionElement(Element):
@@ -13,29 +13,21 @@ class CompositionElement(Element):
     The "oneOf", "anyOf" and "allOf" schemas share the same interface.
     """
 
-    def __init__(
-        self,
-        *elements: Union[JSONSchemaModelMeta, Element],
-        required: bool = False,
-        default: Any = NotPassed(),
-    ):
-        self.elements = elements
-        self.required = required
+    def __init__(self, *elements: Element, default: Any = NotPassed()):
+        self.elements = list(elements)
         self.default = default
 
     @abstractmethod
-    def construct(self, _instance, _attribute, _value):
+    def construct(self, property_: Property, _value: Any):
         raise NotImplementedError
 
 
 class AnyOf(CompositionElement):
     """Any one of a list of possible models/sub-schemas."""
 
-    def construct(self, instance, attribute, value):
+    def construct(self, property_: Property, value: Any):
         try:
-            return next(
-                _attempt_schemas(self.elements, instance, attribute, value)
-            )
+            return next(_attempt_schemas(self.elements, property_, value))
         except StopIteration:
             raise ValidationError.no_composition_match(self.elements, value)
 
@@ -43,10 +35,8 @@ class AnyOf(CompositionElement):
 class OneOf(CompositionElement):
     """Exactly one of a list of possible models/sub-schemas."""
 
-    def construct(self, instance, attribute, value):
-        instantiated = list(
-            _attempt_schemas(self.elements, instance, attribute, value)
-        )
+    def construct(self, property_: Property, value: Any):
+        instantiated = list(_attempt_schemas(self.elements, property_, value))
         if not instantiated:
             raise ValidationError.no_composition_match(self.elements, value)
         if len(instantiated) > 1:
@@ -57,16 +47,16 @@ class OneOf(CompositionElement):
 
 
 def _attempt_schema(
-    element: Element, instance: Any, attribute: str, value: Any
+    element: Element, property_: Property, value: Any
 ) -> Tuple[bool, Any]:
     try:
-        return True, element(instance, attribute, value)
+        return True, element(property_, value)
     except (TypeError, ValidationError):
         return False, None
 
 
 def _attempt_schemas(
-    elements: List[Element], instance: Any, attribute: str, value: Any
+    elements: List[Element], property_: Property, value: Any
 ) -> Iterator[Any]:
     return iter(
         map(
@@ -74,7 +64,7 @@ def _attempt_schemas(
             filter(
                 lambda res: res[0],
                 [
-                    _attempt_schema(element, instance, attribute, value)
+                    _attempt_schema(element, property_, value)
                     for element in elements
                 ],
             ),

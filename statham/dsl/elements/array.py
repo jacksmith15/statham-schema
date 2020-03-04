@@ -2,7 +2,7 @@ from typing import Union
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 
 
 class Array(Element):
@@ -16,7 +16,6 @@ class Array(Element):
         self,
         items: Element,
         *,
-        required: bool = False,
         default: Union[list, NotPassed] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
@@ -24,7 +23,6 @@ class Array(Element):
         maxItems: Union[int, NotPassed] = NotPassed(),
     ):
         self.items = items
-        self.required = required
         self.default = default
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
@@ -44,10 +42,8 @@ class Array(Element):
             validators.append(val.max_items(self.maxItems))
         return validators
 
-    def construct(self, instance, attribute, value):
+    def construct(self, property_, value):
         return [
-            self.items(
-                instance, val.Attribute(attribute.name + f"[{idx}]"), item
-            )
+            self.items(property_.evolve(property_.name + f"[{idx}]"), item)
             for idx, item in enumerate(value)
         ]

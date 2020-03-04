@@ -7,7 +7,7 @@ from statham import validators as val
 from statham.converters import AnyOf, Array, instantiate, OneOf
 
 # pylint: enable=unused-import
-from statham.validators import NotPassed
+from statham.dsl.constants import NotPassed
 
 
 @attrs(kw_only=True)
