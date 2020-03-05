@@ -44,10 +44,36 @@ class _Property(Generic[T]):
     def __repr__(self):
         return custom_repr(self)
 
+    @property
+    def code(self):
+        """Code representation uses the wrapping constructor `Property`."""
+        return repr(self).replace(self.__class__.__name__, Property.__name__)
+
+    @property
+    def annotation(self):
+        if self.required:
+            return self.element.annotation
+        return f"Maybe[{self.element.annotation}]"
+
 
 UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
 UNBOUND_PROPERTY.bind(Element(), "<unbound>")
 
 
+# Behaves as a wrapper for the `_Property` class.
+# pylint: disable=invalid-name
 def Property(element: Element, *, required: bool = False):
+    """Wrapping constructor of `_Property`.
+
+    This allows us to trick the type checker into interpreting instance
+    attribute types of properties correctly.
+
+    For example, the following becomes valid:
+    ```python
+    class Model(Object):
+        string_value: str = Property(String(), required=True)
+    ```
+
+    See type stubs for this module for more detail.
+    """
     return _Property(element, required=required)

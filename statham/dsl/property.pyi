@@ -3,6 +3,7 @@ from typing import Any, Generic, Type, TypeVar
 from statham.dsl.constants import Maybe
 from statham.dsl.elements.base import Element
 
+
 T = TypeVar("T")
 
 
@@ -30,5 +31,11 @@ class _Property(Generic[T]):
         ...
 
 
+UNBOUND_PROPERTY: _Property
+
+
+# Let the instance attributes have the enclosed type of the element.
+# TODO: Support literal types of Python 3.8 to vary return type between
+#   `T` and `Maybe[T]`
 def Property(element: Element[T], *, required: bool = False) -> T:
     ...

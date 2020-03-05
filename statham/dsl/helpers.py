@@ -11,7 +11,9 @@ def custom_repr(self):
         value = getattr(self, param.name, None)
         if value == param.default:
             continue
-        if param.kind == param.KEYWORD_ONLY:
+        if param.kind == param.VAR_POSITIONAL:
+            param_strings.extend([repr(sub_val) for sub_val in value])
+        elif param.kind == param.KEYWORD_ONLY:
             param_strings.append(f"{param.name}={repr(value)}")
         else:
             param_strings.append(repr(value))

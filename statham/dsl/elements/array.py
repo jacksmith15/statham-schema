@@ -33,6 +33,10 @@ class Array(Element[List[T]]):
         self.maxItems = maxItems
 
     @property
+    def annotation(self) -> str:
+        return f"List[{self.items.annotation}]"
+
+    @property
     def type_validator(self):
         return val.instance_of(list)
 

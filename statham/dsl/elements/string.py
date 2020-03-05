@@ -34,6 +34,10 @@ class String(Element[str]):
         self.maxLength = maxLength
 
     @property
+    def annotation(self) -> str:
+        return "str"
+
+    @property
     def type_validator(self):
         return val.instance_of(str)
 

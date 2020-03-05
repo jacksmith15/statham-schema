@@ -1,7 +1,7 @@
 from typing import List, Union
 import pytest
 
-from statham.dsl.constants import NotPassed, Maybe
+from statham.dsl.constants import Maybe
 from statham.dsl.elements import Array, Object, OneOf, String
 from statham.dsl.property import Property
 from statham.exceptions import ValidationError
@@ -10,7 +10,7 @@ from tests.helpers import no_raise
 
 class StringWrapper(Object):
 
-    value: Maybe[str] = Property(String(minLength=3), required=True)
+    value: str = Property(String(minLength=3), required=True)
 
 
 class ListWrapper(Object):
@@ -72,3 +72,21 @@ def test_list_wrapper_accepts_valid_arguments(param):
 def test_list_wrapper_fails_on_invalid_arguments(param):
     with pytest.raises(ValidationError):
         _ = ListWrapper(param)
+
+
+class TestSchemaWithDefault:
+    class DefaultStringWrapper(Object):
+
+        default = dict(value="bar")
+
+        value: str = Property(String(minLength=3))
+
+    def test_that_it_accepts_no_args(self):
+        with no_raise():
+            instance = self.DefaultStringWrapper()
+        assert instance.value == "bar"
+
+    def test_that_it_accepts_an_args(self):
+        with no_raise():
+            instance = self.DefaultStringWrapper({"value": "baz"})
+        assert instance.value == "baz"

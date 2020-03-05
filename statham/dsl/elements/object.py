@@ -2,7 +2,7 @@ from typing import Any, ClassVar, Dict, overload, Tuple, Union
 
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.elements.base import Element
-from statham.dsl.property import Property, UNBOUND_PROPERTY
+from statham.dsl.property import _Property, UNBOUND_PROPERTY
 from statham.exceptions import ValidationError
 from statham.dsl.constants import NotPassed
 
@@ -17,20 +17,28 @@ class Object(metaclass=ObjectMeta):
     default: ClassVar[Any]
 
     @classmethod
-    def _parse_args(cls, *args) -> Tuple[Property, Any]:
+    def _parse_args(cls, *args) -> Tuple[_Property, Any]:
         max_args = 2
-        min_args = 1
+        min_args = 1 if isinstance(cls.default, NotPassed) else 0
         if len(args) > max_args:
             raise TypeError(
-                f"Got {len(args)} to {cls.__name__}. Expected no more "
+                f"Got {len(args)} args to {cls.__name__}. Expected no more "
                 f"than {max_args}."
             )
         if len(args) < min_args:
             raise TypeError(
-                f"Got {len(args)} to {cls.__name__}. Expected no fewer "
+                f"Got {len(args)} args to {cls.__name__}. Expected no fewer "
                 f"than {min_args}."
             )
+        if not args:
+            return UNBOUND_PROPERTY, cls.default
         if len(args) == 1:
+            if isinstance(args[0], _Property):
+                if isinstance(cls.default, NotPassed):
+                    raise TypeError(
+                        f"Missing `value` argument to {cls.__name__}."
+                    )
+                return args[0], cls.default
             return UNBOUND_PROPERTY, args[0]
         return args[0], args[1]
 
@@ -39,7 +47,7 @@ class Object(metaclass=ObjectMeta):
         ...
 
     @overload
-    def __new__(cls, _property: Property, _value: Any):
+    def __new__(cls, _property: _Property, _value: Any):
         ...
 
     def __new__(cls, *args):
@@ -55,11 +63,11 @@ class Object(metaclass=ObjectMeta):
         ...
 
     @overload
-    def __init__(self, _property: Property, _value: Any):
+    def __init__(self, _property: _Property, _value: Any):
         ...
 
     def __init__(self, *args):
-        property_, value = self._parse_args(*args)
+        _, value = self._parse_args(*args)
         if value is self:
             return
         unexpected_kwargs = set(value) - set(self.properties)

@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import Any, Callable, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed
@@ -12,6 +11,14 @@ class Element(Generic[T]):
     """Schema element for composing instantiation logic."""
 
     default: Any
+
+    def __repr__(self):
+        """Dynamically construct the repr to match value instantiation."""
+        return custom_repr(self)
+
+    @property
+    def annotation(self) -> str:
+        return "Any"
 
     @property
     def type_validator(self):
@@ -37,7 +44,3 @@ class Element(Generic[T]):
         if isinstance(value, NotPassed):
             return value
         return self.construct(property_, value)
-
-    def __repr__(self):
-        """Dynamically construct the repr to match value instantiation."""
-        return custom_repr(self)

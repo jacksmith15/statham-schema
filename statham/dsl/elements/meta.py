@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Type
+from typing import Any, Dict, Tuple, Type
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
@@ -6,15 +6,15 @@ from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 
 
-class JSONSchemaClassDict(dict):
+class ObjectClassDict(dict):
 
-    default: bool
+    default: Any
     properties: Dict[str, _Property]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         schema_keys = [
-            key for key, value in self.items() if isinstance(value, Property)
+            key for key, value in self.items() if isinstance(value, _Property)
         ]
         self.default = self.get("default", NotPassed())
         self.properties = {key: self.pop(key) for key in schema_keys}
@@ -37,11 +37,9 @@ class ObjectMeta(type, Element):
 
     @classmethod
     def __prepare__(mcs, _name, _bases):
-        return JSONSchemaClassDict()
+        return ObjectClassDict()
 
-    def __new__(
-        mcs, name: str, bases: Tuple[Type], classdict: JSONSchemaClassDict
-    ):
+    def __new__(mcs, name: str, bases: Tuple[Type], classdict: ObjectClassDict):
         cls: Type[ObjectMeta] = type.__new__(mcs, name, bases, dict(classdict))
         cls.properties = classdict.properties
         for attr_name, property_ in cls.properties.items():
@@ -49,8 +47,38 @@ class ObjectMeta(type, Element):
         cls.default = classdict.default
         return cls
 
+    @property
+    def annotation(cls) -> str:
+        return cls.__name__
+
     def __repr__(cls):
-        return f"{cls.__name__}"
+        return cls.__name__
+
+    @property
+    def code(cls):
+        super_cls = next(iter(cls.mro()[1:]))
+        cls_args = (
+            f"metaclass={type(cls).__name__}"
+            if super_cls is object
+            else super_cls.__name__
+        )
+        class_def = f"""class {repr(cls)}({cls_args}):
+"""
+        if cls.properties:
+            class_def = (
+                class_def
+                + """
+    pass
+"""
+            )
+        for attr_name, property_ in cls.properties.items():
+            class_def = (
+                class_def
+                + f"""
+    {attr_name}: {property_.annotation} = {property_.code}
+"""
+            )
+        return class_def
 
     @property
     def type_validator(cls):

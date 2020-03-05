@@ -15,7 +15,18 @@ class CompositionElement(Element):
 
     def __init__(self, *elements: Element, default: Any = NotPassed()):
         self.elements = list(elements)
+        if not self.elements:
+            raise TypeError(f"{type(self)} requires at least one sub-schema.")
         self.default = default
+
+    @property
+    def annotation(self):
+        if len(self.elements) == 1:
+            return self.elements[0].annotation
+        annotations = ", ".join(
+            [element.annotation for element in self.elements]
+        )
+        return f"Union[{annotations}]"
 
     @abstractmethod
     def construct(self, property_: _Property, _value: Any):
