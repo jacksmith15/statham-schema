@@ -69,6 +69,7 @@ class TestParseArray:
         assert element.minItems == NotPassed()
         assert element.maxItems == NotPassed()
         assert isinstance(element.items, String)
+        assert repr(element) == "Array(String())"
 
     @staticmethod
     def test_with_full_args():
@@ -85,6 +86,9 @@ class TestParseArray:
         assert element.minItems == 1
         assert element.maxItems == 3
         assert isinstance(element.items, String)
+        assert repr(element) == (
+            """Array(String(), default=['foo', 'bar'], minItems=1, maxItems=3)"""
+        )
 
 
 class TestParseAnyOf:
@@ -101,6 +105,7 @@ class TestParseAnyOf:
         assert isinstance(element, AnyOf)
         assert len(element.elements) == 1
         assert isinstance(element.elements[0], String)
+        assert repr(element) == ("""AnyOf(String())""")
 
     @staticmethod
     def test_with_multi_item():
@@ -115,6 +120,7 @@ class TestParseAnyOf:
         assert len(element.elements) == 2
         assert isinstance(element.elements[0], String)
         assert isinstance(element.elements[1], Array)
+        assert repr(element) == ("""AnyOf(String(), Array(String()))""")
 
 
 class TestParseOneOf:
@@ -131,6 +137,7 @@ class TestParseOneOf:
         assert isinstance(element, OneOf)
         assert len(element.elements) == 1
         assert isinstance(element.elements[0], String)
+        assert repr(element) == ("""OneOf(String())""")
 
     @staticmethod
     def test_with_multi_item():
@@ -145,16 +152,23 @@ class TestParseOneOf:
         assert len(element.elements) == 2
         assert isinstance(element.elements[0], String)
         assert isinstance(element.elements[1], Array)
+        assert repr(element) == ("""OneOf(String(), Array(String()))""")
 
 
 class TestParseObject:
     @staticmethod
     def test_with_no_args():
-        schema = {"type": "object", "title": "MyModel"}
+        schema = {"type": "object", "title": "EmptyModel"}
         element = parse(schema)
         assert isinstance(element, ObjectMeta)
-        assert element.__name__ == "MyModel"
+        assert element.__name__ == "EmptyModel"
         assert element.properties == {}
+        assert element.code == (
+            """class EmptyModel(Object):
+
+    pass
+"""
+        )
 
     @staticmethod
     def test_with_not_required_property():
@@ -172,6 +186,12 @@ class TestParseObject:
         assert isinstance(property_, _Property)
         assert isinstance(property_.element, String)
         assert not property_.required
+        assert element.code == (
+            """class StringWrapper(Object):
+
+    value: Maybe[str] = Property(String())
+"""
+        )
 
     @staticmethod
     def test_with_required_property():
@@ -190,6 +210,12 @@ class TestParseObject:
         assert isinstance(property_, _Property)
         assert isinstance(property_.element, String)
         assert property_.required
+        assert element.code == (
+            """class StringWrapper(Object):
+
+    value: str = Property(String(), required=True)
+"""
+        )
 
     @staticmethod
     def test_with_property_referencing_other_object():
@@ -223,3 +249,16 @@ class TestParseObject:
         assert isinstance(inner_property, _Property)
         assert isinstance(inner_property.element, String)
         assert inner_property.required
+
+        assert element.code == (
+            """class StringWrapperWrapper(Object):
+
+    value: StringWrapper = Property(StringWrapper, required=True)
+"""
+        )
+        assert inner_element.code == (
+            """class StringWrapper(Object):
+
+    value: str = Property(String(), required=True)
+"""
+        )

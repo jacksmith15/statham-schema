@@ -64,7 +64,7 @@ class ObjectMeta(type, Element):
         )
         class_def = f"""class {repr(cls)}({cls_args}):
 """
-        if cls.properties:
+        if not cls.properties:
             class_def = (
                 class_def
                 + """

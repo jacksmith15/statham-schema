@@ -1,7 +1,7 @@
 from typing import List, Union
 import pytest
 
-from statham.dsl.constants import Maybe
+from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Object, OneOf, String
 from statham.dsl.property import Property
 from statham.exceptions import ValidationError
@@ -58,6 +58,11 @@ def test_list_wrapper_accepts_valid_arguments(param):
         _ = ListWrapper(param)
 
 
+def test_list_wrapper_assigns_not_assed_correctly():
+    instance = ListWrapper({})
+    assert instance.list_of_stuff is NotPassed()
+
+
 @pytest.mark.parametrize(
     "param",
     [
@@ -67,6 +72,7 @@ def test_list_wrapper_accepts_valid_arguments(param):
         dict(list_of_stuff=[{"value": 1}]),
         dict(list_of_stuff=["foo", {"value": 1}]),
         dict(list_of_stuff=[1, {"value": "foo"}]),
+        dict(not_a="property"),
     ],
 )
 def test_list_wrapper_fails_on_invalid_arguments(param):
