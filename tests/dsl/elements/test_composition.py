@@ -31,24 +31,34 @@ class TestCompositionInstantiation:
             _ = args.apply(element)
 
 
-class TestOneOfValidation:
-    @staticmethod
+class CompositionValidation:
+
+    _ELEM_TYPE: Type[CompositionElement]
+
     @pytest.mark.parametrize(
         "success,value",
         [(True, NotPassed()), (True, "foo"), (False, ["foo"]), (False, None)],
     )
-    def test_validation_performs_with_one_schema(success: bool, value: Any):
-        assert_validation(OneOf(String()), success, value)
+    def test_validation_performs_with_one_schema(
+        self, success: bool, value: Any
+    ):
+        assert_validation(self._ELEM_TYPE(String()), success, value)
 
-    @staticmethod
     @pytest.mark.parametrize(
         "success,value",
         [(True, NotPassed()), (True, "foo"), (True, ["foo"]), (False, None)],
     )
     def test_validation_performs_with_disjoint_schemas(
-        success: bool, value: Any
+        self, success: bool, value: Any
     ):
-        assert_validation(OneOf(String(), Array(String())), success, value)
+        assert_validation(
+            self._ELEM_TYPE(String(), Array(String())), success, value
+        )
+
+
+class TestOneOfValidation(CompositionValidation):
+
+    _ELEM_TYPE = OneOf
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -67,6 +77,30 @@ class TestOneOfValidation:
     ):
         assert_validation(
             OneOf(String(maxLength=5), String(minLength=3)), success, value
+        )
+
+
+class TestAnyOfValidation(CompositionValidation):
+
+    _ELEM_TYPE = AnyOf
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "success,value",
+        [
+            (True, NotPassed()),
+            (True, "fo"),  # Matches first schema
+            (True, "foobar"),  # Matches second schema
+            (True, "foob"),  # Matches both schemas
+            (False, ["foo"]),
+            (False, None),
+        ],
+    )
+    def test_validation_performs_with_overlapping_schemas(
+        success: bool, value: Any
+    ):
+        assert_validation(
+            AnyOf(String(maxLength=5), String(minLength=3)), success, value
         )
 
 
