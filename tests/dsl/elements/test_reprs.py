@@ -56,23 +56,3 @@ class ObjectWrapper(Object):
 )
 def test_reprs_are_correct(element: Element, expected: str):
     assert repr(element) == expected
-
-
-def test_code_property_of_string_wrapper_object():
-    assert (
-        StringWrapper.code
-        == """class StringWrapper(Object):
-
-    value: str = Property(String(), required=True)
-"""
-    )
-
-
-def test_code_property_of_object_wrapper_object():
-    assert (
-        ObjectWrapper.code
-        == """class ObjectWrapper(Object):
-
-    value: Maybe[StringWrapper] = Property(StringWrapper)
-"""
-    )

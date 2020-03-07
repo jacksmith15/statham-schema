@@ -67,38 +67,5 @@ class ObjectMeta(type, Element):
         return cls.__name__
 
     @property
-    def code(cls):  # TODO: Move this to serializer.py
-        super_cls = next(iter(cls.mro()[1:]))
-        cls_args = (
-            f"metaclass={type(cls).__name__}"
-            if super_cls is object
-            else super_cls.__name__
-        )
-        class_def = f"""class {repr(cls)}({cls_args}):
-"""
-        if not cls.properties and isinstance(cls.default, NotPassed):
-            class_def = (
-                class_def
-                + """
-    pass
-"""
-            )
-        if not isinstance(cls.default, NotPassed):
-            class_def = (
-                class_def
-                + f"""
-    default = {repr(cls.default)}
-"""
-            )
-        for attr_name, property_ in cls.properties.items():
-            class_def = (
-                class_def
-                + f"""
-    {attr_name}: {property_.annotation} = {property_.code}
-"""
-            )
-        return class_def
-
-    @property
     def type_validator(cls):
         return val.instance_of(dict, cls)

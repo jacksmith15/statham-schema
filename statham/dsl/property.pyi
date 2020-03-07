@@ -24,6 +24,10 @@ class _Property(Generic[T]):
     def bind(self, parent: Any, name: str) -> None:
         ...
 
+    @property
+    def annotation(self) -> str:
+        ...
+
     def __call__(self, value: Any) -> Maybe[T]:
         ...
 

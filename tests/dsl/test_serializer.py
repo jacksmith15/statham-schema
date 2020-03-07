@@ -1,7 +1,8 @@
-from statham.dsl.elements import String
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import Object, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
-from statham.serializer import serialize_python
+from statham.serializer import serialize_python, _serialize_object
 
 
 SCHEMA = {
@@ -56,3 +57,33 @@ class Parent(Object):
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"
+
+
+class StringWrapper(Object):
+
+    value: str = Property(String(), required=True)
+
+
+class ObjectWrapper(Object):
+
+    value: Maybe[str] = Property(StringWrapper)
+
+
+def test_serialize_string_wrapper_object():
+    assert (
+        _serialize_object(StringWrapper)
+        == """class StringWrapper(Object):
+
+    value: str = Property(String(), required=True)
+"""
+    )
+
+
+def test_serialize_object_wrapper_object():
+    assert (
+        _serialize_object(ObjectWrapper)
+        == """class ObjectWrapper(Object):
+
+    value: Maybe[StringWrapper] = Property(StringWrapper)
+"""
+    )

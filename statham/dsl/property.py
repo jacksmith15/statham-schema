@@ -57,11 +57,6 @@ class _Property(Generic[T]):
         return custom_repr(self)
 
     @property
-    def code(self):  # TODO: Move this code to the serializer.
-        """Code representation uses the wrapping constructor `Property`."""
-        return repr(self).replace(self.__class__.__name__, Property.__name__)
-
-    @property
     def annotation(self):
         if self.required or not isinstance(
             getattr(self.element, "default"), NotPassed
