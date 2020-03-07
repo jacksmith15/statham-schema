@@ -67,11 +67,18 @@ class ObjectMeta(type, Element):
         )
         class_def = f"""class {repr(cls)}({cls_args}):
 """
-        if not cls.properties:
+        if not cls.properties and isinstance(cls.default, NotPassed):
             class_def = (
                 class_def
                 + """
     pass
+"""
+            )
+        if not isinstance(cls.default, NotPassed):
+            class_def = (
+                class_def
+                + f"""
+    default = {repr(cls.default)}
 """
             )
         for attr_name, property_ in cls.properties.items():
