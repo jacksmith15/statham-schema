@@ -56,7 +56,9 @@ class _Property(Generic[T]):
 
     @property
     def annotation(self):
-        if self.required:
+        if self.required or not isinstance(
+            getattr(self.element, "default"), NotPassed
+        ):
             return self.element.annotation
         return f"Maybe[{self.element.annotation}]"
 

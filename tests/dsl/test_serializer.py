@@ -1,4 +1,6 @@
+from statham.dsl.elements import String
 from statham.dsl.parser import parse
+from statham.dsl.property import Property
 from statham.dsl.serializer import serialize_python
 
 
@@ -49,3 +51,8 @@ class Parent(Object):
     category: Category = Property(Category, required=True)
 """
     )
+
+
+def test_annotation_for_property_with_default_is_not_maybe():
+    prop = Property(String(default="sample"), required=False)
+    assert prop.annotation == "str"
