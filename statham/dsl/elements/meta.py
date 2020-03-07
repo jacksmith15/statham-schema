@@ -7,6 +7,10 @@ from statham.dsl.constants import NotPassed
 
 
 class ObjectClassDict(dict):
+    """Overriden class dictionary for the metaclass of Object.
+
+    Collects schema properties and default value if present.
+    """
 
     default: Any
     properties: Dict[str, _Property]
@@ -28,6 +32,11 @@ class ObjectClassDict(dict):
 
 
 class ObjectMeta(type, Element):
+    """Metaclass to allow declaring Object schemas as classes.
+
+    Collects default value and properties defined as class variables,
+    and binds information to those properties.
+    """
 
     properties: Dict[str, _Property]
 
@@ -58,7 +67,7 @@ class ObjectMeta(type, Element):
         return cls.__name__
 
     @property
-    def code(cls):
+    def code(cls):  # TODO: Move this to serializer.py
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = (
             f"metaclass={type(cls).__name__}"

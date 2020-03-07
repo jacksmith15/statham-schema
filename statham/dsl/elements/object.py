@@ -1,7 +1,6 @@
-from typing import Any, ClassVar, Dict, overload, Tuple, Union
+from typing import Any, ClassVar, Dict, overload, Tuple
 
 from statham.dsl.elements.meta import ObjectMeta
-from statham.dsl.elements.base import Element
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
 from statham.dsl.constants import NotPassed
@@ -10,12 +9,26 @@ from statham.dsl.constants import NotPassed
 class Object(metaclass=ObjectMeta):
     """Base model for JSONSchema objects.
 
-    Recursively validates and construct properties.
+    New object schemas are defined by implementing subclasses of Object.
+
+    For example:
+    ```python
+    from statham.dsl.elements import Object, String
+    from statham.dsl.property import Property
+
+    class Poll(Object):
+
+        questions: List[str] = Property(String(), required=True)
+
+    poll = Poll({"questions": ["What's up?"]})
+    ```
     """
 
-    properties: ClassVar[Dict[str, Union[ObjectMeta, Element]]]
+    properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]
 
+    # TODO: Can we avoid this parameter nonsense by swapping the
+    #   call interface and making property optional.
     @classmethod
     def _parse_args(cls, *args) -> Tuple[_Property, Any]:
         max_args = 2
@@ -67,6 +80,11 @@ class Object(metaclass=ObjectMeta):
         ...  # pragma: no cover
 
     def __init__(self, *args):
+        """Initialise the object.
+
+        Accepts either an enclosing property and an input value, or just
+        the value if unbound to an outer property.
+        """
         _, value = self._parse_args(*args)
         if value is self:
             return

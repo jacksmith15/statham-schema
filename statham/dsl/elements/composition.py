@@ -10,7 +10,7 @@ from statham.dsl.constants import NotPassed
 class CompositionElement(Element):
     """Composition Base Element.
 
-    The "oneOf", "anyOf" and "allOf" schemas share the same interface.
+    The "oneOf" and "anyOf" schemas share the same interface.
     """
 
     def __init__(self, *elements: Element, default: Any = NotPassed()):
@@ -38,19 +38,24 @@ class AnyOf(CompositionElement):
     """Any one of a list of possible models/sub-schemas."""
 
     def construct(self, property_: _Property, value: Any):
-        return _attempt_schemas(self.elements, property_, value)[0].result
+        """Return against the first matching schema."""
+        return _attempt_schemas(self.elements, property_, value)[0]
 
 
 class OneOf(CompositionElement):
     """Exactly one of a list of possible models/sub-schemas."""
 
     def construct(self, property_: _Property, value: Any):
+        """Ensure there is only one matching schema.
+
+        :raises ValidationError: if there are multiple matching schemas.
+        """
         instantiated = _attempt_schemas(self.elements, property_, value)
         if len(instantiated) > 1:
             raise ValidationError.mutliple_composition_match(
                 [type(instance) for instance in instantiated], value
             )
-        return instantiated[0].result
+        return instantiated[0]
 
 
 class Outcome(NamedTuple):
@@ -63,6 +68,11 @@ class Outcome(NamedTuple):
 def _attempt_schema(
     element: Element, property_: _Property, value: Any
 ) -> Outcome:
+    """Attempt to pass an input to a schema element.
+
+    :return: An `Outcome` object describing containing success/failure
+        information and a result if successful.
+    """
     try:
         return Outcome(element, result=element(property_, value), error=None)
     except (TypeError, ValidationError) as exc:
@@ -71,11 +81,19 @@ def _attempt_schema(
 
 def _attempt_schemas(
     elements: List[Element], property_: _Property, value: Any
-) -> List[Outcome]:
+) -> List[Any]:
+    """Attempt to instantiate a given input against many elements.
+
+    :param elements: The elements against which to validate.
+    :param property_: The enclosing property.
+    :param value: The data to validate against.
+    :return: A list of successful instantiations against `elements`.
+    :raises ValidationError: if there are no matching schemas.
+    """
     outcomes = [
         _attempt_schema(element, property_, value) for element in elements
     ]
-    results = [outcome for outcome in outcomes if not outcome.error]
+    results = [outcome.result for outcome in outcomes if not outcome.error]
     if results:
         return results
     errors = ", ".join(filter(None, [outcome.error for outcome in outcomes]))

@@ -1,6 +1,6 @@
-from typing import Any, Callable, List, Generic, TypeVar, Union
+from typing import Any, Callable, List, Generic, TypeVar
 
-from statham.dsl.constants import NotPassed
+from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
 
 
@@ -8,7 +8,11 @@ T = TypeVar("T")
 
 
 class Element(Generic[T]):
-    """Schema element for composing instantiation logic."""
+    """Schema element for composing instantiation logic.
+
+    The generic type is bound by subclasses to indicate their return
+    type when called.
+    """
 
     default: Any
 
@@ -17,6 +21,12 @@ class Element(Generic[T]):
         return custom_repr(self)
 
     def __eq__(self, other):
+        """Check if two elements are equivalent.
+
+        This just checks the type and public attribute values. Useful for
+        testing parser logic, and could be used to automatically DRY up
+        messy schemas in future.
+        """
         if not isinstance(other, self.__class__):
             return False
         pub_vars = lambda x: {
@@ -41,8 +51,12 @@ class Element(Generic[T]):
     def construct(self, _property, value):
         return value
 
-    def __call__(self, property_, value) -> Union[T, NotPassed]:
-        """Allow different instantiation logic per sentinel."""
+    def __call__(self, property_, value) -> Maybe[T]:
+        """Validate and convert input data against the element.
+
+        Runs validators defined on the `validators` property, and calls
+        `construct` on the input.
+        """
         if not isinstance(self.default, NotPassed) and isinstance(
             value, NotPassed
         ):

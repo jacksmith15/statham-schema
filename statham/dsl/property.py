@@ -10,7 +10,12 @@ T = TypeVar("T")
 
 
 class _Property(Generic[T]):
-    """Descriptor for a property on an object."""
+    """Descriptor for a property on an object.
+
+    Used to bind information about the enclosing object to a DSL Element,
+    e.g. "required". Should be instantiated via `Property` to enable
+    type inference on instances.
+    """
 
     required: bool
     name: str
@@ -50,7 +55,7 @@ class _Property(Generic[T]):
         return custom_repr(self)
 
     @property
-    def code(self):
+    def code(self):  # TODO: Move this code to the serializer.
         """Code representation uses the wrapping constructor `Property`."""
         return repr(self).replace(self.__class__.__name__, Property.__name__)
 

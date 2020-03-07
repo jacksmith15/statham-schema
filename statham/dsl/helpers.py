@@ -2,7 +2,11 @@ import inspect
 
 
 def custom_repr(self):
-    """Dynamically construct the repr to match value instantiation."""
+    """Dynamically construct the repr to match value instantiation.
+
+    Shows the class name and attribute values, where they differ from
+    defaults.
+    """
     param_strings = []
     parameters = list(
         inspect.signature(type(self).__init__).parameters.values()
