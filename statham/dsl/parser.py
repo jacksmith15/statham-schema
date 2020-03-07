@@ -5,12 +5,30 @@ import re
 from typing import Any, Callable, DefaultDict, Dict, Type
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import AnyOf, Array, Object, OneOf, Element, String
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    Object,
+    OneOf,
+    Element,
+    String,
+)
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.property import _Property
 
 
-_TYPE_MAPPING = {"array": Array, "string": String}
+_TYPE_MAPPING = {
+    "array": Array,
+    "boolean": Boolean,
+    "integer": Integer,
+    "null": Null,
+    "number": Number,
+    "string": String,
+}
 
 
 _KEYWORD_MAPPER: DefaultDict[str, Callable] = defaultdict(
@@ -56,6 +74,7 @@ def _args_filter(
 
 
 def _new_object(schema: Dict[str, Any]) -> ObjectMeta:
+    """Create a new model type for an object schema."""
     default = schema.get("default", NotPassed())
     required = set(schema.get("required", []))
     properties = {

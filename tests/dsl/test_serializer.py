@@ -20,7 +20,9 @@ SCHEMA = {
 def test_schema_reserializes_to_expected_python_string():
     assert (
         serialize_python(parse(SCHEMA))
-        == """from statham.dsl.constants import Maybe
+        == """from typing import List, Union
+
+from statham.dsl.constants import Maybe
 from statham.dsl.elements import (
     AnyOf,
     Array,

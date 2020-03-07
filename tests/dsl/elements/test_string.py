@@ -129,5 +129,5 @@ def test_string_default_keyword():
     assert element(UNBOUND_PROPERTY, "bar") == "bar"
 
 
-def test_array_type_annotation():
+def test_string_type_annotation():
     assert String().annotation == "str"
