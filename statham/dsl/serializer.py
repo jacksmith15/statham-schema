@@ -2,7 +2,9 @@ from statham.dsl.elements import Element
 from statham.dsl.orderer import Orderer
 
 
-_IMPORT_STATEMENTS = """from statham.dsl.constants import Maybe
+_IMPORT_STATEMENTS = """from typing import List, Union
+
+from statham.dsl.constants import Maybe
 from statham.dsl.elements import (
     AnyOf,
     Array,

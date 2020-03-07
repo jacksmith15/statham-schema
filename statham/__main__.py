@@ -7,10 +7,8 @@ from sys import argv, stdout
 
 from json_ref_dict import materialize, RefDict
 
-from statham.constants import IGNORED_SCHEMA_KEYWORDS
-from statham.dependency_resolver import ClassDependencyResolver
-from statham.models import parse_schema
-from statham.serializer import serialize_object_schemas
+from statham.dsl.parser import parse
+from statham.dsl.serializer import serialize_python
 from statham.titles import title_labeller
 
 
@@ -85,17 +83,6 @@ stdout.
     return
 
 
-def _convert_schema(schema_dict: Dict[str, Any]) -> str:
-    """Convert a schema dict to a python module.
-
-    :param schema_dict: Dict containing the schema.
-    :return: Python module contents for generated models, as a string.
-    """
-    return serialize_object_schemas(
-        ClassDependencyResolver(parse_schema(schema_dict))
-    )
-
-
 def main(input_uri: str) -> str:
     """Get the schema, and then return the generated python module.
 
@@ -109,12 +96,8 @@ def main(input_uri: str) -> str:
         pointer (for the root of the document). Example:
     :return: Python module contents for generated models, as a string.
     """
-    schema = materialize(
-        RefDict(input_uri),
-        exclude_keys=IGNORED_SCHEMA_KEYWORDS,
-        context_labeller=title_labeller(),
-    )
-    return _convert_schema(schema)
+    schema = materialize(RefDict(input_uri), context_labeller=title_labeller())
+    return serialize_python(parse(schema))
 
 
 def entry_point():

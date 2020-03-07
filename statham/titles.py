@@ -49,6 +49,6 @@ def title_labeller() -> Callable[[str], Tuple[str, str]]:
         count = next(counter[name])
         if count:
             name = f"{name}{count}"
-        return "title", name
+        return "_x_autotitle", name
 
     return _get_title
