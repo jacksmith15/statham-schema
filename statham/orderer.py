@@ -8,6 +8,8 @@ from statham.dsl.exceptions import SchemaParseError
 
 
 class ClassDef:
+    """Data class for capturing dependencies between Object elements."""
+
     def __init__(self, element: ObjectMeta, depends: Set[str]):
         self.element: ObjectMeta = element
         self.depends: Set[str] = depends
@@ -29,7 +31,10 @@ def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
 
 
 class Orderer:
-    """Iterator which returns classes in declaration order."""
+    """Iterator which returns object elements in declaration order.
+
+    Used by the serializer to generate code in the correct order.
+    """
 
     def __init__(self, element: Element):
         self._class_defs: Dict[str, ClassDef] = {}
