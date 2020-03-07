@@ -1,8 +1,9 @@
+# False positive. The cycle exists but is avoided by importing last.
+# pylint: disable=cyclic-import
 from typing import Any, Callable, List, Generic, TypeVar
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
-
 
 T = TypeVar("T")
 
@@ -51,12 +52,13 @@ class Element(Generic[T]):
     def construct(self, value, _property):
         return value
 
-    def __call__(self, value, property_) -> Maybe[T]:
+    def __call__(self, value, property_=None) -> Maybe[T]:
         """Validate and convert input data against the element.
 
         Runs validators defined on the `validators` property, and calls
         `construct` on the input.
         """
+        property_ = property_ or UNBOUND_PROPERTY
         if not isinstance(self.default, NotPassed) and isinstance(
             value, NotPassed
         ):
@@ -66,3 +68,8 @@ class Element(Generic[T]):
         if isinstance(value, NotPassed):
             return value
         return self.construct(value, property_)
+
+
+# Needs to be imported last to prevent cyclic import.
+# pylint: disable=wrong-import-position
+from statham.dsl.property import UNBOUND_PROPERTY

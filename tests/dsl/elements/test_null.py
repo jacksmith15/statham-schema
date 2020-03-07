@@ -4,7 +4,6 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import Null
-from statham.dsl.property import UNBOUND_PROPERTY
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import Args, no_raise
 
@@ -35,7 +34,7 @@ class TestNullValidation:
 
 def test_null_default_keyword():
     element = Null(default=None)
-    assert element(NotPassed(), UNBOUND_PROPERTY) is None
+    assert element(NotPassed()) is None
 
 
 def test_null_type_annotation():

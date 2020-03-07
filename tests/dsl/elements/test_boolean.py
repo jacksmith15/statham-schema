@@ -4,7 +4,6 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import Boolean
-from statham.dsl.property import UNBOUND_PROPERTY
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import Args, no_raise
 
@@ -43,8 +42,8 @@ class TestBooleanValidation:
 
 def test_string_default_keyword():
     element = Boolean(default=False)
-    assert element(NotPassed(), UNBOUND_PROPERTY) is False
-    assert element(True, UNBOUND_PROPERTY) is True
+    assert element(NotPassed()) is False
+    assert element(True) is True
 
 
 def test_string_type_annotation():

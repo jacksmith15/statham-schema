@@ -4,7 +4,6 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import AnyOf, Array, CompositionElement, OneOf, String
-from statham.dsl.property import UNBOUND_PROPERTY
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import Args, no_raise
 
@@ -106,8 +105,8 @@ class TestAnyOfValidation(CompositionValidation):
 
 def test_composition_default_keyword():
     element = OneOf(String(), Array(String()), default="foo")
-    assert element(NotPassed(), UNBOUND_PROPERTY) == "foo"
-    assert element(["foo"], UNBOUND_PROPERTY) == ["foo"]
+    assert element(NotPassed()) == "foo"
+    assert element(["foo"]) == ["foo"]
 
 
 @pytest.mark.parametrize("element", [OneOf, AnyOf])
