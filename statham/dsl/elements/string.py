@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import List
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
@@ -17,13 +17,13 @@ class String(Element[str]):
         default: Maybe[str] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=redefined-builtin
-        format: Union[str, NotPassed] = NotPassed(),
+        format: Maybe[str] = NotPassed(),
         # pylint: enable=redefined-builtin
-        pattern: Union[str, NotPassed] = NotPassed(),
+        pattern: Maybe[str] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
-        minLength: Union[int, NotPassed] = NotPassed(),
-        maxLength: Union[int, NotPassed] = NotPassed(),
+        minLength: Maybe[int] = NotPassed(),
+        maxLength: Maybe[int] = NotPassed(),
     ):
         self.default = default
         self.format = format

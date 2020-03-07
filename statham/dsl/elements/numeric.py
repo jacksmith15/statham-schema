@@ -1,4 +1,4 @@
-from typing import Any, List, TypeVar, Union
+from typing import List, TypeVar, Union
 
 from statham import validators as val
 from statham.dsl.elements.base import Element

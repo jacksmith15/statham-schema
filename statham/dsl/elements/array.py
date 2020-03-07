@@ -1,8 +1,8 @@
-from typing import List, TypeVar, Union
+from typing import List, TypeVar
 
 from statham import validators as val
 from statham.dsl.elements.base import Element
-from statham.dsl.constants import NotPassed
+from statham.dsl.constants import Maybe, NotPassed
 
 
 T = TypeVar("T")
@@ -19,11 +19,11 @@ class Array(Element[List[T]]):
         self,
         items: Element[T],
         *,
-        default: Union[list, NotPassed] = NotPassed(),
+        default: Maybe[List[T]] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
-        minItems: Union[int, NotPassed] = NotPassed(),
-        maxItems: Union[int, NotPassed] = NotPassed(),
+        minItems: Maybe[int] = NotPassed(),
+        maxItems: Maybe[int] = NotPassed(),
     ):
         self.items = items
         self.default = default
