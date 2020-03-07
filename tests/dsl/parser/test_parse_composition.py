@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import AnyOf, Array, Element, OneOf, String
+from statham.dsl.elements import AnyOf, Array, Element, Integer, OneOf, String
 from statham.dsl.parser import parse
 
 
@@ -40,6 +40,11 @@ def test_parse_composition_fails_with_empty_list(keyword):
             },
             AnyOf(String(minLength=3), Array(String(maxLength=1), minItems=3)),
             id="anyOf-from-multiple-type-value",
+        ),
+        pytest.param(
+            {"type": ["string", "integer"], "default": "sample"},
+            AnyOf(String(), Integer(), default="sample"),
+            id="anyOf-from-multiple-type-value-with-typed-default",
         ),
         pytest.param(
             {"oneOf": [{"type": "string"}]},

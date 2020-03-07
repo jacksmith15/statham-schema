@@ -39,8 +39,10 @@ _KEYWORD_MAPPER: DefaultDict[str, Callable] = defaultdict(
 def parse(schema: Dict[str, Any]) -> Element:
     """Parse a JSONSchema dictionary to a DSL Element."""
     if isinstance(schema.get("type"), list):
+        default = schema.pop("default", NotPassed())
         return AnyOf(
-            *(parse({**schema, "type": type_}) for type_ in schema["type"])
+            *(parse({**schema, "type": type_}) for type_ in schema["type"]),
+            default=default,
         )
     schema = {key: _KEYWORD_MAPPER[key](value) for key, value in schema.items()}
     if "anyOf" in schema:
