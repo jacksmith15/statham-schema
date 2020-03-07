@@ -96,3 +96,7 @@ class TestSchemaWithDefault:
         with no_raise():
             instance = self.DefaultStringWrapper({"value": "baz"})
         assert instance.value == "baz"
+
+
+def test_object_annotation():
+    assert StringWrapper.annotation == StringWrapper.__name__

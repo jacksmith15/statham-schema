@@ -17,6 +17,10 @@ _KEYWORD_MAPPER: DefaultDict[str, Callable] = defaultdict(
 
 
 def parse(schema: Dict[str, Any]) -> Element:
+    if isinstance(schema.get("type"), list):
+        return AnyOf(
+            *(parse({**schema, "type": type_}) for type_ in schema["type"])
+        )
     schema = {key: _KEYWORD_MAPPER[key](value) for key, value in schema.items()}
     if "anyOf" in schema:
         return AnyOf(*(parse(sub_schema) for sub_schema in schema["anyOf"]))
@@ -24,10 +28,6 @@ def parse(schema: Dict[str, Any]) -> Element:
         return OneOf(*(parse(sub_schema) for sub_schema in schema["oneOf"]))
     if "type" not in schema:
         return Element()
-    if isinstance(schema["type"], list):
-        return AnyOf(
-            *(parse({**schema, "type": type_}) for type_ in schema["type"])
-        )
     if schema["type"] == "object":
         return _new_object(schema)
 

@@ -105,7 +105,7 @@ class TestParseAnyOf:
         assert isinstance(element, AnyOf)
         assert len(element.elements) == 1
         assert isinstance(element.elements[0], String)
-        assert repr(element) == ("""AnyOf(String())""")
+        assert repr(element) == ("AnyOf(String())")
 
     @staticmethod
     def test_with_multi_item():
@@ -120,7 +120,24 @@ class TestParseAnyOf:
         assert len(element.elements) == 2
         assert isinstance(element.elements[0], String)
         assert isinstance(element.elements[1], Array)
-        assert repr(element) == ("""AnyOf(String(), Array(String()))""")
+        assert repr(element) == "AnyOf(String(), Array(String()))"
+
+    @staticmethod
+    def test_with_multi_type_value():
+        schema = {
+            "type": ["string", "array"],
+            "minLength": 3,
+            "minItems": 3,
+            "items": {"type": "string", "maxLength": 1},
+        }
+        element = parse(schema)
+        assert isinstance(element, AnyOf)
+        assert len(element.elements) == 2
+        assert isinstance(element.elements[0], String)
+        assert isinstance(element.elements[1], Array)
+        assert repr(element) == (
+            "AnyOf(String(minLength=3), Array(String(maxLength=1), minItems=3))"
+        )
 
 
 class TestParseOneOf:
@@ -137,7 +154,7 @@ class TestParseOneOf:
         assert isinstance(element, OneOf)
         assert len(element.elements) == 1
         assert isinstance(element.elements[0], String)
-        assert repr(element) == ("""OneOf(String())""")
+        assert repr(element) == "OneOf(String())"
 
     @staticmethod
     def test_with_multi_item():
@@ -152,7 +169,7 @@ class TestParseOneOf:
         assert len(element.elements) == 2
         assert isinstance(element.elements[0], String)
         assert isinstance(element.elements[1], Array)
-        assert repr(element) == ("""OneOf(String(), Array(String()))""")
+        assert repr(element) == "OneOf(String(), Array(String()))"
 
 
 class TestParseObject:

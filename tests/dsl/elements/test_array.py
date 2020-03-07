@@ -92,3 +92,7 @@ def test_array_default_keyword():
     element = Array(String(), default=[])
     assert element(UNBOUND_PROPERTY, NotPassed()) == []
     assert element(UNBOUND_PROPERTY, ["foo"]) == ["foo"]
+
+
+def test_array_type_annotation():
+    assert Array(String()).annotation == "List[str]"

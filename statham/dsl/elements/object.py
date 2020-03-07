@@ -87,6 +87,3 @@ class Object(metaclass=ObjectMeta):
             [f"{attr}={repr(getattr(self, attr))}" for attr in self.properties]
         )
         return f"{self.__class__.__name__}({attr_repr})"
-
-    def __str__(self):
-        return repr(self)
