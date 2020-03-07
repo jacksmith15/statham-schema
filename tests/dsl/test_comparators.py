@@ -22,7 +22,14 @@ class Mux(Object):
 
 @pytest.mark.parametrize(
     "left,right",
-    [(String(), String()), (Array(String()), Array(String())), (Foo, Bar)],
+    [
+        (String(), String()),
+        (String(minLength=3), String(minLength=3)),
+        (Array(String()), Array(String())),
+        (Array(String(), minItems=3), Array(String(), minItems=3)),
+        (Array(String(minLength=3)), Array(String(minLength=3))),
+        (Foo, Bar),
+    ],
 )
 def test_equivalent_schemas_are_equal(left, right):
     assert left == right

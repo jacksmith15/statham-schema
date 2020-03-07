@@ -19,7 +19,10 @@ class Element(Generic[T]):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        return vars(self) == vars(other)
+        pub_vars = lambda x: {
+            k: v for k, v in vars(x).items() if not k.startswith("_")
+        }
+        return pub_vars(self) == pub_vars(other)
 
     @property
     def annotation(self) -> str:
