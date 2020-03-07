@@ -3,7 +3,7 @@ from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
 
 
-class Null(Element[bool]):
+class Null(Element[None]):
     """JSONSchema null element."""
 
     def __init__(self, *, default: Maybe[None] = NotPassed()):
