@@ -1,85 +1,50 @@
-from typing import ClassVar, List, Union
+from typing import List, Union
 
-from attr import attrs, attrib
-from statham import validators as val
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
+)
+from statham.dsl.property import Property
 
-# pylint: disable=unused-import
-from statham.converters import AnyOf, Array, instantiate, OneOf
 
-# pylint: enable=unused-import
-from statham.dsl.constants import NotPassed
+class ListOfStringsItem(Object):
+
+    string_property: Maybe[str] = Property(String())
 
 
-@attrs(kw_only=True)
-class ListOfStringsItem:
-    """list_of_stringsItem"""
+class ListOfIntegersItem(Object):
 
-    _required: ClassVar[List[str]] = []
+    integer_property: Maybe[int] = Property(Integer())
 
-    string_property: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str)], default=NotPassed()
+
+class ListAnyOfItem0(Object):
+
+    string_prop: Maybe[str] = Property(String())
+
+
+class ListAnyOfItem1(Object):
+
+    integer_prop: Maybe[int] = Property(Integer())
+
+
+class Autoname(Object):
+
+    list_of_strings: Maybe[List[ListOfStringsItem]] = Property(
+        Array(ListOfStringsItem)
     )
 
-
-@attrs(kw_only=True)
-class ListOfIntegersItem:
-    """list_of_integersItem"""
-
-    _required: ClassVar[List[str]] = []
-
-    integer_property: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int)], default=NotPassed()
+    list_of_integers: Maybe[List[ListOfIntegersItem]] = Property(
+        Array(ListOfIntegersItem)
     )
 
-
-@attrs(kw_only=True)
-class ListAnyOfItem0:
-    """list_any_ofItem0"""
-
-    _required: ClassVar[List[str]] = []
-
-    string_prop: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str)], default=NotPassed()
-    )
-
-
-@attrs(kw_only=True)
-class ListAnyOfItem1:
-    """list_any_ofItem1"""
-
-    _required: ClassVar[List[str]] = []
-
-    integer_prop: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int)], default=NotPassed()
-    )
-
-
-@attrs(kw_only=True)
-class Autoname:
-    """Test schema for checking auto-naming logic for anonymous schemas."""
-
-    _required: ClassVar[List[str]] = []
-
-    list_of_strings: Union[
-        List[Union[ListOfStringsItem, NotPassed]], NotPassed
-    ] = attrib(
-        validator=[val.instance_of(list)],
-        converter=instantiate(Array(ListOfStringsItem)),  # type: ignore
-        default=NotPassed(),
-    )
-    list_of_integers: Union[
-        List[Union[ListOfIntegersItem, NotPassed]], NotPassed
-    ] = attrib(
-        validator=[val.instance_of(list)],
-        converter=instantiate(Array(ListOfIntegersItem)),  # type: ignore
-        default=NotPassed(),
-    )
-    list_any_of: Union[
-        List[Union[ListAnyOfItem0, ListAnyOfItem1, str, NotPassed]], NotPassed
-    ] = attrib(
-        validator=[val.instance_of(list)],
-        converter=instantiate(  # type: ignore
-            Array(AnyOf(ListAnyOfItem0, ListAnyOfItem1))
-        ),
-        default=NotPassed(),
-    )
+    list_any_of: Maybe[
+        List[Union[ListAnyOfItem0, ListAnyOfItem1, str]]
+    ] = Property(Array(AnyOf(ListAnyOfItem0, ListAnyOfItem1, String())))

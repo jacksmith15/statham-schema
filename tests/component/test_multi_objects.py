@@ -9,17 +9,19 @@ def test_required_properties_validate_correctly():
 
 
 def test_category_may_be_passed_to_both_other_models():
-    category = Category(required_name="foo")
-    assert Model(category=category)
-    assert Child(category=category)
+    category = Category(dict(required_name="foo"))
+    assert Model(dict(category=category))
+    assert Child(dict(category=category))
 
 
 def test_full_instantiation():
     category = [dict(required_name=f"category {i}") for i in range(3)]
     assert Model(
-        children=[
-            dict(name="child 1", category=category[0]),
-            dict(name="child 2", category=category[1]),
-        ],
-        category=category[2],
+        dict(
+            children=[
+                dict(name="child 1", category=category[0]),
+                dict(name="child 2", category=category[1]),
+            ],
+            category=category[2],
+        )
     )

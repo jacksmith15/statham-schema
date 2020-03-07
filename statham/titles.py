@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, DefaultDict, Iterator, Tuple
 
-from statham.constants import COMPOSITION_KEYWORDS
+from statham.dsl.constants import COMPOSITION_KEYWORDS
 
 
 def _pop(reference: str) -> str:

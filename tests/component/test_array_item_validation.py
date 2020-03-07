@@ -16,7 +16,7 @@ from tests.models.array_item_validation import Model
 )
 def test_valid_arguments(kwargs):
     with no_raise():
-        _ = Model(**kwargs)
+        _ = Model(kwargs)
 
 
 _ARRAY_VALIDATION_MARKS = [pytest.mark.github_issue(34), pytest.mark.xfail]
@@ -40,4 +40,4 @@ _ARRAY_VALIDATION_MARKS = [pytest.mark.github_issue(34), pytest.mark.xfail]
 )
 def test_invalid_arguments(kwargs):
     with pytest.raises(ValidationError):
-        _ = Model(**kwargs)
+        _ = Model(kwargs)

@@ -2,7 +2,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
-from typing import Any, Dict, Iterator, TextIO, Tuple
+from typing import Iterator, TextIO, Tuple
 from sys import argv, stdout
 
 from json_ref_dict import materialize, RefDict

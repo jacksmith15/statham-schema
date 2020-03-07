@@ -1,53 +1,34 @@
-from typing import ClassVar, List, Union
+from typing import List, Union
 
-from attr import attrs, attrib
-from statham import validators as val
-
-# pylint: disable=unused-import
-from statham.converters import AnyOf, Array, instantiate, OneOf
-
-# pylint: enable=unused-import
-from statham.dsl.constants import NotPassed
-
-
-@attrs(kw_only=True)
-class Category:
-    """Category with required name."""
-
-    _required: ClassVar[List[str]] = ["required_name"]
-
-    required_name: str = attrib(validator=[val.instance_of(str)])
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
+)
+from statham.dsl.property import Property
 
 
-@attrs(kw_only=True)
-class Child:
-    """Model with name and reference to category."""
+class Category(Object):
 
-    _required: ClassVar[List[str]] = []
-
-    name: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str)], default=NotPassed()
-    )
-    category: Union[Category, NotPassed] = attrib(
-        validator=[val.instance_of(Category)],
-        converter=instantiate(Category),  # type: ignore
-        default=NotPassed(),
-    )
+    required_name: str = Property(String(), required=True)
 
 
-@attrs(kw_only=True)
-class Model:
-    """Model with references to children and category."""
+class Child(Object):
 
-    _required: ClassVar[List[str]] = []
+    name: Maybe[str] = Property(String())
 
-    children: Union[List[Union[Child, NotPassed]], NotPassed] = attrib(
-        validator=[val.instance_of(list)],
-        converter=instantiate(Array(Child)),  # type: ignore
-        default=NotPassed(),
-    )
-    category: Union[Category, NotPassed] = attrib(
-        validator=[val.instance_of(Category)],
-        converter=instantiate(Category),  # type: ignore
-        default=NotPassed(),
-    )
+    category: Maybe[Category] = Property(Category)
+
+
+class Model(Object):
+
+    children: Maybe[List[Child]] = Property(Array(Child))
+
+    category: Maybe[Category] = Property(Category)

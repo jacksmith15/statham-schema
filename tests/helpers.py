@@ -35,18 +35,18 @@ def abstract_model_instantiate_test(
 ):
     if not exception_type:
         try:
-            assert model(**kwargs)
+            assert model(kwargs)
         except Exception as exc:
             raise AssertionError(f"Failed field validation: {kwargs}") from exc
         return
     with pytest.raises(Exception) as excinfo:
-        model(**kwargs)
+        model(kwargs)
     assert excinfo.type is exception_type, (
         f"Raised incorrect exception type. Expected {exception_type}, "
         f"got {excinfo.type}. kwargs: {kwargs}"
     )
     actual_msg = str(excinfo.value)
-    assert actual_msg.endswith(exception_msg or ""), (
+    assert (exception_msg or "") in actual_msg, (
         f"Unexpected error message: '{actual_msg}'. Expected to contain "
         f"'{exception_msg}'."
     )

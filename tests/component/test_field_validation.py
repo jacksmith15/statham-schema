@@ -171,7 +171,7 @@ def test_field_validation(
 
 @pytest.fixture(scope="module")
 def instance():
-    return Model()
+    return Model({})
 
 
 @pytest.mark.parametrize(

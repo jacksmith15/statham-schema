@@ -1,114 +1,78 @@
-from typing import ClassVar, List, Union
+from typing import List, Union
 
-from attr import attrs, attrib
-from statham import validators as val
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
+)
+from statham.dsl.property import Property
 
-# pylint: disable=unused-import
-from statham.converters import AnyOf, Array, instantiate, OneOf
 
-# pylint: enable=unused-import
-from statham.dsl.constants import NotPassed
+class Model(Object):
 
+    string_no_validation: Maybe[str] = Property(String())
 
-@attrs(kw_only=True)
-class Model:
-    """Model"""
+    string_default: str = Property(String(default="foo"))
 
-    _required: ClassVar[List[str]] = []
+    string_format_uuid: Maybe[str] = Property(String(format="uuid"))
 
-    string_no_validation: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str)], default=NotPassed()
+    string_format_date_time: Maybe[str] = Property(String(format="date-time"))
+
+    string_format_uri: Maybe[str] = Property(String(format="uri"))
+
+    string_pattern: Maybe[str] = Property(String(pattern="^(foo|bar).*"))
+
+    string_minLength: Maybe[str] = Property(String(minLength=3))
+
+    string_maxLength: Maybe[str] = Property(String(maxLength=3))
+
+    integer_no_validation: Maybe[int] = Property(Integer())
+
+    integer_default: int = Property(Integer(default=1))
+
+    integer_minimum: Maybe[int] = Property(Integer(minimum=3))
+
+    integer_exclusiveMinimum: Maybe[int] = Property(Integer(exclusiveMinimum=3))
+
+    integer_maximum: Maybe[int] = Property(Integer(maximum=3))
+
+    integer_exclusiveMaximum: Maybe[int] = Property(Integer(exclusiveMaximum=3))
+
+    integer_multipleOf: Maybe[int] = Property(Integer(multipleOf=2))
+
+    number_no_validation: Maybe[float] = Property(Number())
+
+    number_default: float = Property(Number(default=1.5))
+
+    number_minimum: Maybe[float] = Property(Number(minimum=2.5))
+
+    number_exclusiveMinimum: Maybe[float] = Property(
+        Number(exclusiveMinimum=2.5)
     )
-    string_default: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str)], default="foo"
+
+    number_maximum: Maybe[float] = Property(Number(maximum=2.5))
+
+    number_exclusiveMaximum: Maybe[float] = Property(
+        Number(exclusiveMaximum=2.5)
     )
-    string_format_uuid: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.has_format("uuid")],
-        default=NotPassed(),
-    )
-    string_format_date_time: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.has_format("date-time")],
-        default=NotPassed(),
-    )
-    string_format_uri: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.has_format("uri")],
-        default=NotPassed(),
-    )
-    string_pattern: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.pattern("^(foo|bar).*")],
-        default=NotPassed(),
-    )
-    string_minLength: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.min_length(3)], default=NotPassed()
-    )
-    string_maxLength: Union[str, NotPassed] = attrib(
-        validator=[val.instance_of(str), val.max_length(3)], default=NotPassed()
-    )
-    integer_no_validation: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int)], default=NotPassed()
-    )
-    integer_default: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int)], default=1
-    )
-    integer_minimum: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int), val.minimum(3)], default=NotPassed()
-    )
-    integer_exclusiveMinimum: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int), val.exclusive_minimum(3)],
-        default=NotPassed(),
-    )
-    integer_maximum: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int), val.maximum(3)], default=NotPassed()
-    )
-    integer_exclusiveMaximum: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int), val.exclusive_maximum(3)],
-        default=NotPassed(),
-    )
-    integer_multipleOf: Union[int, NotPassed] = attrib(
-        validator=[val.instance_of(int), val.multiple_of(2)],
-        default=NotPassed(),
-    )
-    number_no_validation: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float)], default=NotPassed()
-    )
-    number_default: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float)], default=1.5
-    )
-    number_minimum: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float), val.minimum(2.5)],
-        default=NotPassed(),
-    )
-    number_exclusiveMinimum: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float), val.exclusive_minimum(2.5)],
-        default=NotPassed(),
-    )
-    number_maximum: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float), val.maximum(2.5)],
-        default=NotPassed(),
-    )
-    number_exclusiveMaximum: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float), val.exclusive_maximum(2.5)],
-        default=NotPassed(),
-    )
-    number_multipleOf: Union[float, NotPassed] = attrib(
-        validator=[val.instance_of(float), val.multiple_of(2.5)],
-        default=NotPassed(),
-    )
-    boolean_no_validation: Union[bool, NotPassed] = attrib(
-        validator=[val.instance_of(bool)], default=NotPassed()
-    )
-    boolean_default: Union[bool, NotPassed] = attrib(
-        validator=[val.instance_of(bool)], default=True
-    )
-    null_no_validation: Union[None, NotPassed] = attrib(
-        validator=[val.instance_of(type(None))], default=NotPassed()
-    )
-    array_no_validation: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
-        validator=[val.instance_of(list)], default=NotPassed()
-    )
-    array_minItems: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
-        validator=[val.instance_of(list), val.min_items(1)], default=NotPassed()
-    )
-    array_maxItems: Union[List[Union[int, NotPassed]], NotPassed] = attrib(
-        validator=[val.instance_of(list), val.max_items(2)], default=NotPassed()
-    )
+
+    number_multipleOf: Maybe[float] = Property(Number(multipleOf=2.5))
+
+    boolean_no_validation: Maybe[bool] = Property(Boolean())
+
+    boolean_default: bool = Property(Boolean(default=True))
+
+    null_no_validation: Maybe[None] = Property(Null())
+
+    array_no_validation: Maybe[List[int]] = Property(Array(Integer()))
+
+    array_minItems: Maybe[List[int]] = Property(Array(Integer(), minItems=1))
+
+    array_maxItems: Maybe[List[int]] = Property(Array(Integer(), maxItems=2))

@@ -11,11 +11,8 @@ FIELD_VALIDATION_PARAMS: List[
     Tuple[Dict, Optional[Type[Exception]], Optional[str]]
 ] = [
     ({}, None, None),
-    (
-        {"number_integer": None},
-        ValidationError,
-        "Must be of type (int, float).",
-    ),
+    ({"number_integer": None}, ValidationError, "Must be of type (int)."),
+    ({"number_integer": None}, ValidationError, "Must be of type (float)."),
     (
         {"number_integer": 1},
         ValidationError,
@@ -30,7 +27,8 @@ FIELD_VALIDATION_PARAMS: List[
     ({"number_integer": 5.4}, ValidationError, "Must be strictly less than 5."),
     ({"number_integer": 3}, None, None),
     ({"number_integer": 3.5}, None, None),
-    ({"string_integer": None}, ValidationError, "Must be of type (int, str)."),
+    ({"string_integer": None}, ValidationError, "Must be of type (int)."),
+    ({"string_integer": None}, ValidationError, "Must be of type (str)."),
     (
         {"string_integer": 5},
         ValidationError,
@@ -48,7 +46,8 @@ FIELD_VALIDATION_PARAMS: List[
     ),
     ({"string_integer": 1984}, None, None),
     ({"string_integer": "1984"}, None, None),
-    ({"string_null": 1}, ValidationError, "Must be of type (str, NoneType)."),
+    ({"string_null": 1}, ValidationError, "Must be of type (NoneType)."),
+    ({"string_null": 1}, ValidationError, "Must be of type (str)."),
     (
         {"string_null": "foo"},
         ValidationError,

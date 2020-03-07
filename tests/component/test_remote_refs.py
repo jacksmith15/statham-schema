@@ -2,19 +2,19 @@ from tests.models.remote_ref import Category, Model, NestedRemote, Remote
 
 
 def test_root_model_instantiates():
-    assert Model()
+    assert Model({})
 
 
 def test_flat_remote_instantiates():
-    assert Category(required_name="foo")
+    assert Category(dict(required_name="foo"))
 
 
 def test_remote_in_subdirectory_instantiates():
-    assert Remote()
+    assert Remote({})
 
 
 def test_nested_remote_instantiates():
-    assert NestedRemote()
+    assert NestedRemote({})
 
 
 def test_model_instantiates_with_nesting():
@@ -25,4 +25,4 @@ def test_model_instantiates_with_nesting():
             "nested": {"name": "foo"},
         },
     }
-    assert Model(**data)
+    assert Model(data)

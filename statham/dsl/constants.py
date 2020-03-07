@@ -1,4 +1,7 @@
-from typing import TypeVar, Union
+from typing import Any, Dict, List, TypeVar, Union
+
+
+JSONElement = Union[Dict[str, Any], List[Any], int, float, bool, None, str]
 
 
 class NotPassed:
@@ -26,3 +29,6 @@ class NotPassed:
 T = TypeVar("T")
 
 Maybe = Union[T, NotPassed]
+
+
+COMPOSITION_KEYWORDS = ("anyOf", "oneOf")

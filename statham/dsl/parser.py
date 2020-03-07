@@ -19,6 +19,7 @@ from statham.dsl.elements import (
 )
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.property import _Property
+from statham.exceptions import SchemaParseError
 
 
 _TYPE_MAPPING = {
@@ -87,6 +88,8 @@ def _new_object(schema: Dict[str, Any]) -> ObjectMeta:
     }
     class_dict = ObjectClassDict(default=default, **properties)
     title = _title_format(schema.get("title", schema.get("_x_autotitle")))
+    if not title:
+        raise SchemaParseError.missing_title(schema)
     return ObjectMeta(title, (Object,), class_dict)
 
 

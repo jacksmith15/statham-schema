@@ -44,11 +44,11 @@ class Object(metaclass=ObjectMeta):
 
     @overload
     def __new__(cls, _value: Any):
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __new__(cls, _property: _Property, _value: Any):
-        ...
+        ...  # pragma: no cover
 
     def __new__(cls, *args):
         property_, value = cls._parse_args(*args)
@@ -60,11 +60,11 @@ class Object(metaclass=ObjectMeta):
 
     @overload
     def __init__(self, _value: Any):
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __init__(self, _property: _Property, _value: Any):
-        ...
+        ...  # pragma: no cover
 
     def __init__(self, *args):
         _, value = self._parse_args(*args)

@@ -9,8 +9,10 @@ from tests.models.autoname import Autoname, ListAnyOfItem0, ListAnyOfItem1
 def test_anonymous_arrays_do_not_overwrite_themselves():
     """Regression test for issue #29."""
     assert Autoname(
-        list_of_strings=[{"string_property": "foo"}],
-        list_of_integers=[{"integer_property": 1}],
+        dict(
+            list_of_strings=[{"string_property": "foo"}],
+            list_of_integers=[{"integer_property": 1}],
+        )
     )
 
 
@@ -19,11 +21,13 @@ class TestAnonymousAnyOfObjects:
     @pytest.fixture(scope="class")
     def instance() -> Autoname:
         return Autoname(
-            list_any_of=[
-                {"string_prop": "foo"},
-                {"integer_prop": 1},
-                "A string",
-            ]
+            dict(
+                list_any_of=[
+                    {"string_prop": "foo"},
+                    {"integer_prop": 1},
+                    "A string",
+                ]
+            )
         )
 
     @staticmethod
