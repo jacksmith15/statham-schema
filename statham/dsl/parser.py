@@ -18,8 +18,8 @@ from statham.dsl.elements import (
     String,
 )
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
+from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import _Property
-from statham.exceptions import SchemaParseError
 
 
 _TYPE_MAPPING = {

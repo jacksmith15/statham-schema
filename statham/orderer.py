@@ -4,7 +4,7 @@ from typing import Dict, List, Set
 
 from statham.dsl.elements import Array, CompositionElement, Element
 from statham.dsl.elements.meta import ObjectMeta
-from statham.exceptions import SchemaParseError
+from statham.dsl.exceptions import SchemaParseError
 
 
 class ClassDef:

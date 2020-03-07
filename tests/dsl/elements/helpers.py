@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from statham.exceptions import ValidationError
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.elements import Element
 from statham.dsl.property import UNBOUND_PROPERTY
 from tests.helpers import no_raise

@@ -4,7 +4,7 @@ import pytest
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Object, OneOf, String
 from statham.dsl.property import Property
-from statham.exceptions import ValidationError
+from statham.dsl.exceptions import ValidationError
 from tests.helpers import no_raise
 
 

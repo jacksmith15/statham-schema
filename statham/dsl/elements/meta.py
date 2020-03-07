@@ -1,6 +1,6 @@
 from typing import Any, Dict, Tuple, Type
 
-from statham import validators as val
+from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed

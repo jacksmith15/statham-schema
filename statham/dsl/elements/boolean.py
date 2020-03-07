@@ -1,4 +1,4 @@
-from statham import validators as val
+from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
 

@@ -1,7 +1,7 @@
 from statham.dsl.elements import String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
-from statham.dsl.serializer import serialize_python
+from statham.serializer import serialize_python
 
 
 SCHEMA = {

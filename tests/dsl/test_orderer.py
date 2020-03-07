@@ -4,8 +4,8 @@ import pytest
 
 from statham.dsl.elements import Array, Object, String
 from statham.dsl.elements.meta import ObjectMeta
-from statham.dsl.orderer import Orderer
 from statham.dsl.property import Property
+from statham.orderer import Orderer
 
 
 class Child(Object):

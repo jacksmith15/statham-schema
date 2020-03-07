@@ -2,8 +2,8 @@ from abc import abstractmethod
 from typing import Any, List, NamedTuple, Optional
 
 from statham.dsl.elements.base import Element
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
-from statham.exceptions import ValidationError
 from statham.dsl.constants import NotPassed
 
 

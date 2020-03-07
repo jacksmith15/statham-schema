@@ -2,8 +2,8 @@ from typing import Any, ClassVar, Dict, overload, Tuple, Union
 
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.elements.base import Element
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
-from statham.exceptions import ValidationError
 from statham.dsl.constants import NotPassed
 
 

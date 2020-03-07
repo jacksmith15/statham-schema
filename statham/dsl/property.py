@@ -1,6 +1,6 @@
 from typing import Any, Generic, TypeVar
 
-from statham import validators as val
+from statham.dsl import validators as val
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr

@@ -3,11 +3,11 @@ from typing import Dict
 from statham.dsl.constants import JSONElement
 
 
-class JSONSchemaObjectError(Exception):
+class StathamError(Exception):
     """Base exception"""
 
 
-class ValidationError(JSONSchemaObjectError):
+class ValidationError(StathamError):
     """Validation failure in generated models."""
 
     @classmethod
@@ -26,7 +26,7 @@ class ValidationError(JSONSchemaObjectError):
         )
 
 
-class SchemaParseError(JSONSchemaObjectError):
+class SchemaParseError(StathamError):
     """Failure during parsing of provided JSON Schema input."""
 
     @classmethod

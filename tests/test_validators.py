@@ -1,6 +1,6 @@
 import pytest
 
-from statham.validators import has_format
+from statham.dsl.validators import has_format
 from statham.dsl.constants import NotPassed
 from statham.dsl.property import UNBOUND_PROPERTY
 

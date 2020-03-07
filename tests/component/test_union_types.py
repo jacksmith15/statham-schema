@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Tuple, Type
 
 import pytest
 
-from statham.exceptions import ValidationError
+from statham.dsl.exceptions import ValidationError
 from tests.helpers import abstract_model_instantiate_test
 from tests.models.union_types import Model
 

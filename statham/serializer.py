@@ -1,5 +1,5 @@
 from statham.dsl.elements import Element
-from statham.dsl.orderer import Orderer
+from statham.orderer import Orderer
 
 
 _IMPORT_STATEMENTS = """from typing import List, Union
