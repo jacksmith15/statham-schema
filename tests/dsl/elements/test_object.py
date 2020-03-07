@@ -85,16 +85,32 @@ class TestSchemaWithDefault:
 
         default = dict(value="bar")
 
-        value: str = Property(String(minLength=3))
+        value: str = Property(String(minLength=3), required=True)
 
     def test_that_it_accepts_no_args(self):
         with no_raise():
             instance = self.DefaultStringWrapper()
         assert instance.value == "bar"
 
-    def test_that_it_accepts_an_args(self):
+    def test_that_it_accepts_an_arg(self):
         with no_raise():
             instance = self.DefaultStringWrapper({"value": "baz"})
+        assert instance.value == "baz"
+
+
+class TestSchemaPropertyWithDefault:
+    class StringDefaultWrapper(Object):
+
+        value: str = Property(String(default="bar"), required=True)
+
+    def test_that_it_accepts_no_args(self):
+        with no_raise():
+            instance = self.StringDefaultWrapper({})
+        assert instance.value == "bar"
+
+    def test_that_it_accepts_an_arg(self):
+        with no_raise():
+            instance = self.StringDefaultWrapper({"value": "baz"})
         assert instance.value == "baz"
 
 

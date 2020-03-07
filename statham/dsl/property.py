@@ -35,7 +35,7 @@ class _Property(Generic[T]):
 
     def __call__(self, value):
         if not isinstance(self.element.default, NotPassed) and isinstance(
-            value, NotPassed()
+            value, NotPassed
         ):
             value = self.element.default
         val.required(self.required)(self, value)
