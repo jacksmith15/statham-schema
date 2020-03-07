@@ -106,8 +106,8 @@ class TestAnyOfValidation(CompositionValidation):
 
 def test_composition_default_keyword():
     element = OneOf(String(), Array(String()), default="foo")
-    assert element(UNBOUND_PROPERTY, NotPassed()) == "foo"
-    assert element(UNBOUND_PROPERTY, ["foo"]) == ["foo"]
+    assert element(NotPassed(), UNBOUND_PROPERTY) == "foo"
+    assert element(["foo"], UNBOUND_PROPERTY) == ["foo"]
 
 
 @pytest.mark.parametrize("element", [OneOf, AnyOf])

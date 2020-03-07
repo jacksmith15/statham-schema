@@ -90,8 +90,8 @@ class TestArrayValidation:
 
 def test_array_default_keyword():
     element = Array(String(), default=[])
-    assert element(UNBOUND_PROPERTY, NotPassed()) == []
-    assert element(UNBOUND_PROPERTY, ["foo"]) == ["foo"]
+    assert element(NotPassed(), UNBOUND_PROPERTY) == []
+    assert element(["foo"], UNBOUND_PROPERTY) == ["foo"]
 
 
 def test_array_type_annotation():

@@ -125,8 +125,8 @@ class TestStringValidation:
 
 def test_string_default_keyword():
     element = String(default="foo")
-    assert element(UNBOUND_PROPERTY, NotPassed()) == "foo"
-    assert element(UNBOUND_PROPERTY, "bar") == "bar"
+    assert element(NotPassed(), UNBOUND_PROPERTY) == "foo"
+    assert element("bar", UNBOUND_PROPERTY) == "bar"
 
 
 def test_string_type_annotation():

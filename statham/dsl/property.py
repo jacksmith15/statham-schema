@@ -48,8 +48,10 @@ class _Property(Generic[T]):
             value, NotPassed
         ):
             value = self.element.default
-        val.required(self.required)(self, value)
-        return self.element(self, value)
+        val.required(self.required)(value, self)
+        if isinstance(value, NotPassed):
+            return value
+        return self.element(value, self)
 
     def __repr__(self):
         return custom_repr(self)

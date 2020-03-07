@@ -30,27 +30,27 @@ class CompositionElement(Element):
         return f"Union[{annotations}]"
 
     @abstractmethod
-    def construct(self, property_: _Property, _value: Any):
+    def construct(self, _value: Any, property_: _Property):
         raise NotImplementedError
 
 
 class AnyOf(CompositionElement):
     """Any one of a list of possible models/sub-schemas."""
 
-    def construct(self, property_: _Property, value: Any):
+    def construct(self, value: Any, property_: _Property):
         """Return against the first matching schema."""
-        return _attempt_schemas(self.elements, property_, value)[0]
+        return _attempt_schemas(self.elements, value, property_)[0]
 
 
 class OneOf(CompositionElement):
     """Exactly one of a list of possible models/sub-schemas."""
 
-    def construct(self, property_: _Property, value: Any):
+    def construct(self, value: Any, property_: _Property):
         """Ensure there is only one matching schema.
 
         :raises ValidationError: if there are multiple matching schemas.
         """
-        instantiated = _attempt_schemas(self.elements, property_, value)
+        instantiated = _attempt_schemas(self.elements, value, property_)
         if len(instantiated) > 1:
             raise ValidationError.mutliple_composition_match(
                 [type(instance) for instance in instantiated], value
@@ -66,7 +66,7 @@ class Outcome(NamedTuple):
 
 
 def _attempt_schema(
-    element: Element, property_: _Property, value: Any
+    element: Element, value: Any, property_: _Property
 ) -> Outcome:
     """Attempt to pass an input to a schema element.
 
@@ -74,13 +74,13 @@ def _attempt_schema(
         information and a result if successful.
     """
     try:
-        return Outcome(element, result=element(property_, value), error=None)
+        return Outcome(element, result=element(value, property_), error=None)
     except (TypeError, ValidationError) as exc:
         return Outcome(element, result=None, error=str(exc))
 
 
 def _attempt_schemas(
-    elements: List[Element], property_: _Property, value: Any
+    elements: List[Element], value: Any, property_: _Property
 ) -> List[Any]:
     """Attempt to instantiate a given input against many elements.
 
@@ -91,7 +91,7 @@ def _attempt_schemas(
     :raises ValidationError: if there are no matching schemas.
     """
     outcomes = [
-        _attempt_schema(element, property_, value) for element in elements
+        _attempt_schema(element, value, property_) for element in elements
     ]
     results = [outcome.result for outcome in outcomes if not outcome.error]
     if results:

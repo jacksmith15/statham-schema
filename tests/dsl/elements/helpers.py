@@ -11,7 +11,7 @@ from tests.helpers import no_raise
 def assert_validation(element: Element, success: bool, value: Any):
     if success:
         with no_raise():
-            _ = element(UNBOUND_PROPERTY, value)
+            _ = element(value, UNBOUND_PROPERTY)
     else:
         with pytest.raises(ValidationError):
-            _ = element(UNBOUND_PROPERTY, value)
+            _ = element(value, UNBOUND_PROPERTY)

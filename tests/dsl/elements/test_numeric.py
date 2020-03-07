@@ -154,8 +154,8 @@ class TestIntegerValidation:
 
 def test_integer_default_keyword():
     element = Integer(default=3)
-    assert element(UNBOUND_PROPERTY, NotPassed()) == 3
-    assert element(UNBOUND_PROPERTY, 5) == 5
+    assert element(NotPassed(), UNBOUND_PROPERTY) == 3
+    assert element(5, UNBOUND_PROPERTY) == 5
 
 
 def test_integer_type_annotation():
@@ -272,8 +272,8 @@ class TestNumberValidation:
 
 def test_number_default_keyword():
     element = Number(default=3.3)
-    assert element(UNBOUND_PROPERTY, NotPassed()) == 3.3
-    assert element(UNBOUND_PROPERTY, 5.5) == 5.5
+    assert element(NotPassed(), UNBOUND_PROPERTY) == 3.3
+    assert element(5.5, UNBOUND_PROPERTY) == 5.5
 
 
 def test_number_type_annotation():

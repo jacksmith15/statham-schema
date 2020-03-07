@@ -48,10 +48,10 @@ class Element(Generic[T]):
 
     # Default implementation doesn't need self.
     # pylint: disable=no-self-use
-    def construct(self, _property, value):
+    def construct(self, value, _property):
         return value
 
-    def __call__(self, property_, value) -> Maybe[T]:
+    def __call__(self, value, property_) -> Maybe[T]:
         """Validate and convert input data against the element.
 
         Runs validators defined on the `validators` property, and calls
@@ -62,7 +62,7 @@ class Element(Generic[T]):
         ):
             value = self.default
         for validator in self.validators:
-            validator(property_, value)
+            validator(value, property_)
         if isinstance(value, NotPassed):
             return value
-        return self.construct(property_, value)
+        return self.construct(value, property_)

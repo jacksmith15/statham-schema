@@ -49,8 +49,8 @@ class Array(Element[List[T]]):
             validators.append(val.max_items(self.maxItems))
         return validators
 
-    def construct(self, property_, value):
+    def construct(self, value, property_):
         return [
-            self.items(property_.evolve(property_.name + f"[{idx}]"), item)
+            self.items(item, property_.evolve(property_.name + f"[{idx}]"))
             for idx, item in enumerate(value)
         ]

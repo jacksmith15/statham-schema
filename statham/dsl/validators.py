@@ -77,10 +77,10 @@ def on_types(*type_args: Type) -> Callable[[Validator], Validator]:
     def _validate_if_types(validator: Validator) -> Validator:
         """Return a wrapped version of `validator` to negotiate type."""
 
-        def _inner_validator(property_, value) -> None:
+        def _inner_validator(value, property_) -> None:
             if not isinstance(value, type_args):
                 return
-            validator(property_, value)
+            validator(value, property_)
 
         return _inner_validator
 
@@ -100,9 +100,9 @@ def raises(message: str) -> Callable[[Validator], Validator]:
         """
 
         @wraps(validator)
-        def inner_validator(property_, value) -> None:
+        def inner_validator(value, property_) -> None:
             try:
-                validator(property_, value)
+                validator(value, property_)
             except ValidationError:
                 raise ValidationError.from_validator(property_, value, message)
 
@@ -114,7 +114,7 @@ def raises(message: str) -> Callable[[Validator], Validator]:
 def min_items(minimum_items: int) -> Validator:
     @on_types(list)
     @raises(f"Must contain at least {minimum_items} items.")
-    def _min_items(_property, value):
+    def _min_items(value, _property):
         if len(value) < minimum_items:
             raise ValidationError
 
@@ -124,7 +124,7 @@ def min_items(minimum_items: int) -> Validator:
 def max_items(maximum_items: int) -> Validator:
     @on_types(list)
     @raises(f"Must contain fewer than {maximum_items} items.")
-    def _max_items(_property, value):
+    def _max_items(value, _property):
         if len(value) > maximum_items:
             raise ValidationError
 
@@ -134,7 +134,7 @@ def max_items(maximum_items: int) -> Validator:
 def minimum(minimum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be greater than or equal to {minimum_value}.")
-    def _minimum(_property, value):
+    def _minimum(value, _property):
         if value < minimum_value:
             raise ValidationError
 
@@ -144,7 +144,7 @@ def minimum(minimum_value: Union[int, float]) -> Validator:
 def maximum(maximum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be less than or equal to {maximum_value}.")
-    def _maximum(_property, value):
+    def _maximum(value, _property):
         if value > maximum_value:
             raise ValidationError
 
@@ -154,7 +154,7 @@ def maximum(maximum_value: Union[int, float]) -> Validator:
 def exclusive_minimum(exclusive_minimum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be strictly greater than {exclusive_minimum_value}.")
-    def _exclusive_minimum(_property, value):
+    def _exclusive_minimum(value, _property):
         if value <= exclusive_minimum_value:
             raise ValidationError
 
@@ -164,7 +164,7 @@ def exclusive_minimum(exclusive_minimum_value: Union[int, float]) -> Validator:
 def exclusive_maximum(exclusive_maximum_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be strictly less than {exclusive_maximum_value}.")
-    def _exclusive_maximum(_property, value):
+    def _exclusive_maximum(value, _property):
         if value >= exclusive_maximum_value:
             raise ValidationError
 
@@ -174,7 +174,7 @@ def exclusive_maximum(exclusive_maximum_value: Union[int, float]) -> Validator:
 def multiple_of(multiple_value: Union[int, float]) -> Validator:
     @on_types(int, float)
     @raises(f"Must be a multiple of {multiple_value}.")
-    def _multiple_of(_property, value):
+    def _multiple_of(value, _property):
         if value % multiple_value:
             raise ValidationError
 
@@ -184,7 +184,7 @@ def multiple_of(multiple_value: Union[int, float]) -> Validator:
 def has_format(format_string: str) -> Validator:
     @on_types(str)
     @raises(f"Must match format described by {repr(format_string)}.")
-    def _format(_property, value):
+    def _format(value, _property):
         if not format_checker(format_string, value):
             raise ValidationError
 
@@ -194,7 +194,7 @@ def has_format(format_string: str) -> Validator:
 def pattern(re_pattern: str) -> Validator:
     @on_types(str)
     @raises(f"Must match regex pattern {repr(re_pattern)}.")
-    def _pattern(_property, value):
+    def _pattern(value, _property):
         if not re.match(re_pattern, value):
             raise ValidationError
 
@@ -204,7 +204,7 @@ def pattern(re_pattern: str) -> Validator:
 def min_length(min_length_value: int) -> Validator:
     @on_types(str)
     @raises(f"Must be at least {min_length_value} characters long.")
-    def _min_length_value(_property, value):
+    def _min_length_value(value, _property):
         if len(value) < min_length_value:
             raise ValidationError
 
@@ -214,7 +214,7 @@ def min_length(min_length_value: int) -> Validator:
 def max_length(max_length_value: int) -> Validator:
     @on_types(str)
     @raises(f"Must be at most {max_length_value} characters long.")
-    def _max_length_value(_property, value):
+    def _max_length_value(value, _property):
         if len(value) > max_length_value:
             raise ValidationError
 
@@ -225,7 +225,7 @@ def instance_of(*types: Type) -> Validator:
     type_names = f"({', '.join((type_.__name__ for type_ in types))})"
 
     @raises(f"Must be of type {type_names}.")
-    def _instance_of(_property, value):
+    def _instance_of(value, _property):
         if value == NotPassed():
             return
         if not isinstance(value, types):
@@ -236,7 +236,7 @@ def instance_of(*types: Type) -> Validator:
 
 def required(is_required: bool) -> Validator:
     @raises(f"Not passed but is required.")
-    def _required(_property, value):
+    def _required(value, _property):
         if value == NotPassed() and is_required:
             raise ValidationError
 

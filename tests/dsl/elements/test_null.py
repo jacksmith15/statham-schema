@@ -35,7 +35,7 @@ class TestNullValidation:
 
 def test_null_default_keyword():
     element = Null(default=None)
-    assert element(UNBOUND_PROPERTY, NotPassed()) is None
+    assert element(NotPassed(), UNBOUND_PROPERTY) is None
 
 
 def test_null_type_annotation():
