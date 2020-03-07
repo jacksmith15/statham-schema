@@ -8,6 +8,10 @@ from statham.dsl.constants import Maybe
 from statham.dsl.elements import (
     AnyOf,
     Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
     OneOf,
     Object,
     String,
