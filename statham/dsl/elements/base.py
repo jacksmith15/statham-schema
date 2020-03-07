@@ -16,6 +16,11 @@ class Element(Generic[T]):
         """Dynamically construct the repr to match value instantiation."""
         return custom_repr(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return vars(self) == vars(other)
+
     @property
     def annotation(self) -> str:
         return "Any"

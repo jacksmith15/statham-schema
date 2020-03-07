@@ -2,23 +2,40 @@ from statham.dsl.elements import String
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.parser import parse
 from statham.dsl.property import _Property
+from tests.dsl.parser.base import ParseSchemaCase
 
 
-class TestParseObject:
-    @staticmethod
-    def test_with_no_args():
-        schema = {"type": "object", "title": "EmptyModel"}
-        element = parse(schema)
-        assert isinstance(element, ObjectMeta)
-        assert element.__name__ == "EmptyModel"
-        assert element.properties == {}
-        assert element.code == (
-            """class EmptyModel(Object):
+class ParseObjectCase(ParseSchemaCase):
+    _CODE: str
+    _ELEMENT_TYPE = ObjectMeta
+
+    def test_it_has_the_correct_code_repr(self, element):
+        assert element.code == self._CODE
+
+
+class TestParseObjectWithNoArgs(ParseObjectCase):
+    _SCHEMA = {"type": "object", "title": "EmptyModel"}
+    _ATTR_MAP = {"__name__": "EmptyModel", "properties": {}}
+    _REPR = "EmptyModel"
+    _CODE = """class EmptyModel(Object):
 
     pass
 """
-        )
 
+
+# class TestParseObjectWithNotRequiredProperty(ParseObjectCase):
+#     _SCHEMA = {
+#         "type": "object",
+#         "title": "StringWrapper",
+#         "properties": {"value": {"type": "string"}},
+#     }
+#     _ATTR_MAP = {
+#         "__name__": "StringWrapper",
+
+#     }
+
+
+class TestParseObject:
     @staticmethod
     def test_with_not_required_property():
         schema = {

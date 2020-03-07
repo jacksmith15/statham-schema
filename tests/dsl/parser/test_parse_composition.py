@@ -1,85 +1,75 @@
+from typing import Any, Dict, List, Type
+
 import pytest
 
-from statham.dsl.elements import AnyOf, Array, OneOf, String
+from statham.dsl.elements import AnyOf, Array, Element, OneOf, String
 from statham.dsl.parser import parse
+from tests.dsl.parser.base import ParseSchemaCase
 
 
-class TestParseAnyOf:
-    @staticmethod
-    def test_with_empty_list():
-        schema = {"anyOf": []}
-        with pytest.raises(TypeError):
-            _ = parse(schema)
-
-    @staticmethod
-    def test_with_single_item():
-        schema = {"anyOf": [{"type": "string"}]}
-        element = parse(schema)
-        assert isinstance(element, AnyOf)
-        assert len(element.elements) == 1
-        assert isinstance(element.elements[0], String)
-        assert repr(element) == ("AnyOf(String())")
-
-    @staticmethod
-    def test_with_multi_item():
-        schema = {
-            "anyOf": [
-                {"type": "string"},
-                {"type": "array", "items": {"type": "string"}},
-            ]
-        }
-        element = parse(schema)
-        assert isinstance(element, AnyOf)
-        assert len(element.elements) == 2
-        assert isinstance(element.elements[0], String)
-        assert isinstance(element.elements[1], Array)
-        assert repr(element) == "AnyOf(String(), Array(String()))"
-
-    @staticmethod
-    def test_with_multi_type_value():
-        schema = {
-            "type": ["string", "array"],
-            "minLength": 3,
-            "minItems": 3,
-            "items": {"type": "string", "maxLength": 1},
-        }
-        element = parse(schema)
-        assert isinstance(element, AnyOf)
-        assert len(element.elements) == 2
-        assert isinstance(element.elements[0], String)
-        assert isinstance(element.elements[1], Array)
-        assert repr(element) == (
-            "AnyOf(String(minLength=3), Array(String(maxLength=1), minItems=3))"
-        )
+@pytest.mark.parametrize("keyword", ["anyOf", "oneOf"])
+def test_parse_composition_fails_with_empty_list(keyword):
+    schema = {keyword: []}
+    with pytest.raises(TypeError):
+        _ = parse(schema)
 
 
-class TestParseOneOf:
-    @staticmethod
-    def test_with_empty_list():
-        schema = {"oneOf": []}
-        with pytest.raises(TypeError):
-            _ = parse(schema)
+class ParseCompositionCase(ParseSchemaCase):
+    _ATTR_MAP: Dict[str, Any] = {}
+    _TYPE_MAP: List[Type[Element]]
 
-    @staticmethod
-    def test_with_single_item():
-        schema = {"oneOf": [{"type": "string"}]}
-        element = parse(schema)
-        assert isinstance(element, OneOf)
-        assert len(element.elements) == 1
-        assert isinstance(element.elements[0], String)
-        assert repr(element) == "OneOf(String())"
+    def test_it_has_the_correct_number_of_elements(self, element):
+        assert len(element.elements) == len(self._TYPE_MAP)
 
-    @staticmethod
-    def test_with_multi_item():
-        schema = {
-            "oneOf": [
-                {"type": "string"},
-                {"type": "array", "items": {"type": "string"}},
-            ]
-        }
-        element = parse(schema)
-        assert isinstance(element, OneOf)
-        assert len(element.elements) == 2
-        assert isinstance(element.elements[0], String)
-        assert isinstance(element.elements[1], Array)
-        assert repr(element) == "OneOf(String(), Array(String()))"
+    def test_the_elements_have_the_correct_type(self, element):
+        assert [type(elem) for elem in element.elements] == self._TYPE_MAP
+
+
+class TestParseAnyOfWithOneOption(ParseCompositionCase):
+    _SCHEMA = {"anyOf": [{"type": "string"}]}
+    _ELEMENT_TYPE = AnyOf
+    _REPR = "AnyOf(String())"
+    _TYPE_MAP: List[Type[Element]] = [String]
+
+
+class TestParseAnyOfWithMultiOption(ParseCompositionCase):
+    _SCHEMA = {
+        "anyOf": [
+            {"type": "string"},
+            {"type": "array", "items": {"type": "string"}},
+        ]
+    }
+    _ELEMENT_TYPE = AnyOf
+    _REPR = "AnyOf(String(), Array(String()))"
+    _TYPE_MAP = [String, Array]
+
+
+class TestParseMultiTypeToAnyOf(ParseCompositionCase):
+    _SCHEMA = {
+        "type": ["string", "array"],
+        "minLength": 3,
+        "minItems": 3,
+        "items": {"type": "string", "maxLength": 1},
+    }
+    _ELEMENT_TYPE = AnyOf
+    _REPR = "AnyOf(String(minLength=3), Array(String(maxLength=1), minItems=3))"
+    _TYPE_MAP = [String, Array]
+
+
+class TestParseOneOfWithOneOption(ParseCompositionCase):
+    _SCHEMA = {"oneOf": [{"type": "string"}]}
+    _ELEMENT_TYPE = OneOf
+    _REPR = "OneOf(String())"
+    _TYPE_MAP: List[Type[Element]] = [String]
+
+
+class TestParseOneOfWithMultiOption(ParseCompositionCase):
+    _SCHEMA = {
+        "oneOf": [
+            {"type": "string"},
+            {"type": "array", "items": {"type": "string"}},
+        ]
+    }
+    _ELEMENT_TYPE = OneOf
+    _REPR = "OneOf(String(), Array(String()))"
+    _TYPE_MAP = [String, Array]

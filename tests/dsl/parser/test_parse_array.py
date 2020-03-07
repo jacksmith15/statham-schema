@@ -3,40 +3,40 @@ import pytest
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import Array, String
 from statham.dsl.parser import parse
+from tests.dsl.parser.base import ParseSchemaCase
 
 
-class TestParseArray:
-    @staticmethod
-    def test_with_no_items():
-        with pytest.raises(TypeError):
-            _ = parse({"type": "array"})
+def test_parse_array_fails_with_no_items():
+    with pytest.raises(TypeError):
+        _ = parse({"type": "array"})
 
-    @staticmethod
-    def test_with_just_items():
-        schema = {"type": "array", "items": {"type": "string"}}
-        element = parse(schema)
-        assert isinstance(element, Array)
-        assert element.default == NotPassed()
-        assert element.minItems == NotPassed()
-        assert element.maxItems == NotPassed()
+
+class TestParseArrayWithItems(ParseSchemaCase):
+    _SCHEMA = {"type": "array", "items": {"type": "string"}}
+    _ELEMENT_TYPE = Array
+    _ATTR_MAP = {
+        "default": NotPassed(),
+        "minItems": NotPassed(),
+        "maxItems": NotPassed(),
+    }
+    _REPR = "Array(String())"
+
+    def test_its_items_has_the_correct_type(self, element):
         assert isinstance(element.items, String)
-        assert repr(element) == "Array(String())"
 
-    @staticmethod
-    def test_with_full_args():
-        schema = {
-            "type": "array",
-            "items": {"type": "string"},
-            "default": ["foo", "bar"],
-            "minItems": 1,
-            "maxItems": 3,
-        }
-        element = parse(schema)
-        assert isinstance(element, Array)
-        assert element.default == ["foo", "bar"]
-        assert element.minItems == 1
-        assert element.maxItems == 3
+
+class TestParseArrayWithFullKeywords(ParseSchemaCase):
+
+    _SCHEMA = {
+        "type": "array",
+        "items": {"type": "string"},
+        "default": ["foo", "bar"],
+        "minItems": 1,
+        "maxItems": 3,
+    }
+    _ELEMENT_TYPE = Array
+    _ATTR_MAP = {"default": ["foo", "bar"], "minItems": 1, "maxItems": 3}
+    _REPR = "Array(String(), default=['foo', 'bar'], minItems=1, maxItems=3)"
+
+    def test_its_items_has_the_correct_type(self, element):
         assert isinstance(element.items, String)
-        assert repr(element) == (
-            """Array(String(), default=['foo', 'bar'], minItems=1, maxItems=3)"""
-        )

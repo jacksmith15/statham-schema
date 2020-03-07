@@ -47,6 +47,9 @@ class ObjectMeta(type, Element):
         cls.default = classdict.default
         return cls
 
+    def __hash__(cls):
+        return hash(tuple([cls.__name__] + [prop for prop in cls.properties]))
+
     @property
     def annotation(cls) -> str:
         return cls.__name__
