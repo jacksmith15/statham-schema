@@ -17,6 +17,13 @@ SCHEMA = {
             "default": {"value": "none"},
         }
     },
+    "definitions": {
+        "other": {
+            "type": "object",
+            "title": "Other",
+            "properties": {"value": {"type": "integer"}},
+        }
+    },
 }
 
 
@@ -50,6 +57,11 @@ class Category(Object):
 class Parent(Object):
 
     category: Category = Property(Category, required=True)
+
+
+class Other(Object):
+
+    value: Maybe[int] = Property(Integer())
 """
     )
 

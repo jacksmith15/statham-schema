@@ -120,10 +120,10 @@ def _new_object(schema: Dict[str, Any]) -> ObjectMeta:
         if isinstance(value, dict)
     }
     class_dict = ObjectClassDict(default=default, **properties)
-    title = _title_format(schema.get("title", schema.get("_x_autotitle")))
+    title = schema.get("title", schema.get("_x_autotitle"))
     if not title:
         raise SchemaParseError.missing_title(schema)
-    return ObjectMeta(title, (Object,), class_dict)
+    return ObjectMeta(_title_format(title), (Object,), class_dict)
 
 
 def _title_format(string: str) -> str:

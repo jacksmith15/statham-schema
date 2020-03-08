@@ -43,6 +43,12 @@ class Orderer:
 
     def __init__(self, *elements: Element):
         self._class_defs: Dict[str, ClassDef] = {}
+        try:
+            self._extract_all(*elements)
+        except RecursionError:
+            raise SchemaParseError.unresolvable_declaration()
+
+    def _extract_all(self, *elements: Element):
         for element in elements:
             for object_element in _get_dependent_object_elements(element):
                 self._extract_elements(object_element)
