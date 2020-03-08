@@ -12,7 +12,7 @@ clean: ## Cleans all testing metadata and .pyc files.
 
 install: ## Installs all dependencies
 	$(CHECK_VIRTUALENV) || (echo "Not inside a virtualenv, aborting."; exit 1)
-	pip install -r requirements.txt -r requirements-test.txt	
+	pip install -r requirements.txt -r requirements-test.txt
 
 test: install ## Runs all tests
 	$(RUN_CLEAN_TEST) -a
@@ -25,6 +25,9 @@ unit: install ## Runs all unit tests with coverage test.
 
 type: install ## Runs type checker. Does not update requirements or rules.
 	$(RUN_CLEAN_TEST) -t
+
+integration:
+	INTEGRATION=true pytest -v -s tests/test_schema_store.py
 
 build: test ## Creates a new build for publishing. Deletes previous builds.
 	pip install -U setuptools wheel

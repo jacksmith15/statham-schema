@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, DefaultDict, Iterator, Tuple
 
-from statham.constants import COMPOSITION_KEYWORDS
+from statham.dsl.constants import COMPOSITION_KEYWORDS
 
 
 def _pop(reference: str) -> str:
@@ -49,6 +49,6 @@ def title_labeller() -> Callable[[str], Tuple[str, str]]:
         count = next(counter[name])
         if count:
             name = f"{name}{count}"
-        return "title", name
+        return "_x_autotitle", name
 
     return _get_title

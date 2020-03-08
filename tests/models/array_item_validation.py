@@ -1,21 +1,20 @@
-from typing import ClassVar, List, Union
+from typing import List, Union
 
-from attr import attrs, attrib
-from statham import validators as val
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
+)
+from statham.dsl.property import Property
 
-# pylint: disable=unused-import
-from statham.converters import AnyOf, Array, instantiate, OneOf
 
-# pylint: enable=unused-import
-from statham.validators import NotPassed
+class Model(Object):
 
-
-@attrs(kw_only=True)
-class Model:
-    """Model"""
-
-    _required: ClassVar[List[str]] = []
-
-    list_of_strings: Union[List[Union[str, NotPassed]], NotPassed] = attrib(
-        validator=[val.instance_of(list)], default=NotPassed()
-    )
+    list_of_strings: Maybe[List[str]] = Property(Array(String()))

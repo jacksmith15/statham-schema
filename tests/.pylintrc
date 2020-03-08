@@ -7,7 +7,7 @@ extension-pkg-whitelist=pycurl,win32event,win32service,servicemanager,socket
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=field_validation.py,simple.py,union_types.py
+ignore=field_validation.py,simple.py,union_types.py,array_item_validation.py,multi_object.py,autoname.py,remote_ref.py
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.

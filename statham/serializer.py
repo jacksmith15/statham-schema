@@ -1,167 +1,76 @@
-from itertools import chain
-from typing import Iterable, List
+from statham.dsl.constants import NotPassed
+from statham.dsl.elements import Element
+from statham.dsl.elements.meta import ObjectMeta
+from statham.dsl.property import _Property, Property
+from statham.orderer import Orderer
 
-from jinja2 import Environment, FileSystemLoader
 
-from statham.constants import NOT_PROVIDED, TypeEnum
-from statham.models import (
-    AnyOfSchema,
-    ArraySchema,
-    CompositionSchema,
-    ObjectSchema,
-    OneOfSchema,
-    PrimitiveSchema,
-    Schema,
+# TODO: Identify which of these to exclude when performing generation.
+_IMPORT_STATEMENTS = """from typing import List, Union
+
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
 )
-from statham.validators import (
-    instance_of,
-    NotPassed,
-    SCHEMA_ATTRIBUTE_VALIDATORS,
-)
+from statham.dsl.property import Property
 
 
-def default(schema: Schema, required: bool) -> str:
-    default_value = getattr(schema, "default", NOT_PROVIDED)
-    if default_value is NOT_PROVIDED:
-        if required:
-            return ""
-        return f"{NotPassed.__name__}()"
-    return repr(default_value)
+"""
 
 
-def type_annotation(schema: Schema, required: bool) -> str:
-    if isinstance(schema, CompositionSchema):
-        annotations = composition_type_annotations(schema)
-    else:
-        annotations = standard_type_annotations(schema)
-    if not required:
-        annotations.append(NotPassed.__name__)
-    if len(annotations) == 1:
-        return next(iter(annotations))
-    return f"Union[{', '.join(annotations)}]"
+def serialize_python(element: Element) -> str:
+    """Output python declaration code.
 
-
-def standard_type_annotations(schema: Schema) -> List[str]:
-    schema_items = getattr(schema, "items", NOT_PROVIDED)
-    mapping = {
-        TypeEnum.OBJECT: schema.title,
-        TypeEnum.ARRAY: (
-            List.__name__
-            + (
-                f"[{type_annotation(schema_items, False)}]"
-                if schema_items is not NOT_PROVIDED
-                else ""
-            )
-        ),
-        TypeEnum.INTEGER: int.__name__,
-        TypeEnum.NUMBER: float.__name__,
-        TypeEnum.STRING: str.__name__,
-        TypeEnum.NULL: str(None),
-        TypeEnum.BOOLEAN: bool.__name__,
-    }
-    return [arg for flag, arg in mapping.items() if flag & schema.type]
-
-
-def composition_type_annotations(schema: CompositionSchema) -> List[str]:
-    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
-        raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
-
-
-def validator_type_arg(schema: Schema) -> str:
-    if isinstance(schema, CompositionSchema):
-        args = composition_validator_type_args(schema)
-    else:
-        args = standard_validator_type_args(schema)
-    if len(args) == 1:
-        return next(iter(args))
-    return ", ".join(args)
-
-
-def standard_validator_type_args(schema: Schema):
-    mapping = {
-        TypeEnum.OBJECT: schema.title,
-        TypeEnum.ARRAY: list.__name__,
-        TypeEnum.INTEGER: int.__name__,
-        TypeEnum.NUMBER: float.__name__,
-        TypeEnum.STRING: str.__name__,
-        TypeEnum.NULL: "type(None)",
-        TypeEnum.BOOLEAN: bool.__name__,
-    }
-    return [arg for flag, arg in mapping.items() if flag & schema.type]
-
-
-def composition_validator_type_args(schema: CompositionSchema):
-    if not isinstance(schema, (AnyOfSchema, OneOfSchema)):
-        raise NotImplementedError
-    return [type_annotation(sub_schema, True) for sub_schema in schema.schemas]
-
-
-INDENT = " " * 4
-
-
-def validators(schema: Schema) -> str:
-    return ("\n" + INDENT * 3).join(
-        [f"val.{instance_of.__name__}({validator_type_arg(schema)}),"]
-        + extra_validators(schema)
+    Captures declaration of the first Object elements, and any subsequent
+    elements this depends on.
+    """
+    return _IMPORT_STATEMENTS + "\n\n".join(
+        [_serialize_object(object_model) for object_model in Orderer(element)]
     )
 
 
-def extra_validators(schema: Schema) -> List[str]:
-    if isinstance(schema, CompositionSchema):
-        return list(
-            chain.from_iterable(
-                extra_validators(sub_schema) for sub_schema in schema.schemas
-            )
-        )
-    return [
-        (f"val.{validator.__name__}({repr(getattr(schema, attribute))}),")
-        for attribute, validator in SCHEMA_ATTRIBUTE_VALIDATORS.items()
-        if hasattr(schema, attribute)
-        and getattr(schema, attribute) is not NOT_PROVIDED
-    ]
-
-
-def _build_converter(schema: Schema):
-    if isinstance(schema, ObjectSchema):
-        return schema.title
-    if isinstance(schema, ArraySchema) and not isinstance(
-        schema.items, PrimitiveSchema
-    ):
-        return f"Array({_build_converter(schema.items)})"
-    if isinstance(schema, CompositionSchema):
-        schemas = ", ".join(
-            filter(
-                None,
-                (_build_converter(sub_schema) for sub_schema in schema.schemas),
-            )
-        )
-        if isinstance(schema, OneOfSchema):
-            return f"OneOf({schemas})"
-        if isinstance(schema, AnyOfSchema):
-            return f"AnyOf({schemas})"
-        raise NotImplementedError
-    return None
-
-
-def converter(schema: Schema) -> str:
-    tree = _build_converter(schema)
-    if tree:
-        return f"instantiate({tree})"
-    return ""
-
-
-def serialize_object_schemas(schemas: Iterable[ObjectSchema]) -> str:
-    environment = Environment(
-        loader=FileSystemLoader("statham/templates"),
-        trim_blocks=True,
-        lstrip_blocks=True,
+def _serialize_object(object_cls: ObjectMeta) -> str:
+    super_cls = next(iter(object_cls.mro()[1:]))
+    cls_args = (
+        f"metaclass={type(object_cls).__name__}"
+        if super_cls is object
+        else super_cls.__name__
     )
-    environment.filters["validators"] = validators
-    environment.filters["converter"] = converter
-    environment.filters["default"] = default
-    environment.filters["type_annotation"] = type_annotation
-    template = environment.get_template("template.py.j2")
-    return template.render(
-        schemas=schemas, type_enum=TypeEnum, not_provided=NOT_PROVIDED
+    class_def = f"""class {repr(object_cls)}({cls_args}):
+"""
+    if not object_cls.properties and isinstance(object_cls.default, NotPassed):
+        class_def = (
+            class_def
+            + """
+    pass
+"""
+        )
+    if not isinstance(object_cls.default, NotPassed):
+        class_def = (
+            class_def
+            + f"""
+    default = {repr(object_cls.default)}
+"""
+        )
+    for attr_name, property_ in object_cls.properties.items():
+        class_def = (
+            class_def
+            + f"""
+    {attr_name}: {property_.annotation} = {_serialize_property(property_)}
+"""
+        )
+    return class_def
+
+
+def _serialize_property(property_: _Property) -> str:
+    return repr(property_).replace(
+        property_.__class__.__name__, Property.__name__
     )

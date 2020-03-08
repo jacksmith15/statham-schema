@@ -2,15 +2,13 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from contextlib import contextmanager
 from logging import getLogger, INFO
 from os import path
-from typing import Any, Dict, Iterator, TextIO, Tuple
+from typing import Iterator, TextIO, Tuple
 from sys import argv, stdout
 
 from json_ref_dict import materialize, RefDict
 
-from statham.constants import IGNORED_SCHEMA_KEYWORDS
-from statham.dependency_resolver import ClassDependencyResolver
-from statham.models import parse_schema
-from statham.serializer import serialize_object_schemas
+from statham.dsl.parser import parse
+from statham.serializer import serialize_python
 from statham.titles import title_labeller
 
 
@@ -34,7 +32,7 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
     """Parse arguments, abstracting IO in a context manager."""
 
     parser = ArgumentParser(
-        description="Generate python attrs models from JSONSchema files.",
+        description="Generate statham DSL models from JSONSchema files.",
         formatter_class=RawTextHelpFormatter,
         add_help=False,
     )
@@ -85,17 +83,6 @@ stdout.
     return
 
 
-def _convert_schema(schema_dict: Dict[str, Any]) -> str:
-    """Convert a schema dict to a python module.
-
-    :param schema_dict: Dict containing the schema.
-    :return: Python module contents for generated models, as a string.
-    """
-    return serialize_object_schemas(
-        ClassDependencyResolver(parse_schema(schema_dict))
-    )
-
-
 def main(input_uri: str) -> str:
     """Get the schema, and then return the generated python module.
 
@@ -105,16 +92,11 @@ def main(input_uri: str) -> str:
     ```
 
     :param input_uri: This must follow the conventions of a JSONSchema
-        '$ref' attribute, and minimally at least specify "/" as the
-        pointer (for the root of the document). Example:
+        '$ref' attribute.
     :return: Python module contents for generated models, as a string.
     """
-    schema = materialize(
-        RefDict(input_uri),
-        exclude_keys=IGNORED_SCHEMA_KEYWORDS,
-        context_labeller=title_labeller(),
-    )
-    return _convert_schema(schema)
+    schema = materialize(RefDict(input_uri), context_labeller=title_labeller())
+    return serialize_python(parse(schema))
 
 
 def entry_point():
