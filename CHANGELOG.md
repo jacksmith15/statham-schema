@@ -32,6 +32,8 @@ Types of changes are:
       would previously have been named `Items`, but would now be
       named `VolumesItem`.
 * BREAKING Generated models switched to using a new DSL model.
+* Schemas defined in the top-level `definitions` keyword are now
+  detected.
 
 ### Removed
 * Dependencies on `attrs` and `jinja2`.
