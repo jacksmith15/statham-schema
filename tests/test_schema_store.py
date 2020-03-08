@@ -25,6 +25,7 @@ pytestmark = [
 
 
 _CATALOG_URI = "http://schemastore.org/api/json/catalog.json"
+_IGNORED_SCHEMAS = ("Ansible",)  # Some are way too big.
 
 
 def iter_schemas():
@@ -32,7 +33,8 @@ def iter_schemas():
     assert response.status_code == HTTPStatus.OK
     body = response.json()
     for schema in body["schemas"]:
-        yield schema
+        if schema["name"] not in _IGNORED_SCHEMAS:
+            yield schema
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,6 @@
+from functools import wraps
 import inspect
+from typing import Tuple, Type, Union
 
 
 def custom_repr(self):
@@ -23,3 +25,22 @@ def custom_repr(self):
             param_strings.append(repr(value))
     param_string = ", ".join(param_strings)
     return f"{type(self).__name__}({param_string})"
+
+
+ExceptionTypes = Union[Type[Exception], Tuple[Type[Exception], ...]]
+
+
+def reraise(catch: ExceptionTypes, throw: Type[Exception], message: str):
+    """Decorator factory for re-raising exceptions of a raised in a function."""
+
+    def _decorator(function):
+        @wraps(function)
+        def _wrapper(*args, **kwargs):
+            try:
+                return function(*args, **kwargs)
+            except catch as exc:
+                raise throw(message) from exc
+
+        return _wrapper
+
+    return _decorator

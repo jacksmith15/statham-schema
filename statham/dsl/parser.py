@@ -19,6 +19,7 @@ from statham.dsl.elements import (
 )
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
+from statham.dsl.helpers import reraise
 from statham.dsl.property import _Property
 
 
@@ -51,6 +52,11 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
 
 # TODO: Re-compose this parser.
 # pylint: disable=too-many-return-statements
+@reraise(
+    RecursionError,
+    SchemaParseError,
+    "Could not parse cyclical dependencies of this schema.",
+)
 def parse_element(schema: Dict[str, Any]) -> Element:
     """Parse a JSONSchema element to a DSL Element object.
 
@@ -66,6 +72,10 @@ def parse_element(schema: Dict[str, Any]) -> Element:
     """
     if isinstance(schema, Element):
         return schema
+    if not isinstance(schema, dict):
+        raise SchemaParseError(
+            f"Got {repr(type(schema))} when expecting a 'dict': {repr(schema)}"
+        )
     if isinstance(schema.get("type"), list):
         default = schema.pop("default", NotPassed())
         return AnyOf(
@@ -88,7 +98,10 @@ def parse_element(schema: Dict[str, Any]) -> Element:
     if schema["type"] == "object":
         return _new_object(schema)
     if schema["type"] == "array":
-        schema["items"] = parse_element(schema.get("items", {}))
+        items = schema.get("items", {})
+        if isinstance(items, list):
+            raise SchemaParseError(f"Tuple array items are not supported.")
+        schema["items"] = parse_element(items)
 
     element_type = _TYPE_MAPPING[schema["type"]]
     sub_schema = keyword_filter(element_type)(schema)
