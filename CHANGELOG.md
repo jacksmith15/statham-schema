@@ -33,6 +33,9 @@ Types of changes are:
       named `VolumesItem`.
 * BREAKING Generated models switched to using a new DSL model.
 
+### Removed
+* Dependencies on `attrs` and `jinja2`.
+
 ### Fixed
 * Name collisions where the last segment of the JSON Pointer for
   a schema's location was the same as another.
