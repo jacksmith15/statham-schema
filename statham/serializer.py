@@ -26,14 +26,14 @@ from statham.dsl.property import Property
 """
 
 
-def serialize_python(element: Element) -> str:
+def serialize_python(*elements: Element) -> str:
     """Output python declaration code.
 
     Captures declaration of the first Object elements, and any subsequent
     elements this depends on.
     """
     return _IMPORT_STATEMENTS + "\n\n".join(
-        [_serialize_object(object_model) for object_model in Orderer(element)]
+        [_serialize_object(object_model) for object_model in Orderer(*elements)]
     )
 
 

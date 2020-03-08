@@ -96,7 +96,7 @@ def main(input_uri: str) -> str:
     :return: Python module contents for generated models, as a string.
     """
     schema = materialize(RefDict(input_uri), context_labeller=title_labeller())
-    return serialize_python(parse(schema))
+    return serialize_python(*parse(schema))
 
 
 def entry_point():

@@ -3,14 +3,14 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import AnyOf, Array, Element, Integer, OneOf, String
-from statham.dsl.parser import parse
+from statham.dsl.parser import parse_element
 
 
 @pytest.mark.parametrize("keyword", ["anyOf", "oneOf"])
 def test_parse_composition_fails_with_empty_list(keyword):
     schema = {keyword: []}
     with pytest.raises(TypeError):
-        _ = parse(schema)
+        _ = parse_element(schema)
 
 
 @pytest.mark.parametrize(
@@ -66,4 +66,4 @@ def test_parse_composition_fails_with_empty_list(keyword):
 def test_parse_composition_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
-    assert parse(schema) == expected
+    assert parse_element(schema) == expected

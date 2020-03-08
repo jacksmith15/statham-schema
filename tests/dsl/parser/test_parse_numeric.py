@@ -3,7 +3,7 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import Element, Integer, Number
-from statham.dsl.parser import parse
+from statham.dsl.parser import parse_element
 
 
 @pytest.mark.parametrize(
@@ -60,4 +60,4 @@ from statham.dsl.parser import parse
 def test_parse_boolean_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
-    assert parse(schema) == expected
+    assert parse_element(schema) == expected
