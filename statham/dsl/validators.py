@@ -91,15 +91,18 @@ def on_types(*type_args: Type) -> Callable[[Validator], Validator]:
 
 
 def raises(message: str) -> Callable[[Validator], Validator]:
-    """Decorator factory which declares error message for validator."""
+    """Decorator factory which declares error message for validator.
+
+    The aim of this is to ensure validators deal with a single error
+    state.
+    """
 
     def validate_with_error_message(validator: Validator) -> Validator:
-        """Return an attrs compatible validator which raises outer error.
+        """Return a DSL compatible validator which raises outer error.
 
-        :param validator: Similar to `attrs` validator interface, but
-            accepting an additional argument, which is the error to
-            raise if validation fails.
-        :return: `attrs` compliant validator.
+        :param validator: DSL validator interface, but may simply raise
+            `ValidationError` without a message.
+        :return: DSL compliant validator.
         """
 
         @wraps(validator)

@@ -14,6 +14,8 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
+* A JSONSchema DSL (see `statham/dsl/`) has been added, and is
+  now used for both the internal representation and the output.
 * `anyOf` composition keyword now supported.
     - Creates models for each schema provided in the list.
     - Generated models will instantiate the first compatible model,
@@ -25,17 +27,17 @@ Types of changes are:
 
 ### Changed
 * BREAKING Naming of anonymous schemas declared within the items
-  of an array now use the context of the array name.
+  of an array now uses the context of the array name.
     - For example, items of a list declared under field `volumes`,
       would previously have been named `Items`, but would now be
       named `VolumesItem`.
-* BREAKING Generated models now use a composable syntax for
-  converters, to support combinations of `anyOf`, `oneOf`, `array`.
-  See `statham/converters.py` for more details.
+* BREAKING Generated models switched to using a new DSL model.
 
 ### Fixed
 * Name collisions where the last segment of the JSON Pointer for
   a schema's location was the same as another.
+* Array schemas now accept missing items keyword as an implicit
+  blank schema.
 
 ## [0.1.1] - 2019-12-13
 ### Fixed

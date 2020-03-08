@@ -32,7 +32,7 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
     """Parse arguments, abstracting IO in a context manager."""
 
     parser = ArgumentParser(
-        description="Generate python attrs models from JSONSchema files.",
+        description="Generate statham DSL models from JSONSchema files.",
         formatter_class=RawTextHelpFormatter,
         add_help=False,
     )
