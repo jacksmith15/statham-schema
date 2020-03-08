@@ -6,10 +6,10 @@ from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr
 
 
-T = TypeVar("T")
+PropType = TypeVar("PropType")
 
 
-class _Property(Generic[T]):
+class _Property(Generic[PropType]):
     """Descriptor for a property on an object.
 
     Used to bind information about the enclosing object to a DSL Element,
@@ -22,7 +22,7 @@ class _Property(Generic[T]):
     parent: Any
     element: Element
 
-    def __init__(self, element: Element[T], *, required: bool = False):
+    def __init__(self, element: Element[PropType], *, required: bool = False):
         self.element = element
         self.required = required
 
@@ -33,7 +33,7 @@ class _Property(Generic[T]):
 
     def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""
-        property_: _Property[T] = _Property(
+        property_: _Property[PropType] = _Property(
             element=self.element, required=self.required
         )
         property_.bind(self.parent, name)

@@ -5,10 +5,10 @@ from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
 
 
-T = TypeVar("T")
+Item = TypeVar("Item")
 
 
-class Array(Element[List[T]]):
+class Array(Element[List[Item]]):
     """JSONSchema array element.
 
     Requires schema element for "items" keyword as first positional
@@ -21,9 +21,9 @@ class Array(Element[List[T]]):
 
     def __init__(
         self,
-        items: Element[T],
+        items: Element[Item],
         *,
-        default: Maybe[List[T]] = NotPassed(),
+        default: Maybe[List[Item]] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
         minItems: Maybe[int] = NotPassed(),
