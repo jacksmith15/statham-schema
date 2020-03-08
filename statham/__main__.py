@@ -92,8 +92,7 @@ def main(input_uri: str) -> str:
     ```
 
     :param input_uri: This must follow the conventions of a JSONSchema
-        '$ref' attribute, and minimally at least specify "/" as the
-        pointer (for the root of the document). Example:
+        '$ref' attribute.
     :return: Python module contents for generated models, as a string.
     """
     schema = materialize(RefDict(input_uri), context_labeller=title_labeller())
