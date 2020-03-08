@@ -63,7 +63,6 @@ def parse_element(schema: Dict[str, Any]) -> Element:
     ```
     {"anyOf": [{"type": "string"}, {"type": "integer"}]}
     ```
-    # TODO: definitions
     """
     if isinstance(schema, Element):
         return schema
