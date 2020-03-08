@@ -15,7 +15,10 @@ LOGGER = getLogger(__name__)
 
 
 class _FormatString:
-    """Extendable format string register."""
+    """Extendable format string register.
+
+    # TODO: Built-in formats.
+    """
 
     def __init__(self, name: str):
         self._callable_register: Dict[str, Callable[[str], bool]] = {}

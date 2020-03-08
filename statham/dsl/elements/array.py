@@ -13,6 +13,10 @@ class Array(Element[List[T]]):
 
     Requires schema element for "items" keyword as first positional
     argument. Supported validation keywords provided via keyword arguments.
+    # TODO: tuple items
+    # TODO: additionalItems
+    # TODO: unqiueItems
+    # TODO: contains
     """
 
     def __init__(

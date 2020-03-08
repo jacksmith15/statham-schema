@@ -7,10 +7,15 @@ from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 
 
+# TODO: if, then, else
+
+
 class CompositionElement(Element):
     """Composition Base Element.
 
     The "oneOf" and "anyOf" schemas share the same interface.
+    # TODO: not
+    # TODO: allOf
     """
 
     def __init__(self, *elements: Element, default: Any = NotPassed()):
