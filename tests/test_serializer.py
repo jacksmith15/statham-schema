@@ -22,7 +22,7 @@ SCHEMA = {
 
 def test_schema_reserializes_to_expected_python_string():
     assert (
-        serialize_python(parse(SCHEMA))
+        serialize_python(*parse(SCHEMA))
         == """from typing import List, Union
 
 from statham.dsl.constants import Maybe

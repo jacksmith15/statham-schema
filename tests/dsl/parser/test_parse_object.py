@@ -3,7 +3,7 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import Element, Object, String
-from statham.dsl.parser import parse
+from statham.dsl.parser import parse_element
 from statham.dsl.property import Property
 
 
@@ -72,4 +72,4 @@ class ObjectWrapper(Object):
 def test_parse_object_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
-    assert parse(schema) == expected
+    assert parse_element(schema) == expected

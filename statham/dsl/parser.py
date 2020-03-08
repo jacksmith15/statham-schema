@@ -1,7 +1,8 @@
+from functools import partial
 import inspect
 from itertools import chain
 import re
-from typing import Any, Callable, Dict, Type
+from typing import Any, Callable, Dict, List, Type
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import (
@@ -31,8 +32,27 @@ _TYPE_MAPPING = {
 }
 
 
-def parse(schema: Dict[str, Any]) -> Element:
-    """Parse a JSONSchema dictionary to a DSL Element object.
+def type_filter(type_: Type) -> Callable:
+    return partial(filter, lambda val: isinstance(val, type_))
+
+
+def parse(schema: Dict[str, Any]) -> List[Element]:
+    """Parse a JSONSchema document to DSL Element format.
+
+    Checks the top-level and definitions keyword to collect elements.
+    """
+    return [parse_element(schema)] + list(
+        map(
+            parse_element,
+            type_filter(dict)(schema.get("definitions", {}).values()),
+        )
+    )
+
+
+# TODO: Re-compose this parser.
+# pylint: disable=too-many-return-statements
+def parse_element(schema: Dict[str, Any]) -> Element:
+    """Parse a JSONSchema element to a DSL Element object.
 
     Converts schemas with multiple type values to an equivalent
     representation using "anyOf". For example:
@@ -45,22 +65,31 @@ def parse(schema: Dict[str, Any]) -> Element:
     ```
     # TODO: definitions
     """
+    if isinstance(schema, Element):
+        return schema
     if isinstance(schema.get("type"), list):
         default = schema.pop("default", NotPassed())
         return AnyOf(
-            *(parse({**schema, "type": type_}) for type_ in schema["type"]),
+            *(
+                parse_element({**schema, "type": type_})
+                for type_ in schema["type"]
+            ),
             default=default,
         )
     if "anyOf" in schema:
-        return AnyOf(*(parse(sub_schema) for sub_schema in schema["anyOf"]))
+        return AnyOf(
+            *(parse_element(sub_schema) for sub_schema in schema["anyOf"])
+        )
     if "oneOf" in schema:
-        return OneOf(*(parse(sub_schema) for sub_schema in schema["oneOf"]))
+        return OneOf(
+            *(parse_element(sub_schema) for sub_schema in schema["oneOf"])
+        )
     if "type" not in schema:
         return Element()
-    if schema["type"] == "array":
-        schema["items"] = parse(schema.get("items", {}))
     if schema["type"] == "object":
         return _new_object(schema)
+    if schema["type"] == "array":
+        schema["items"] = parse_element(schema.get("items", {}))
 
     element_type = _TYPE_MAPPING[schema["type"]]
     sub_schema = keyword_filter(element_type)(schema)
@@ -86,7 +115,7 @@ def _new_object(schema: Dict[str, Any]) -> ObjectMeta:
     required = set(schema.get("required", []))
     properties = {
         # TODO: Handle attribute names which don't work in python.
-        key: _Property(parse(value), required=key in required)
+        key: _Property(parse_element(value), required=key in required)
         for key, value in schema.get("properties", {}).items()
         # Ignore malformed values.
         if isinstance(value, dict)

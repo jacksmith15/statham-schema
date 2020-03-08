@@ -41,10 +41,11 @@ class Orderer:
     Used by the serializer to generate code in the correct order.
     """
 
-    def __init__(self, element: Element):
+    def __init__(self, *elements: Element):
         self._class_defs: Dict[str, ClassDef] = {}
-        for object_element in _get_dependent_object_elements(element):
-            self._extract_elements(object_element)
+        for element in elements:
+            for object_element in _get_dependent_object_elements(element):
+                self._extract_elements(object_element)
 
     def _extract_elements(self, element: ObjectMeta) -> Set[str]:
         if element.__name__ in self._class_defs:
