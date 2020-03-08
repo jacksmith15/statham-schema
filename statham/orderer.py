@@ -16,6 +16,11 @@ class ClassDef:
 
 
 def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
+    """Extract any elements which are required by this element.
+
+    Recurses through the schema tree to extract both explicit and
+    implicit dependencies.
+    """
     if isinstance(element, ObjectMeta):
         return [element]
     if isinstance(element, Array):
