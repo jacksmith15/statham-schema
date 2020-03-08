@@ -1,8 +1,7 @@
-from collections import defaultdict
 import inspect
 from itertools import chain
 import re
-from typing import Any, Callable, DefaultDict, Dict, Type
+from typing import Any, Callable, Dict, Type
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import (
@@ -32,11 +31,6 @@ _TYPE_MAPPING = {
 }
 
 
-_KEYWORD_MAPPER: DefaultDict[str, Callable] = defaultdict(
-    lambda: lambda val: val
-)
-
-
 def parse(schema: Dict[str, Any]) -> Element:
     """Parse a JSONSchema dictionary to a DSL Element object.
 
@@ -49,6 +43,7 @@ def parse(schema: Dict[str, Any]) -> Element:
     ```
     {"anyOf": [{"type": "string"}, {"type": "integer"}]}
     ```
+    # TODO: definitions
     """
     if isinstance(schema.get("type"), list):
         default = schema.pop("default", NotPassed())
@@ -56,25 +51,23 @@ def parse(schema: Dict[str, Any]) -> Element:
             *(parse({**schema, "type": type_}) for type_ in schema["type"]),
             default=default,
         )
-    schema = {key: _KEYWORD_MAPPER[key](value) for key, value in schema.items()}
     if "anyOf" in schema:
         return AnyOf(*(parse(sub_schema) for sub_schema in schema["anyOf"]))
     if "oneOf" in schema:
         return OneOf(*(parse(sub_schema) for sub_schema in schema["oneOf"]))
     if "type" not in schema:
         return Element()
+    if schema["type"] == "array":
+        schema["items"] = parse(schema.get("items", {}))
     if schema["type"] == "object":
         return _new_object(schema)
 
-    elem_cls = _TYPE_MAPPING[schema["type"]]
-    sub_schema = _args_filter(elem_cls)(schema)
-    return elem_cls(**sub_schema)
+    element_type = _TYPE_MAPPING[schema["type"]]
+    sub_schema = keyword_filter(element_type)(schema)
+    return element_type(**sub_schema)
 
 
-_KEYWORD_MAPPER["items"] = parse
-
-
-def _args_filter(
+def keyword_filter(
     elem_cls: Type[Element]
 ) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
     """Create a filter to pull out only relevant keywords for a given type."""

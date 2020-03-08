@@ -6,14 +6,10 @@ from statham.dsl.elements import Array, Element, String
 from statham.dsl.parser import parse
 
 
-def test_parse_array_fails_with_no_items():
-    with pytest.raises(TypeError):
-        _ = parse({"type": "array"})
-
-
 @pytest.mark.parametrize(
     "schema,expected",
     [
+        pytest.param({"type": "array"}, Array(Element()), id="without-items"),
         pytest.param(
             {"type": "array", "items": {"type": "string"}},
             Array(String()),
