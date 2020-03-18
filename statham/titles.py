@@ -1,5 +1,4 @@
-from collections import defaultdict
-from typing import Callable, DefaultDict, Iterator, Tuple
+from typing import Callable, Tuple
 
 from statham.dsl.constants import COMPOSITION_KEYWORDS
 
@@ -40,15 +39,9 @@ def title_labeller() -> Callable[[str], Tuple[str, str]]:
     Used to assign meaningful names to schemas which have no specified
     title.
     """
-    counter: DefaultDict[str, Iterator[int]] = defaultdict(
-        lambda: iter(range(0, 1000))
-    )
 
     def _get_title(reference: str) -> Tuple[str, str]:
         name = _get_title_from_reference(reference)
-        count = next(counter[name])
-        if count:
-            name = f"{name}{count}"
         return "_x_autotitle", name
 
     return _get_title
