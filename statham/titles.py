@@ -1,11 +1,8 @@
 from typing import Callable, Tuple
 
+from json_ref_dict import URI
+
 from statham.dsl.constants import COMPOSITION_KEYWORDS
-
-
-def _pop(reference: str) -> str:
-    base, pointer = reference.split("#")
-    return "#".join([base, "/".join(pointer.split("/")[:-1])])
 
 
 def _get_title_from_reference(reference: str) -> str:
@@ -17,19 +14,18 @@ def _get_title_from_reference(reference: str) -> str:
 
     :param reference: The JSONPointer reference.
     """
-    reference = reference.rstrip("/")
-    base, pointer = reference.split("#")
-    if not pointer:
-        return base.split("/")[-1].split(".")[0]
-    title = pointer.split("/")[-1]
+    uri = URI.from_string(reference)
+    if not uri.pointer.strip("/"):
+        return uri.uri_name.split(".")[0]
+    title = uri.pointer.split("/")[-1]
     if title == "items":
-        return _get_title_from_reference(_pop(reference)) + "Item"
+        return _get_title_from_reference(repr(uri.back())) + "Item"
     if title.isdigit():
         # Handle anonymous schemas in an array.
         # E.G `{"anyOf": [{"type": "object"}]}`
-        return _get_title_from_reference(_pop(reference)) + title
+        return _get_title_from_reference(repr(uri.back())) + title
     if title in COMPOSITION_KEYWORDS:
-        return _get_title_from_reference(_pop(reference))
+        return _get_title_from_reference(repr(uri.back()))
     return title
 
 
