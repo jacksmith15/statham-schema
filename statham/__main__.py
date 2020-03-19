@@ -12,6 +12,9 @@ from statham.serializer import serialize_python
 from statham.titles import title_labeller
 
 
+# TODO: Write tests for references via keys containing /.
+
+
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(INFO)
 
