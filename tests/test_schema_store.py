@@ -25,7 +25,7 @@ pytestmark = [
 
 
 _CATALOG_URI = "http://schemastore.org/api/json/catalog.json"
-_IGNORED_SCHEMAS = ("Ansible",)  # Some are way too big.
+_IGNORED_SCHEMAS = ("Ansible", "Opctl")  # Way too big.  # Bad ref encoding.
 
 
 def iter_schemas():
