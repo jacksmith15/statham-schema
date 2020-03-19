@@ -25,7 +25,23 @@ pytestmark = [
 
 
 _CATALOG_URI = "http://schemastore.org/api/json/catalog.json"
-_IGNORED_SCHEMAS = ("Ansible", "Opctl")  # Way too big.  # Bad ref encoding.
+_IGNORED_SCHEMAS = (
+    "Ansible",  # Way too big.
+    "Opctl",  # Bad ref encoding.
+    ".angular-cli.json",  # Bad refs.
+    "Avro Avsc",  # Cyclical deps.
+    "bucklescript",  # Cyclical deps.
+    "circleciconfig.json",  # Bad refs.
+    ".cirrus.yml",  # Bad refs.
+    "AWS CloudFormation",  # Bad refs.
+    "AWS CloudFormation Serverless Application Model (SAM)",  # Bad refs.
+    "dss-2.0.0.json",  # Bad ref encoding.
+    "GitHub Workflow",  # Cyclical deps.
+    "Jenkins X Pipelines",  # Cyclical deps.
+    "Renovate",  # Cyclical deps.
+    "sarif-1.0.0.json",  # Cyclical deps.
+    "sarif-2.0.0.json",  # Cyclical deps.
+)
 
 
 def iter_schemas():
@@ -37,10 +53,19 @@ def iter_schemas():
             yield schema
 
 
+@pytest.fixture(scope="session")
+def outfile():
+    with open("integration-report.csv", "w") as file:
+        yield file
+
+
 @pytest.mark.parametrize(
     "schema_ref", iter_schemas(), ids=op.itemgetter("name")
 )
-def test_parsing_external_jsonschema(schema_ref):
+def test_parsing_external_jsonschema(schema_ref, outfile):
     url = schema_ref["url"]
-    with no_raise():
+    try:
         _ = main(url)
+    except Exception as exc:
+        outfile.write(f"{schema_ref['name']},{url},\"{str(exc)[:1000]}\"\n")
+        assert False
