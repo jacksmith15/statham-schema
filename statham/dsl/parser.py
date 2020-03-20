@@ -1,8 +1,9 @@
+from collections import defaultdict
 from functools import partial
 import inspect
 from itertools import chain
 import re
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Callable, DefaultDict, Dict, Iterator, List, Type
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import (
@@ -19,6 +20,7 @@ from statham.dsl.elements import (
 )
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
+from statham.dsl.helpers import reraise
 from statham.dsl.property import _Property
 
 
@@ -32,6 +34,16 @@ _TYPE_MAPPING = {
 }
 
 
+def name_counter() -> DefaultDict[str, Iterator[int]]:
+    def _iterator() -> Iterator[int]:
+        cnt = 0
+        while True:
+            yield cnt
+            cnt += 1
+
+    return defaultdict(_iterator)
+
+
 def type_filter(type_: Type) -> Callable:
     return partial(filter, lambda val: isinstance(val, type_))
 
@@ -41,7 +53,8 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
 
     Checks the top-level and definitions keyword to collect elements.
     """
-    return [parse_element(schema)] + list(
+    counter: DefaultDict[str, Iterator[int]] = name_counter()
+    return [parse_element(schema, counter)] + list(
         map(
             parse_element,
             type_filter(dict)(schema.get("definitions", {}).values()),
@@ -51,7 +64,14 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
 
 # TODO: Re-compose this parser.
 # pylint: disable=too-many-return-statements
-def parse_element(schema: Dict[str, Any]) -> Element:
+@reraise(
+    RecursionError,
+    SchemaParseError,
+    "Could not parse cyclical dependencies of this schema.",
+)
+def parse_element(
+    schema: Dict[str, Any], counter: DefaultDict[str, Iterator[int]] = None
+) -> Element:
     """Parse a JSONSchema element to a DSL Element object.
 
     Converts schemas with multiple type values to an equivalent
@@ -64,31 +84,45 @@ def parse_element(schema: Dict[str, Any]) -> Element:
     {"anyOf": [{"type": "string"}, {"type": "integer"}]}
     ```
     """
+    counter = counter or name_counter()
     if isinstance(schema, Element):
         return schema
+    if not isinstance(schema, dict):
+        raise SchemaParseError(
+            f"Got {repr(type(schema))} when expecting a 'dict': {repr(schema)}"
+        )
     if isinstance(schema.get("type"), list):
         default = schema.pop("default", NotPassed())
         return AnyOf(
             *(
-                parse_element({**schema, "type": type_})
+                parse_element({**schema, "type": type_}, counter)
                 for type_ in schema["type"]
             ),
             default=default,
         )
     if "anyOf" in schema:
         return AnyOf(
-            *(parse_element(sub_schema) for sub_schema in schema["anyOf"])
+            *(
+                parse_element(sub_schema, counter)
+                for sub_schema in schema["anyOf"]
+            )
         )
     if "oneOf" in schema:
         return OneOf(
-            *(parse_element(sub_schema) for sub_schema in schema["oneOf"])
+            *(
+                parse_element(sub_schema, counter)
+                for sub_schema in schema["oneOf"]
+            )
         )
     if "type" not in schema:
         return Element()
     if schema["type"] == "object":
-        return _new_object(schema)
+        return _new_object(schema, counter)
     if schema["type"] == "array":
-        schema["items"] = parse_element(schema.get("items", {}))
+        items = schema.get("items", {})
+        if isinstance(items, list):
+            raise SchemaParseError(f"Tuple array items are not supported.")
+        schema["items"] = parse_element(items, counter)
 
     element_type = _TYPE_MAPPING[schema["type"]]
     sub_schema = keyword_filter(element_type)(schema)
@@ -108,27 +142,32 @@ def keyword_filter(
     return _filter
 
 
-def _new_object(schema: Dict[str, Any]) -> ObjectMeta:
+def _new_object(
+    schema: Dict[str, Any], counter: DefaultDict[str, Iterator[int]]
+) -> ObjectMeta:
     """Create a new model type for an object schema."""
+    title = schema.get("title", schema.get("_x_autotitle"))
+    if not title:
+        raise SchemaParseError.missing_title(schema)
+    count = next(counter[title])
+    if count:
+        title = f"{title}_{count}"
     default = schema.get("default", NotPassed())
     required = set(schema.get("required", []))
     properties = {
         # TODO: Handle attribute names which don't work in python.
-        key: _Property(parse_element(value), required=key in required)
+        key: _Property(parse_element(value, counter), required=key in required)
         for key, value in schema.get("properties", {}).items()
         # Ignore malformed values.
         if isinstance(value, dict)
     }
     class_dict = ObjectClassDict(default=default, **properties)
-    title = schema.get("title", schema.get("_x_autotitle"))
-    if not title:
-        raise SchemaParseError.missing_title(schema)
     return ObjectMeta(_title_format(title), (Object,), class_dict)
 
 
 def _title_format(string: str) -> str:
     """Convert titles in schemas to class names."""
-    words = re.split(r"[ _-]", string)
+    words = list(filter(None, re.split(r"[ _-]", string)))
     segments = chain.from_iterable(
         [
             re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])
