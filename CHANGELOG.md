@@ -26,12 +26,12 @@ Types of changes are:
       fail if more than one succeeds.
 
 ### Changed
-* BREAKING Naming of anonymous schemas declared within the items
+* Naming of anonymous schemas declared within the items
   of an array now uses the context of the array name.
     - For example, items of a list declared under field `volumes`,
       would previously have been named `Items`, but would now be
       named `VolumesItem`.
-* BREAKING Generated models switched to using a new DSL model.
+* Generated models switched to using a new DSL model.
 * Schemas defined in the top-level `definitions` keyword are now
   detected.
 * Now uses `json-ref-dict` version 0.5.0. Enables compatibility
