@@ -27,6 +27,9 @@ pytestmark = [
 _CATALOG_URI = "http://schemastore.org/api/json/catalog.json"
 _IGNORED_SCHEMAS = (
     "Ansible",  # Way too big.
+    "httparchive",  # Too big.
+    "lsdlschema.json",  # Too big.
+    "Carafe",  # Too big.
     "Opctl",  # Bad ref encoding.
     ".angular-cli.json",  # Bad refs.
     "Avro Avsc",  # Cyclical deps.
@@ -66,6 +69,6 @@ def test_parsing_external_jsonschema(schema_ref, outfile):
     url = schema_ref["url"]
     try:
         _ = main(url)
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-except
         outfile.write(f"{schema_ref['name']},{url},\"{str(exc)[:1000]}\"\n")
         assert False
