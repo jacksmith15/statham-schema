@@ -1,8 +1,8 @@
-from typing import List, Union
+from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
-from statham.dsl.elements import Array, Object, OneOf, String
+from statham.dsl.elements import Array, Integer, Object, OneOf, String
 from statham.dsl.property import Property
 from statham.dsl.exceptions import ValidationError
 from tests.helpers import no_raise
@@ -116,3 +116,46 @@ class TestSchemaPropertyWithDefault:
 
 def test_object_annotation():
     assert StringWrapper.annotation == StringWrapper.__name__
+
+
+class TestAdditionalPropertiesAsElement:
+    class MyObject(Object):
+        additionalProperties = Integer()
+        value = Property(String())
+
+    def test_valid_instantiation(self):
+        with no_raise():
+            instance = self.MyObject({"value": "foo", "other_value": 3})
+        assert instance.value == "foo"
+        assert instance.additional["other_value"] == 3
+
+    def test_additional_value_is_not_accepted_for_declared_value(self):
+        with pytest.raises(ValidationError):
+            _ = self.MyObject({"value": 1, "other_value": 3})
+
+    def test_bad_additional_value_is_not_accepted(self):
+        with pytest.raises(ValidationError):
+            _ = self.MyObject({"value": "foo", "other_value": "bad"})
+
+
+class TestAdditionalPropertiesAsTrue:
+    class MyObject(Object):
+        additionalProperties = True
+        value = Property(String())
+
+    def test_values_are_accepted(self, additional_value: Any):
+        with no_raise():
+            instance = self.MyObject(
+                {"value": "foo", "other_value": additional_value}
+            )
+        assert instance.additional["other_value"] == additional_value
+
+
+class TestAdditionalPropertiesAsFalse:
+    class MyObject(Object):
+        additionalProperties = False
+        value = Property(String())
+
+    def test_no_extra_values_are_accepted(self, additional_value: Any):
+        with pytest.raises(ValidationError):
+            _ = self.MyObject({"value": "foo", "other_value": additional_value})
