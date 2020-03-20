@@ -30,7 +30,7 @@ class Object(metaclass=ObjectMeta):
     """
 
     properties: ClassVar[Dict[str, _Property]]
-    default: ClassVar[Any]  # TODO: This conflicts with properties named default
+    default: ClassVar[Any]
 
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY
