@@ -6,7 +6,6 @@ import pytest
 import requests
 
 from statham.__main__ import main
-from tests.helpers import no_raise
 
 
 # This is a magic pytest constant.
