@@ -167,7 +167,7 @@ def _new_object(
 
 def _title_format(string: str) -> str:
     """Convert titles in schemas to class names."""
-    words = re.split(r"[ _-]", string)
+    words = list(filter(None, re.split(r"[ _-]", string)))
     segments = chain.from_iterable(
         [
             re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])

@@ -44,6 +44,29 @@ _IGNORED_SCHEMAS = (
     "Renovate",  # Cyclical deps.
     "sarif-1.0.0.json",  # Cyclical deps.
     "sarif-2.0.0.json",  # Cyclical deps.
+    "Source Maps v3",  # Bad UTF encoding.
+    "skyuxconfig.json",  # Not found.
+    "batect.yml",  # Forbidden.
+    "2.0.0-csd.2.beta.2018-10-10",  # Moved.
+    "compilerconfig.json",  # Moved.
+    "prometheus.rules.json",  # Moved.
+    "fabric.mod.json",  # Moved.
+    "neoload",  # Bad content type.
+    "Briefcase",  # Bad content type.
+    "component.json",  # Cyclical deps.
+    "sarif-2.1.0-rtm.2",  # Cyclical deps.
+    "sarif-external-property-file-2.1.0-rtm.2",  # Cyclical deps.
+    "sarif-2.1.0-rtm.3",  # Cyclical deps.
+    "sarif-external-property-file-2.1.0-rtm.3",  # Cyclical deps.
+    "sarif-2.1.0-rtm.4",  # Cyclical deps.
+    "sarif-external-property-file-2.1.0-rtm.4",  # Cyclical deps.
+    "sarif-2.1.0-rtm.5",  # Cyclical deps.
+    "sarif-external-property-file-2.1.0-rtm.5",  # Cyclical deps.
+    "template.json",  # Cyclical deps.
+    "tmLanguage",  # Cyclical deps.
+    "vega-lite.json",  # Cyclical deps.
+    "KSP-CKAN 1.26.4",  # Cyclical deps.
+    "JSON Schema Draft 4",  # Cyclical deps.
 )
 
 
