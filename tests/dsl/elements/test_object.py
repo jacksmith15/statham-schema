@@ -80,6 +80,14 @@ def test_list_wrapper_fails_on_invalid_arguments(param):
         _ = ListWrapper(param)
 
 
+@pytest.mark.parametrize(
+    "instance,expected",
+    [(StringWrapper({"value": "foo"}), "StringWrapper(value='foo')")],
+)
+def test_object_instance_reprs(instance, expected):
+    assert repr(instance) == expected
+
+
 class TestSchemaWithDefault:
     class DefaultStringWrapper(Object):
 
@@ -116,3 +124,48 @@ class TestSchemaPropertyWithDefault:
 
 def test_object_annotation():
     assert StringWrapper.annotation == StringWrapper.__name__
+
+
+class TestRenamedProperties:
+    class PropertyRename(Object):
+        default = {
+            "default": "string",
+            "self": "me",
+            "properties": "some properties",
+            "options": "some options",
+        }
+
+        _default = Property(String(), name="default")
+        _self = Property(String(), name="self")
+        _properties = Property(String(), name="properties")
+        _options = Property(String(), name="options")
+
+    def test_that_it_accepts_no_args(self):
+        with no_raise():
+            instance = self.PropertyRename()
+        assert instance.default == "string"
+        assert instance.self == "me"
+        assert instance.properties == "some properties"
+        assert instance.options == "some options"
+
+    def test_that_it_accepts_explicit_args(self):
+        with no_raise():
+            instance = self.PropertyRename(
+                {
+                    "default": "another string",
+                    "self": "you",
+                    "properties": "other properties",
+                    "options": "other options",
+                }
+            )
+        assert instance.default == "another string"
+        assert instance.self == "you"
+        assert instance.properties == "other properties"
+        assert instance.options == "other options"
+
+    @pytest.mark.parametrize(
+        "key", ["_default", "_properties", "_self", "_options"]
+    )
+    def test_that_it_fails_to_accept_outer_arg_names(self, key):
+        with pytest.raises(ValidationError):
+            _ = self.PropertyRename({key: "string"})

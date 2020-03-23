@@ -15,6 +15,11 @@ from statham.dsl.elements import (
 from statham.dsl.property import Property
 
 
+class RenamedProperty(Object):
+    renamed = Property(String(), name="default")
+    not_renamed = Property(String(), name="not_renamed")
+
+
 class StringWrapper(Object):
     value = Property(String(), required=True)
 
@@ -52,6 +57,11 @@ class ObjectWrapper(Object):
         (String(pattern=".*"), "String(pattern='.*')"),
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
+        (
+            RenamedProperty.properties["default"],
+            "_Property(String(), name='default')",
+        ),
+        (RenamedProperty.properties["not_renamed"], "_Property(String())"),
     ],
 )
 def test_reprs_are_correct(element: Element, expected: str):

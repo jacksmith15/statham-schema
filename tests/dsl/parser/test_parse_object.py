@@ -53,7 +53,7 @@ class ObjectWrapper(Object):
         pytest.param(
             {
                 "type": "object",
-                "title": "StringWrapperWrapper",
+                "title": "ObjectWrapper",
                 "required": ["value"],
                 "properties": {
                     "value": {

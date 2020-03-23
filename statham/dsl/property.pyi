@@ -15,13 +15,22 @@ class _Property(Generic[PropType]):
     parent: Any
     element: Element[PropType]
 
-    def __init__(self, element: Element[PropType], *, required: bool = False):
+    def __init__(
+        self,
+        element: Element[PropType],
+        *,
+        required: bool = False,
+        name: str = None
+    ):
         ...
 
     def evolve(self, name: str) -> "_Property":
         ...
 
-    def bind(self, parent: Any, name: str) -> None:
+    def bind_name(self, name: str) -> None:
+        ...
+
+    def bind_class(self, parent: Any) -> None:
         ...
 
     @property
@@ -41,5 +50,9 @@ UNBOUND_PROPERTY: _Property
 # Let the instance attributes have the enclosed type of the element.
 # TODO: Can we use literal types of Python 3.8 to vary return type between
 #   `T` and `Maybe[T]`?
-def Property(element: Element[PropType], required: bool = False) -> PropType:
+def Property(
+    element: Element[PropType],
+    required: bool = False,
+    name: str = None
+) -> PropType:
     ...

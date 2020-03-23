@@ -66,7 +66,9 @@ class Object(metaclass=ObjectMeta):
             )
 
     def __repr__(self):
-        attr_values = {attr: getattr(self, attr) for attr in self.properties}
+        attr_values = {
+            attr: getattr(self, attr) for attr in type(self).properties
+        }
         attr_repr = ", ".join(
             [
                 f"{attr}={repr(value)}"

@@ -4,8 +4,9 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import Boolean
+from statham.dsl.helpers import Args
 from tests.dsl.elements.helpers import assert_validation
-from tests.helpers import Args, no_raise
+from tests.helpers import no_raise
 
 
 class TestBooleanInstantiation:
