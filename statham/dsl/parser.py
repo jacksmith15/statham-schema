@@ -18,7 +18,11 @@ from statham.dsl.elements import (
     Element,
     String,
 )
-from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
+from statham.dsl.elements.meta import (
+    ObjectClassDict,
+    ObjectMeta,
+    RESERVED_PROPERTIES,
+)
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.helpers import reraise
 from statham.dsl.property import _Property
@@ -154,11 +158,11 @@ def _new_object(
         title = f"{title}_{count}"
     default = schema.get("default", NotPassed())
     required = set(schema.get("required", []))
-    attr_name = lambda key: key if key != "default" else f"_{key}"
+    attr_name = lambda key: key if key not in RESERVED_PROPERTIES else f"_{key}"
     properties = {
         # TODO: Handle attribute names which don't work in python.
         attr_name(key): _Property(
-            parse_element(value, counter), required=key in required, name=key
+            parse_element(value, counter), required=key in required, source=key
         )
         for key, value in schema.get("properties", {}).items()
         # Ignore malformed values.

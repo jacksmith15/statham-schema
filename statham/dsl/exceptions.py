@@ -15,7 +15,8 @@ class SchemaDefinitionError(StathamError):
         return cls(
             f"May not use reserved attribute `{attribute_name}` as a property "
             "attribute name. Instead use "
-            f"`_{attribute_name} = Property(<element>, name='{attribute_name}'`"
+            f"`_{attribute_name} = Property(<element>, "
+            f"source='{attribute_name}'`"
         )
 
 

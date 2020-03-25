@@ -26,7 +26,7 @@ class ObjectWrapper(Object):
 class ObjectWithDefaultProp(Object):
     default = {"default": "a string"}
 
-    _default = Property(String(), name="default")
+    _default = Property(String(), source="default")
 
 
 @pytest.mark.parametrize(
