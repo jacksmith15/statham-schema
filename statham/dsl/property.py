@@ -1,9 +1,9 @@
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 
 from statham.dsl import validators as val
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
-from statham.dsl.helpers import custom_repr
+from statham.dsl.helpers import custom_repr_args
 
 
 PropType = TypeVar("PropType")
@@ -18,13 +18,26 @@ class _Property(Generic[PropType]):
     """
 
     required: bool
-    name: str
     parent: Any
     element: Element
+    bound_name: Optional[str]
 
-    def __init__(self, element: Element[PropType], *, required: bool = False):
+    def __init__(
+        self,
+        element: Element[PropType],
+        *,
+        required: bool = False,
+        name: str = None,
+    ):
         self.element = element
         self.required = required
+        self._name: Optional[str] = name
+        self.bound_name: Optional[str] = None
+        self.parent = None
+
+    @property
+    def name(self) -> Optional[str]:
+        return self._name or self.bound_name
 
     def __eq__(self, other):
         if not isinstance(other, _Property):
@@ -34,14 +47,17 @@ class _Property(Generic[PropType]):
     def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""
         property_: _Property[PropType] = _Property(
-            element=self.element, required=self.required
+            element=self.element, required=self.required, name=self._name
         )
-        property_.bind(self.parent, name)
+        property_.bind_name(name)
+        property_.bind_class(self.parent)
         return property_
 
-    def bind(self, parent: Any, name: str):
+    def bind_name(self, name: str):
+        self.bound_name = name
+
+    def bind_class(self, parent: Any):
         self.parent = parent
-        self.name = name
 
     def __call__(self, value):
         if not isinstance(self.element.default, NotPassed) and isinstance(
@@ -54,7 +70,10 @@ class _Property(Generic[PropType]):
         return self.element(value, self)
 
     def __repr__(self):
-        return custom_repr(self)
+        repr_args = custom_repr_args(self)
+        if self.name == self.bound_name:
+            _ = repr_args.kwargs.pop("name")
+        return f"{self.__class__.__name__}{repr(repr_args)}"
 
     @property
     def annotation(self):
@@ -64,25 +83,47 @@ class _Property(Generic[PropType]):
             return self.element.annotation
         return f"Maybe[{self.element.annotation}]"
 
+    def python(self) -> str:
+        prop_def = repr(self).replace(type(self).__name__, Property.__name__)
+        return (
+            (f"{self.bound_name}: {self.annotation} = {prop_def}")
+            if self.bound_name
+            else prop_def
+        )
 
-UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
-UNBOUND_PROPERTY.bind(Element(), "<unbound>")
+
+UNBOUND_PROPERTY: _Property = _Property(
+    Element(), required=False, name="<unbound>"
+)
+UNBOUND_PROPERTY.bind_class(Element())
 
 
 # Behaves as a wrapper for the `_Property` class.
 # pylint: disable=invalid-name
-def Property(element: Element, *, required: bool = False):
-    """Wrapping constructor of `_Property`.
+def Property(element: Element, *, required: bool = False, name: str = None):
+    """Descriptor for adding a property when declaring an object schema model.
 
-    This allows us to trick the type checker into interpreting instance
-    attribute types of properties correctly.
+    Return value is typed to inform instance-level interface. See type stubs of
+    this module for more detail.
 
-    For example, the following becomes valid:
-    ```python
-    class Model(Object):
-        string_value: str = Property(String(), required=True)
-    ```
+    :param element: The JSONSchema Element object accepted by this property.
+    :param required: Whether this property is required. If false, then this
+        field may be omitted when data is passed to the outer object's
+        constructor.
+    :param name: The name of this property. Only necessary if it must differ
+        from that of the attribute, for example when the property name conflicts
+        with a reserved keyword. For example, to express a property called
+        `default`, one could do the following:
+        ```python
+        class MyObject(Object):
 
-    See type stubs for this module for more detail.
+            # Default for the whole object
+            default = {"default": "string"}
+
+            # Property called default
+            _default: str = Property(String(), name="default")
+        ```
+        However, note that overriding the property name will confuse static
+        type checking.
     """
-    return _Property(element, required=required)
+    return _Property(element, required=required, name=name)

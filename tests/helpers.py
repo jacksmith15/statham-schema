@@ -69,12 +69,3 @@ def no_raise(*exception_types: Type[Exception]):
         yield
     except types as exc:  # pylint: disable=broad-except
         assert False, str(exc)
-
-
-class Args:
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-    def apply(self, function):
-        return function(*self.args, **self.kwargs)

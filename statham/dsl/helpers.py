@@ -3,13 +3,25 @@ import inspect
 from typing import Tuple, Type, Union
 
 
-def custom_repr(self):
-    """Dynamically construct the repr to match value instantiation.
+class Args:
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
-    Shows the class name and attribute values, where they differ from
-    defaults.
-    """
-    param_strings = []
+    def apply(self, function):
+        return function(*self.args, **self.kwargs)
+
+    def __repr__(self):
+        arg_string = ", ".join([repr(arg) for arg in self.args])
+        kwarg_string = ", ".join(
+            [f"{key}={repr(value)}" for key, value in self.kwargs.items()]
+        )
+        return "(" + ", ".join(filter(None, [arg_string, kwarg_string])) + ")"
+
+
+def custom_repr_args(self):
+    args = []
+    kwargs = {}
     parameters = list(
         inspect.signature(type(self).__init__).parameters.values()
     )[1:]
@@ -18,13 +30,21 @@ def custom_repr(self):
         if value == param.default:
             continue
         if param.kind == param.VAR_POSITIONAL:
-            param_strings.extend([repr(sub_val) for sub_val in value or []])
+            args.extend([sub_val for sub_val in value or []])
         elif param.kind == param.KEYWORD_ONLY:
-            param_strings.append(f"{param.name}={repr(value)}")
+            kwargs[param.name] = value
         else:
-            param_strings.append(repr(value))
-    param_string = ", ".join(param_strings)
-    return f"{type(self).__name__}({param_string})"
+            args.append(value)
+    return Args(*args, **kwargs)
+
+
+def custom_repr(self):
+    """Dynamically construct the repr to match value instantiation.
+
+    Shows the class name and attribute values, where they differ from
+    defaults.
+    """
+    return f"{type(self).__name__}{repr(custom_repr_args(self))}"
 
 
 ExceptionTypes = Union[Type[Exception], Tuple[Type[Exception], ...]]

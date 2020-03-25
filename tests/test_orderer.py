@@ -58,7 +58,8 @@ def test_cyclical_element_fails_to_be_ordered():
         pass
 
     Cycle.properties["other"] = Property(Cycle)
-    Cycle.properties["other"].bind(Cycle, "other")
+    Cycle.properties["other"].bind_class(Cycle)
+    Cycle.properties["other"].bind_name("other")
     with pytest.raises(SchemaParseError):
         consume(Orderer(Cycle))
 

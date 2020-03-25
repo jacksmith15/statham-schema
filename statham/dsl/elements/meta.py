@@ -4,6 +4,7 @@ from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
+from statham.dsl.exceptions import SchemaDefinitionError
 
 
 class ObjectClassDict(dict):
@@ -17,17 +18,17 @@ class ObjectClassDict(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        schema_keys = [
-            key for key, value in self.items() if isinstance(value, _Property)
-        ]
+        self.properties = {}
         self.default = self.get("default", NotPassed())
-        self.properties = {key: self.pop(key) for key in schema_keys}
 
     def __setitem__(self, key, value):
         if key == "default":
+            if isinstance(value, _Property):
+                raise SchemaDefinitionError.reserved_attribute("default")
             self.default = value
         if isinstance(value, _Property):
-            return self.properties.__setitem__(key, value)
+            value.bind_name(key)
+            return self.properties.__setitem__(value.name or key, value)
         return super().__setitem__(key, value)
 
 
@@ -43,6 +44,10 @@ class ObjectMeta(type, Element):
 
     @staticmethod
     def __subclasses__():
+        # This is overriden to prevent errors.
+        # TODO: Is there a more elegant way to achieve this? Perhaps
+        #   __init_subclass__ should error to prevent this from being
+        #   wrong.
         return []
 
     @classmethod
@@ -52,8 +57,8 @@ class ObjectMeta(type, Element):
     def __new__(mcs, name: str, bases: Tuple[Type], classdict: ObjectClassDict):
         cls: Type[ObjectMeta] = type.__new__(mcs, name, bases, dict(classdict))
         cls.properties = classdict.properties
-        for attr_name, property_ in cls.properties.items():
-            property_.bind(cls, attr_name)
+        for property_ in cls.properties.values():
+            property_.bind_class(cls)
         cls.default = classdict.default
         return cls
 
@@ -70,3 +75,30 @@ class ObjectMeta(type, Element):
     @property
     def type_validator(cls):
         return val.instance_of(dict, cls)
+
+    def python(cls) -> str:
+        super_cls = next(iter(cls.mro()[1:]))
+        class_def = f"""class {repr(cls)}({super_cls.__name__}):
+"""
+        if not cls.properties and isinstance(cls.default, NotPassed):
+            class_def = (
+                class_def
+                + """
+    pass
+"""
+            )
+        if not isinstance(cls.default, NotPassed):
+            class_def = (
+                class_def
+                + f"""
+    default = {repr(cls.default)}
+"""
+            )
+        for property_ in cls.properties.values():
+            class_def = (
+                class_def
+                + f"""
+    {property_.python()}
+"""
+            )
+        return class_def

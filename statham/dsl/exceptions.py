@@ -7,6 +7,18 @@ class StathamError(Exception):
     """Base exception"""
 
 
+class SchemaDefinitionError(StathamError):
+    """Failure when declaring schemas using DSL."""
+
+    @classmethod
+    def reserved_attribute(cls, attribute_name: str) -> "SchemaDefinitionError":
+        return cls(
+            f"May not use reserved attribute `{attribute_name}` as a property "
+            "attribute name. Instead use "
+            f"`_{attribute_name} = Property(<element>, name='{attribute_name}'`"
+        )
+
+
 class ValidationError(StathamError):
     """Validation failure in generated models."""
 
