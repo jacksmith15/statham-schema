@@ -41,6 +41,9 @@ class Element(Generic[T]):
     def annotation(self) -> str:
         return "Any"
 
+    def python(self) -> str:
+        return repr(self)
+
     @property
     def type_validator(self):
         return lambda _, __: None

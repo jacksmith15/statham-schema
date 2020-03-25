@@ -18,20 +18,7 @@ class ObjectClassDict(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        property_dict = {
-            key: value
-            for key, value in self.items()
-            if isinstance(value, _Property)
-        }
-        for key, value in property_dict.items():
-            value.bind_name(key)
-            if key == "default":
-                raise SchemaDefinitionError.reserved_attribute("default")
-        self.properties = {
-            value.name: value for key, value in property_dict.items()
-        }
-        for key in property_dict:
-            del self[key]
+        self.properties = {}
         self.default = self.get("default", NotPassed())
 
     def __setitem__(self, key, value):
@@ -88,3 +75,30 @@ class ObjectMeta(type, Element):
     @property
     def type_validator(cls):
         return val.instance_of(dict, cls)
+
+    def python(cls) -> str:
+        super_cls = next(iter(cls.mro()[1:]))
+        class_def = f"""class {repr(cls)}({super_cls.__name__}):
+"""
+        if not cls.properties and isinstance(cls.default, NotPassed):
+            class_def = (
+                class_def
+                + """
+    pass
+"""
+            )
+        if not isinstance(cls.default, NotPassed):
+            class_def = (
+                class_def
+                + f"""
+    default = {repr(cls.default)}
+"""
+            )
+        for property_ in cls.properties.values():
+            class_def = (
+                class_def
+                + f"""
+    {property_.python()}
+"""
+            )
+        return class_def
