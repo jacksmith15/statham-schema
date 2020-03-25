@@ -15,6 +15,7 @@ Types of changes are:
 ## [Unreleased]
 ### Added
 * Added support for `default` as a property name in object schemas.
+* Added support for `self` as a property name in object schemas.
 
 ## [0.2.0] - 2020-03-20
 ### Added
