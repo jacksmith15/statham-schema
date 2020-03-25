@@ -1,10 +1,28 @@
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, Generic, Tuple, Type, TypeVar
 
 from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 from statham.dsl.exceptions import SchemaDefinitionError
+
+
+AdditionalPropType = TypeVar("AdditionalPropType")
+
+
+class ObjectOptions(Generic[AdditionalPropType]):
+
+    additionalProperties: Element[AdditionalPropType]
+
+    def __init__(self, additionalProperties: Element[AdditionalPropType]):
+        # Name used to match JSONSchema.
+        # pylint: disable=invalid-name
+        self.additionalProperties = additionalProperties
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, ObjectOptions):
+            return False
+        return self.additionalProperties == other.additionalProperties
 
 
 class ObjectClassDict(dict):
@@ -20,12 +38,19 @@ class ObjectClassDict(dict):
         super().__init__(*args, **kwargs)
         self.properties = {}
         self.default = self.get("default", NotPassed())
+        self.options = self.get(
+            "options", ObjectOptions(additionalProperties=False)
+        )
 
     def __setitem__(self, key, value):
         if key == "default":
             if isinstance(value, _Property):
                 raise SchemaDefinitionError.reserved_attribute("default")
             self.default = value
+        if key == "options":
+            if isinstance(value, _Property):
+                raise SchemaDefinitionError.reserved_attribute("options")
+            self.options = value
         if isinstance(value, _Property):
             value.bind_name(key)
             return self.properties.__setitem__(value.name or key, value)
@@ -41,6 +66,7 @@ class ObjectMeta(type, Element):
     """
 
     properties: Dict[str, _Property]
+    options: ObjectOptions
 
     @staticmethod
     def __subclasses__():
@@ -60,6 +86,7 @@ class ObjectMeta(type, Element):
         for property_ in cls.properties.values():
             property_.bind_class(cls)
         cls.default = classdict.default
+        cls.options = classdict.options
         return cls
 
     def __hash__(cls):

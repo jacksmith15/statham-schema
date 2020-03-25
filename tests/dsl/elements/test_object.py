@@ -3,6 +3,7 @@ import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Object, OneOf, String
+from statham.dsl.elements.meta import ObjectOptions
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
@@ -128,44 +129,26 @@ def test_object_annotation():
 
 class TestRenamedProperties:
     class PropertyRename(Object):
-        default = {
-            "default": "string",
-            "self": "me",
-            "properties": "some properties",
-            "options": "some options",
-        }
+        default = {"default": "string", "self": "me"}
 
         _default = Property(String(), name="default")
         _self = Property(String(), name="self")
-        _properties = Property(String(), name="properties")
-        _options = Property(String(), name="options")
 
     def test_that_it_accepts_no_args(self):
         with no_raise():
             instance = self.PropertyRename()
         assert instance.default == "string"
         assert instance.self == "me"
-        assert instance.properties == "some properties"
-        assert instance.options == "some options"
 
     def test_that_it_accepts_explicit_args(self):
         with no_raise():
             instance = self.PropertyRename(
-                {
-                    "default": "another string",
-                    "self": "you",
-                    "properties": "other properties",
-                    "options": "other options",
-                }
+                {"default": "another string", "self": "you"}
             )
         assert instance.default == "another string"
         assert instance.self == "you"
-        assert instance.properties == "other properties"
-        assert instance.options == "other options"
 
-    @pytest.mark.parametrize(
-        "key", ["_default", "_properties", "_self", "_options"]
-    )
+    @pytest.mark.parametrize("key", ["_default", "_self", "_options"])
     def test_that_it_fails_to_accept_outer_arg_names(self, key):
         with pytest.raises(ValidationError):
             _ = self.PropertyRename({key: "string"})
@@ -181,14 +164,15 @@ class TestBadPropertyConflictErrors:
 
 class TestAdditionalPropertiesAsElement:
     class MyObject(Object):
-        additionalProperties = Integer()
+
+        options = ObjectOptions(additionalProperties=Integer())
         value = Property(String())
 
     def test_valid_instantiation(self):
         with no_raise():
             instance = self.MyObject({"value": "foo", "other_value": 3})
         assert instance.value == "foo"
-        assert instance.additional["other_value"] == 3
+        assert instance.additional_properties["other_value"] == 3
 
     def test_additional_value_is_not_accepted_for_declared_value(self):
         with pytest.raises(ValidationError):
@@ -201,22 +185,30 @@ class TestAdditionalPropertiesAsElement:
 
 class TestAdditionalPropertiesAsTrue:
     class MyObject(Object):
-        additionalProperties = True
+
+        options = ObjectOptions(additionalProperties=True)
         value = Property(String())
 
+    @pytest.mark.parametrize(
+        "additional_value", ["a string", 1, 3.4, None, True]
+    )
     def test_values_are_accepted(self, additional_value: Any):
         with no_raise():
             instance = self.MyObject(
                 {"value": "foo", "other_value": additional_value}
             )
-        assert instance.additional["other_value"] == additional_value
+        assert instance.additional_properties["other_value"] == additional_value
 
 
 class TestAdditionalPropertiesAsFalse:
     class MyObject(Object):
-        additionalProperties = False
+
+        options = ObjectOptions(additionalProperties=False)
         value = Property(String())
 
+    @pytest.mark.parametrize(
+        "additional_value", ["a string", 1, 3.4, None, True]
+    )
     def test_no_extra_values_are_accepted(self, additional_value: Any):
         with pytest.raises(ValidationError):
             _ = self.MyObject({"value": "foo", "other_value": additional_value})

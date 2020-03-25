@@ -1,6 +1,7 @@
 from typing import Any, ClassVar, Dict
 
-from statham.dsl.elements.meta import ObjectMeta
+from statham.dsl.elements.base import Element
+from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
 from statham.dsl.constants import NotPassed
@@ -31,6 +32,8 @@ class Object(metaclass=ObjectMeta):
 
     properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]
+    options: ClassVar[ObjectOptions]
+    additional_properties: Dict[str, Any]
 
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY
@@ -53,17 +56,25 @@ class Object(metaclass=ObjectMeta):
             value = self.default
         if value is self:
             return
-        unexpected_kwargs = set(value) - set(self.properties)
-        if unexpected_kwargs:
-            raise ValidationError(
-                f"Unexpected attributes passed to {self.__class__}: "
-                f"{unexpected_kwargs}. Accepted kwargs: "
-                f"{set(self.properties)}"
-            )
+        self.additional_properties = {}
         for attr_name, property_ in self.properties.items():
             setattr(
-                self, attr_name, property_(value.get(attr_name, NotPassed()))
+                self, attr_name, property_(value.pop(attr_name, NotPassed()))
             )
+        if value and self.options.additionalProperties is False:
+            raise ValidationError(
+                f"Unexpected attributes passed to {self.__class__}: "
+                f"{set(value)}. Accepted kwargs: "
+                f"{set(self.properties)}"
+            )
+        constructor = self.options.additionalProperties
+        if constructor is True:
+            constructor = Element()
+        additional_property = _Property(constructor)
+        for name, argument in value.items():
+            additional_property.bind_name(name)
+            additional_property.bind_class(type(self))
+            self.additional_properties[name] = additional_property(argument)
 
     def __repr__(self):
         attr_values = {

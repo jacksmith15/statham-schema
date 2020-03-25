@@ -17,7 +17,7 @@ class Element(Generic[T]):
     # TODO: const
     """
 
-    default: Any
+    default: Any = NotPassed()
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
