@@ -17,6 +17,9 @@ Types of changes are:
 * Added support for `default` as a property name in object schemas.
 * Added support for `self` as a property name in object schemas.
 
+### Changed
+* Moved bulk to python serialization logic to DSL element methods.
+
 ## [0.2.0] - 2020-03-20
 ### Added
 * A JSONSchema DSL (see `statham/dsl/`) has been added, and is

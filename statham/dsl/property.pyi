@@ -38,6 +38,9 @@ class _Property(Generic[PropType]):
     def annotation(self) -> str:
         ...
 
+    def python(self) -> str:
+        ...
+
     def __call__(self, value: Any) -> Maybe[PropType]:
         ...
 

@@ -2,7 +2,7 @@ from statham.dsl.constants import Maybe
 from statham.dsl.elements import Object, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
-from statham.serializer import serialize_python, _serialize_object
+from statham.serializer import _IMPORT_STATEMENTS, serialize_python
 
 
 SCHEMA = {
@@ -29,26 +29,8 @@ SCHEMA = {
 
 
 def test_schema_reserializes_to_expected_python_string():
-    assert (
-        serialize_python(*parse(SCHEMA))
-        == """from typing import List, Union
-
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
-    AnyOf,
-    Array,
-    Boolean,
-    Integer,
-    Null,
-    Number,
-    OneOf,
-    Object,
-    String,
-)
-from statham.dsl.property import Property
-
-
-class Category(Object):
+    assert serialize_python(*parse(SCHEMA)) == _IMPORT_STATEMENTS + (
+        """class Category(Object):
 
     default = {'value': 'none'}
 
@@ -75,28 +57,20 @@ def test_parse_and_serialize_schema_with_self_property():
         "title": "MyObject",
         "properties": {"self": {"type": "string"}},
     }
-    assert (
-        serialize_python(*parse(schema))
-        == """from typing import List, Union
-
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
-    AnyOf,
-    Array,
-    Boolean,
-    Integer,
-    Null,
-    Number,
-    OneOf,
-    Object,
-    String,
-)
-from statham.dsl.property import Property
-
-
-class MyObject(Object):
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class MyObject(Object):
 
     self: Maybe[str] = Property(String())
+"""
+    )
+
+
+def test_parse_and_serialize_schema_with_no_args():
+    schema = {"type": "object", "title": "NoProps"}
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class NoProps(Object):
+
+    pass
 """
     )
 
@@ -118,7 +92,7 @@ class ObjectWrapper(Object):
 
 def test_serialize_string_wrapper_object():
     assert (
-        _serialize_object(StringWrapper)
+        StringWrapper.python()
         == """class StringWrapper(Object):
 
     value: str = Property(String(), required=True)
@@ -128,7 +102,7 @@ def test_serialize_string_wrapper_object():
 
 def test_serialize_object_wrapper_object():
     assert (
-        _serialize_object(ObjectWrapper)
+        ObjectWrapper.python()
         == """class ObjectWrapper(Object):
 
     value: Maybe[StringWrapper] = Property(StringWrapper)

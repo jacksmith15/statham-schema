@@ -83,6 +83,14 @@ class _Property(Generic[PropType]):
             return self.element.annotation
         return f"Maybe[{self.element.annotation}]"
 
+    def python(self) -> str:
+        prop_def = repr(self).replace(type(self).__name__, Property.__name__)
+        return (
+            (f"{self.bound_name}: {self.annotation} = {prop_def}")
+            if self.bound_name
+            else prop_def
+        )
+
 
 UNBOUND_PROPERTY: _Property = _Property(
     Element(), required=False, name="<unbound>"
