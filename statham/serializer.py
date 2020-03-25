@@ -60,11 +60,11 @@ def _serialize_object(object_cls: ObjectMeta) -> str:
     default = {repr(object_cls.default)}
 """
         )
-    for attr_name, property_ in object_cls.properties.items():
+    for property_ in object_cls.properties.values():
         class_def = (
             class_def
             + f"""
-    {attr_name}: {property_.annotation} = {_serialize_property(property_)}
+    {property_.bound_name}: {property_.annotation} = {_serialize_property(property_)}
 """
         )
     return class_def

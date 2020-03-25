@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added support for `default` as a property name in object schemas.
 
 ## [0.2.0] - 2020-03-20
 ### Added
