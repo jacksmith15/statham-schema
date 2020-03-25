@@ -164,7 +164,9 @@ def _new_object(
         # Ignore malformed values.
         if isinstance(value, dict)
     }
-    class_dict = ObjectClassDict(default=default, **properties)
+    class_dict = ObjectClassDict(default=default)
+    for key, value in properties.items():
+        class_dict[key] = value
     return ObjectMeta(_title_format(title), (Object,), class_dict)
 
 

@@ -69,6 +69,38 @@ class Other(Object):
     )
 
 
+def test_parse_and_serialize_schema_with_self_property():
+    schema = {
+        "type": "object",
+        "title": "MyObject",
+        "properties": {"self": {"type": "string"}},
+    }
+    assert (
+        serialize_python(*parse(schema))
+        == """from typing import List, Union
+
+from statham.dsl.constants import Maybe
+from statham.dsl.elements import (
+    AnyOf,
+    Array,
+    Boolean,
+    Integer,
+    Null,
+    Number,
+    OneOf,
+    Object,
+    String,
+)
+from statham.dsl.property import Property
+
+
+class MyObject(Object):
+
+    self: Maybe[str] = Property(String())
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"
