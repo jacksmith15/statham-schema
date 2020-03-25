@@ -15,7 +15,8 @@ SCHEMA = {
             "title": "Category",
             "properties": {"value": {"type": "string"}},
             "default": {"value": "none"},
-        }
+        },
+        "default": {"type": "string"},
     },
     "definitions": {
         "other": {
@@ -57,6 +58,8 @@ class Category(Object):
 class Parent(Object):
 
     category: Category = Property(Category, required=True)
+
+    _default: Maybe[str] = Property(String(), name='default')
 
 
 class Other(Object):

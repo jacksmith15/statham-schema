@@ -154,9 +154,12 @@ def _new_object(
         title = f"{title}_{count}"
     default = schema.get("default", NotPassed())
     required = set(schema.get("required", []))
+    attr_name = lambda key: key if key != "default" else f"_{key}"
     properties = {
         # TODO: Handle attribute names which don't work in python.
-        key: _Property(parse_element(value, counter), required=key in required)
+        attr_name(key): _Property(
+            parse_element(value, counter), required=key in required, name=key
+        )
         for key, value in schema.get("properties", {}).items()
         # Ignore malformed values.
         if isinstance(value, dict)

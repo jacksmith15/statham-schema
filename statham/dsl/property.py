@@ -20,6 +20,7 @@ class _Property(Generic[PropType]):
     required: bool
     parent: Any
     element: Element
+    bound_name: Optional[str]
 
     def __init__(
         self,
@@ -31,12 +32,12 @@ class _Property(Generic[PropType]):
         self.element = element
         self.required = required
         self._name: Optional[str] = name
-        self._bound_name: Optional[str] = None
+        self.bound_name: Optional[str] = None
         self.parent = None
 
     @property
     def name(self) -> Optional[str]:
-        return self._name or self._bound_name
+        return self._name or self.bound_name
 
     def __eq__(self, other):
         if not isinstance(other, _Property):
@@ -53,7 +54,7 @@ class _Property(Generic[PropType]):
         return property_
 
     def bind_name(self, name: str):
-        self._bound_name = name
+        self.bound_name = name
 
     def bind_class(self, parent: Any):
         self.parent = parent
@@ -70,7 +71,7 @@ class _Property(Generic[PropType]):
 
     def __repr__(self):
         repr_args = custom_repr_args(self)
-        if self.name == self._bound_name:
+        if self.name == self.bound_name:
             _ = repr_args.kwargs.pop("name")
         return f"{self.__class__.__name__}{repr(repr_args)}"
 
@@ -104,10 +105,17 @@ def Property(element: Element, *, required: bool = False, name: str = None):
     :param name: The name of this property. Only necessary if it must differ
         from that of the attribute, for example when the property name conflicts
         with a reserved keyword. For example, to express a property called
-        `__init__`, one could do the following:
+        `default`, one could do the following:
         ```python
         class MyObject(Object):
-            init: str = Property(String(), name="__init__")
+
+            # Default for the whole object
+            default = {"default": "string"}
+
+            # Property called default
+            _default: str = Property(String(), name="default")
         ```
+        However, note that overriding the property name will confuse static
+        type checking.
     """
     return _Property(element, required=required, name=name)

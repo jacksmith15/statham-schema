@@ -23,6 +23,12 @@ class ObjectWrapper(Object):
     value = Property(StringWrapper, required=True)
 
 
+class ObjectWithDefaultProp(Object):
+    default = {"default": "a string"}
+
+    _default = Property(String(), name="default")
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -66,6 +72,16 @@ class ObjectWrapper(Object):
             },
             ObjectWrapper,
             id="with-object-property",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithDefaultProp",
+                "default": {"default": "a string"},
+                "properties": {"default": {"type": "string"}},
+            },
+            ObjectWithDefaultProp,
+            id="with-property-named-default",
         ),
     ],
 )

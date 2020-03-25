@@ -4,7 +4,7 @@ import pytest
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Object, OneOf, String
 from statham.dsl.property import Property
-from statham.dsl.exceptions import ValidationError
+from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
 
 
@@ -169,3 +169,11 @@ class TestRenamedProperties:
     def test_that_it_fails_to_accept_outer_arg_names(self, key):
         with pytest.raises(ValidationError):
             _ = self.PropertyRename({key: "string"})
+
+
+class TestBadPropertyConflictErrors:
+    def test_using_a_bad_property_raises_specific_error(self):
+        with pytest.raises(SchemaDefinitionError):
+
+            class MyObject(Object):
+                default: str = Property(String())

@@ -4,6 +4,7 @@ from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
+from statham.dsl.exceptions import SchemaDefinitionError
 
 
 class ObjectClassDict(dict):
@@ -24,8 +25,10 @@ class ObjectClassDict(dict):
         }
         for key, value in property_dict.items():
             value.bind_name(key)
+            if key == "default":
+                raise SchemaDefinitionError.reserved_attribute("default")
         self.properties = {
-            value.name or key: value for key, value in property_dict.items()
+            value.name: value for key, value in property_dict.items()
         }
         for key in property_dict:
             del self[key]
@@ -33,6 +36,8 @@ class ObjectClassDict(dict):
 
     def __setitem__(self, key, value):
         if key == "default":
+            if isinstance(value, _Property):
+                raise SchemaDefinitionError.reserved_attribute("default")
             self.default = value
         if isinstance(value, _Property):
             value.bind_name(key)

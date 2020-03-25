@@ -1,4 +1,4 @@
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Generic, Optional, Type, TypeVar
 
 from statham.dsl.constants import Maybe
 from statham.dsl.elements.base import Element
@@ -14,6 +14,7 @@ class _Property(Generic[PropType]):
     name: str
     parent: Any
     element: Element[PropType]
+    bound_name: Optional[str]
 
     def __init__(
         self,
