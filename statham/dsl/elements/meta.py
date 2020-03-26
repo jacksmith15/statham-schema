@@ -1,28 +1,37 @@
-from typing import Any, Dict, Generic, Tuple, Type, TypeVar
+from typing import Any, cast, Dict, Optional, Tuple, Type, Union
 
 from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
+from statham.dsl.helpers import custom_repr_args
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 from statham.dsl.exceptions import SchemaDefinitionError
 
 
-AdditionalPropType = TypeVar("AdditionalPropType")
+class ObjectOptions:
 
+    additionalProperties: Optional[Element]
 
-class ObjectOptions(Generic[AdditionalPropType]):
-
-    additionalProperties: Element[AdditionalPropType]
-
-    def __init__(self, additionalProperties: Element[AdditionalPropType]):
+    def __init__(self, *, additionalProperties: Union[Element, bool] = False):
         # Name used to match JSONSchema.
         # pylint: disable=invalid-name
-        self.additionalProperties = additionalProperties
+        if additionalProperties is False:
+            self.additionalProperties = None
+        elif additionalProperties is True:
+            self.additionalProperties = Element()
+        else:
+            self.additionalProperties = cast(Element, additionalProperties)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, ObjectOptions):
             return False
         return self.additionalProperties == other.additionalProperties
+
+    def __repr__(self):
+        args = custom_repr_args(self)
+        if args.kwargs["additionalProperties"] is None:
+            del args.kwargs["additionalProperties"]
+        return f"{type(self).__name__}{repr(args)}"
 
 
 RESERVED_PROPERTIES = dir(object) + ["default", "options", "properties"]
@@ -41,9 +50,7 @@ class ObjectClassDict(dict):
         super().__init__(*args, **kwargs)
         self.properties = {}
         self.default = self.get("default", NotPassed())
-        self.options = self.get(
-            "options", ObjectOptions(additionalProperties=False)
-        )
+        self.options = self.get("options", ObjectOptions())
 
     def __setitem__(self, key, value):
         if key in RESERVED_PROPERTIES and isinstance(value, _Property):
@@ -108,7 +115,11 @@ class ObjectMeta(type, Element):
         super_cls = next(iter(cls.mro()[1:]))
         class_def = f"""class {repr(cls)}({super_cls.__name__}):
 """
-        if not cls.properties and isinstance(cls.default, NotPassed):
+        if (
+            not cls.properties
+            and isinstance(cls.default, NotPassed)
+            and cls.options == ObjectOptions()
+        ):
             class_def = (
                 class_def
                 + """
@@ -120,6 +131,12 @@ class ObjectMeta(type, Element):
                 class_def
                 + f"""
     default = {repr(cls.default)}
+"""
+            )
+        if cls.options != ObjectOptions():
+            class_def = class_def + (
+                f"""
+    options = {repr(cls.options)}
 """
             )
         for property_ in cls.properties.values():

@@ -15,6 +15,7 @@ from statham.dsl.elements import (
     Null,
     Number,
     Object,
+    ObjectOptions,
     OneOf,
     Element,
     String,
@@ -183,7 +184,16 @@ def parse_object(
         # Ignore malformed values.
         if isinstance(value, dict)
     }
-    class_dict = ObjectClassDict(default=default)
+    if "additionalProperties" in schema and isinstance(
+        schema["additionalProperties"], dict
+    ):
+        schema["additionalProperties"] = parse_element(
+            schema["additionalProperties"]
+        )
+    class_dict = ObjectClassDict(
+        default=default,
+        options=ObjectOptions(**keyword_filter(ObjectOptions)(schema)),
+    )
     for key, value in properties.items():
         class_dict[key] = value
     return ObjectMeta(_title_format(title), (Object,), class_dict)
@@ -201,11 +211,9 @@ def parse_array(
     return Array(**keyword_filter(Array)(schema))
 
 
-def keyword_filter(
-    elem_cls: Type[Element]
-) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+def keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
     """Create a filter to pull out only relevant keywords for a given type."""
-    params = inspect.signature(elem_cls.__init__).parameters.values()
+    params = inspect.signature(type_.__init__).parameters.values()
     args = {param.name for param in params}
 
     def _filter(schema: Dict[str, Any]) -> Dict[str, Any]:

@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import Element, Object, String
+from statham.dsl.elements import Element, Object, ObjectOptions, String
 from statham.dsl.parser import parse_element
 from statham.dsl.property import Property
 
@@ -27,6 +27,18 @@ class ObjectWithDefaultProp(Object):
     default = {"default": "a string"}
 
     _default = Property(String(), source="default")
+
+
+class ObjectWithAdditionalPropElement(Object):
+    options = ObjectOptions(additionalProperties=String())
+
+
+class ObjectWithAdditionalPropTrue(Object):
+    options = ObjectOptions(additionalProperties=True)
+
+
+class ObjectWithAdditionalPropFalse(Object):
+    options = ObjectOptions(additionalProperties=False)
 
 
 @pytest.mark.parametrize(
@@ -82,6 +94,33 @@ class ObjectWithDefaultProp(Object):
             },
             ObjectWithDefaultProp,
             id="with-property-named-default",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithAdditionalPropElement",
+                "additionalProperties": {"type": "string"},
+            },
+            ObjectWithAdditionalPropElement,
+            id="with-additional-properties-schema",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithAdditionalPropTrue",
+                "additionalProperties": True,
+            },
+            ObjectWithAdditionalPropTrue,
+            id="with-additional-properties-true",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithAdditionalPropFalse",
+                "additionalProperties": False,
+            },
+            ObjectWithAdditionalPropFalse,
+            id="with-additional-properties-false",
         ),
     ],
 )

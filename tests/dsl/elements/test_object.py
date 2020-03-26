@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import Any, ClassVar, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed

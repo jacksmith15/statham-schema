@@ -1,6 +1,5 @@
 from typing import Any, ClassVar, Dict
 
-from statham.dsl.elements.base import Element
 from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
@@ -63,15 +62,15 @@ class Object(metaclass=ObjectMeta):
                 attr_name,
                 property_(value.pop(property_.source, NotPassed())),
             )
-        if value and self.options.additionalProperties is False:
+        if not value:
+            return
+        if not self.options.additionalProperties:
             raise ValidationError(
                 f"Unexpected attributes passed to {self.__class__}: "
                 f"{set(value)}. Accepted kwargs: "
                 f"{set(self.properties)}"
             )
         constructor = self.options.additionalProperties
-        if constructor is True:
-            constructor = Element()
         additional_property = _Property(constructor)
         for name, argument in value.items():
             additional_property.bind_name(name)

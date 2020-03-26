@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Dict, List, Set
+from typing import Dict, Iterator, List, Set
 
 
 from statham.dsl.elements import Array, CompositionElement, Element
@@ -35,6 +35,14 @@ def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
     return []
 
 
+def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
+    """Iterate over related elements to an Object subclass."""
+    for prop in object_type.properties.values():
+        yield prop.element
+    if isinstance(object_type.options.additionalProperties, Element):
+        yield object_type.options.additionalProperties
+
+
 class Orderer:
     """Iterator which returns object elements in declaration order.
 
@@ -53,20 +61,20 @@ class Orderer:
             for object_element in _get_dependent_object_elements(element):
                 self._extract_elements(object_element)
 
-    def _extract_elements(self, element: ObjectMeta) -> Set[str]:
-        if element.__name__ in self._class_defs:
-            return self[element.__name__].depends
-        deps = {element.__name__}
-        for prop in element.properties.values():
-            next_elements: List[ObjectMeta] = _get_dependent_object_elements(
-                prop.element
-            )
+    def _extract_elements(self, object_type: ObjectMeta) -> Set[str]:
+        if object_type.__name__ in self._class_defs:
+            return self[object_type.__name__].depends
+        deps = {object_type.__name__}
+        for sub_element in _iter_object_deps(object_type):
+            next_objects = _get_dependent_object_elements(sub_element)
             deps = deps | set(
-                chain.from_iterable(map(self._extract_elements, next_elements))
+                chain.from_iterable(map(self._extract_elements, next_objects))
             )
         self._add(
-            element.__name__,
-            ClassDef(element=element, depends=deps - {element.__name__}),
+            object_type.__name__,
+            ClassDef(
+                element=object_type, depends=deps - {object_type.__name__}
+            ),
         )
         return deps
 

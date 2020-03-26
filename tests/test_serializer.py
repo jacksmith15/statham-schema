@@ -75,6 +75,43 @@ def test_parse_and_serialize_schema_with_no_args():
     )
 
 
+def test_parse_and_serialize_schema_with_options():
+    schema = {
+        "type": "object",
+        "title": "StringContainer",
+        "additionalProperties": {"type": "string"},
+    }
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class StringContainer(Object):
+
+    options = ObjectOptions(additionalProperties=String())
+"""
+    )
+
+
+def test_parse_and_serialize_schema_with_option_dependencies():
+    schema = {
+        "type": "object",
+        "title": "StringWrapperContainer",
+        "additionalProperties": {
+            "type": "object",
+            "title": "StringWrapper",
+            "properties": {"value": {"type": "string"}},
+        },
+    }
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class StringWrapper(Object):
+
+    value: Maybe[str] = Property(String())
+
+
+class StringWrapperContainer(Object):
+
+    options = ObjectOptions(additionalProperties=StringWrapper)
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"
