@@ -15,6 +15,7 @@ class Element(Generic[T]):
     type when called.
     # TODO: enum
     # TODO: const
+    # TODO: type-specific keywords don't apply to element.
     """
 
     default: Any = NotPassed()
