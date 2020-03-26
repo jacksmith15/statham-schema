@@ -24,14 +24,12 @@ class Element(Generic[T]):
     # TODO: type-specific keywords don't apply to element.
     """
 
-    default: Any = NotPassed()
-
     def __init__(
         self,
         *,
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
-        default: Maybe[str] = NotPassed(),
+        default: Maybe[Any] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
