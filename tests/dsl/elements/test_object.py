@@ -129,29 +129,23 @@ def test_object_annotation():
 
 class TestRenamedProperties:
     class PropertyRename(Object):
-        default = {"default": "string", "self": "me"}
+        default = {"default": "string"}
 
-        _default = Property(String(), name="default")
-        _self = Property(String(), name="self")
+        _default = Property(String(), source="default")
 
     def test_that_it_accepts_no_args(self):
         with no_raise():
             instance = self.PropertyRename()
-        assert instance.default == "string"
-        assert instance.self == "me"
+        assert instance._default == "string"
 
     def test_that_it_accepts_explicit_args(self):
         with no_raise():
-            instance = self.PropertyRename(
-                {"default": "another string", "self": "you"}
-            )
-        assert instance.default == "another string"
-        assert instance.self == "you"
+            instance = self.PropertyRename({"default": "another string"})
+        assert instance._default == "another string"
 
-    @pytest.mark.parametrize("key", ["_default", "_self", "_options"])
-    def test_that_it_fails_to_accept_outer_arg_names(self, key):
+    def test_that_it_fails_to_accept_outer_arg_name(self):
         with pytest.raises(ValidationError):
-            _ = self.PropertyRename({key: "string"})
+            _ = self.PropertyRename({"_default": "string"})
 
 
 class TestBadPropertyConflictErrors:
@@ -159,7 +153,7 @@ class TestBadPropertyConflictErrors:
         with pytest.raises(SchemaDefinitionError):
 
             class MyObject(Object):
-                default: str = Property(String())
+                default = Property(String())
 
 
 class TestAdditionalPropertiesAsElement:

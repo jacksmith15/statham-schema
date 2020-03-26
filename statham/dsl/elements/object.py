@@ -59,7 +59,9 @@ class Object(metaclass=ObjectMeta):
         self.additional_properties = {}
         for attr_name, property_ in self.properties.items():
             setattr(
-                self, attr_name, property_(value.pop(attr_name, NotPassed()))
+                self,
+                attr_name,
+                property_(value.pop(property_.source, NotPassed())),
             )
         if value and self.options.additionalProperties is False:
             raise ValidationError(

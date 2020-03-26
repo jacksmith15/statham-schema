@@ -25,6 +25,9 @@ class ObjectOptions(Generic[AdditionalPropType]):
         return self.additionalProperties == other.additionalProperties
 
 
+RESERVED_PROPERTIES = dir(object) + ["default", "options", "properties"]
+
+
 class ObjectClassDict(dict):
     """Overriden class dictionary for the metaclass of Object.
 
@@ -43,17 +46,15 @@ class ObjectClassDict(dict):
         )
 
     def __setitem__(self, key, value):
+        if key in RESERVED_PROPERTIES and isinstance(value, _Property):
+            raise SchemaDefinitionError.reserved_attribute(key)
         if key == "default":
-            if isinstance(value, _Property):
-                raise SchemaDefinitionError.reserved_attribute("default")
             self.default = value
         if key == "options":
-            if isinstance(value, _Property):
-                raise SchemaDefinitionError.reserved_attribute("options")
             self.options = value
         if isinstance(value, _Property):
             value.bind_name(key)
-            return self.properties.__setitem__(value.name or key, value)
+            return self.properties.__setitem__(key, value)
         return super().__setitem__(key, value)
 
 

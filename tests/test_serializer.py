@@ -41,7 +41,7 @@ class Parent(Object):
 
     category: Category = Property(Category, required=True)
 
-    _default: Maybe[str] = Property(String(), name='default')
+    _default: Maybe[str] = Property(String(), source='default')
 
 
 class Other(Object):
