@@ -74,6 +74,18 @@ def _is_date_time(value: str) -> bool:
 Validator = Callable[[Any, Any], None]
 
 
+def _is_instance(value, type_args):
+    """Variant of isinstance to handle booleans correctly.
+
+    In CPython, isinstance(True, int) evaluates True.
+    """
+    if isinstance(value, bool):
+        if bool in type_args:
+            return True
+        return False
+    return isinstance(value, type_args)
+
+
 def on_types(*type_args: Type) -> Callable[[Validator], Validator]:
     """Decorator factory to limit scope of validators to given types."""
 
@@ -81,7 +93,7 @@ def on_types(*type_args: Type) -> Callable[[Validator], Validator]:
         """Return a wrapped version of `validator` to negotiate type."""
 
         def _inner_validator(value, property_) -> None:
-            if not isinstance(value, type_args):
+            if not _is_instance(value, type_args):
                 return
             validator(value, property_)
 

@@ -44,15 +44,6 @@ class Array(Element[List[Item]]):
     def type_validator(self):
         return val.instance_of(list)
 
-    @property
-    def validators(self):
-        validators = super().validators
-        if not isinstance(self.minItems, NotPassed):
-            validators.append(val.min_items(self.minItems))
-        if not isinstance(self.maxItems, NotPassed):
-            validators.append(val.max_items(self.maxItems))
-        return validators
-
     def construct(self, value, property_):
         return [
             self.items(item, property_.evolve(property_.name + f"[{idx}]"))

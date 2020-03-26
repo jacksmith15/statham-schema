@@ -1,4 +1,4 @@
-from typing import List, TypeVar, Union
+from typing import TypeVar, Union
 
 from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
@@ -36,21 +36,6 @@ class NumericElement(Element[T]):
         self.exclusiveMinimum = exclusiveMinimum
         self.exclusiveMaximum = exclusiveMaximum
         self.multipleOf = multipleOf
-
-    @property
-    def validators(self):
-        validators: List[val.Validator] = super().validators
-        if not isinstance(self.minimum, NotPassed):
-            validators.append(val.minimum(self.minimum))
-        if not isinstance(self.maximum, NotPassed):
-            validators.append(val.maximum(self.maximum))
-        if not isinstance(self.exclusiveMinimum, NotPassed):
-            validators.append(val.exclusive_minimum(self.exclusiveMinimum))
-        if not isinstance(self.exclusiveMaximum, NotPassed):
-            validators.append(val.exclusive_maximum(self.exclusiveMaximum))
-        if not isinstance(self.multipleOf, NotPassed):
-            validators.append(val.multiple_of(self.multipleOf))
-        return validators
 
 
 class Integer(NumericElement[int]):
