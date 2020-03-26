@@ -59,3 +59,18 @@ class SchemaParseError(StathamError):
             "Schema document has an unresolvable declaration tree. This "
             "generally occurs due to cyclical references."
         )
+
+    @classmethod
+    def invalid_type(cls, value):
+        return cls(f"Got invalid type keyword: {value}.")
+
+
+class FeatureNotImplementedError(SchemaParseError):
+    """Functionality not yet implemented."""
+
+    @classmethod
+    def multiple_composition_keywords(cls) -> "FeatureNotImplementedError":
+        return cls(
+            "Schema has multiple composition keywords. "
+            "This is not yet supported."
+        )
