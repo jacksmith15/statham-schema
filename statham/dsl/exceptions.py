@@ -12,6 +12,7 @@ class SchemaDefinitionError(StathamError):
 
     @classmethod
     def reserved_attribute(cls, attribute_name: str) -> "SchemaDefinitionError":
+        # TODO: Default to underscore after not before.
         return cls(
             f"May not use reserved attribute `{attribute_name}` as a property "
             "attribute name. Instead use "
