@@ -20,7 +20,7 @@ Types of changes are:
 * Added support for `self` as a property name in object schemas.
 
 ### Changed
-* Moved bulk to python serialization logic to DSL element methods.
+* Moved bulk of python serialization logic to DSL element methods.
 
 ## [0.2.0] - 2020-03-20
 ### Added
