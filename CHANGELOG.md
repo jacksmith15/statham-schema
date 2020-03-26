@@ -14,11 +14,13 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
-* Added `source` keyword argument to `Property`. This allows mapping of input
-  properties to differeing model attribute names.
+* Added `source` keyword argument to `Property`. This allows mapping
+  of input properties to differeing model attribute names.
 * Added support for `additionalProperties` keyword argument.
 * Added support for `default` as a property name in object schemas.
 * Added support for `self` as a property name in object schemas.
+* Added support for `default` and validation keywords in un-typed
+  schemas.
 
 ### Changed
 * Moved bulk of python serialization logic to DSL element methods.
