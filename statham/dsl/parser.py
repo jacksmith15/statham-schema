@@ -94,7 +94,7 @@ def parse_element(
     if {"anyOf", "oneOf"} & set(schema):
         return parse_composition(schema, counter)
     if "type" not in schema:
-        return Element()
+        return Element(**keyword_filter(Element)(schema))
     return parse_typed(schema["type"], schema, counter)
 
 

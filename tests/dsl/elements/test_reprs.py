@@ -55,6 +55,9 @@ class ObjectWrapper(Object):
         ),
         (String(), "String()"),
         (String(pattern=".*"), "String(pattern='.*')"),
+        (Element(), "Element()"),
+        (Element(default="foo"), "Element(default='foo')"),
+        (Element(minimum=1), "Element(minimum=1)"),
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
         (

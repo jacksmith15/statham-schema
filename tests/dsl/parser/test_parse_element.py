@@ -16,3 +16,25 @@ def test_parsing_schema_with_unknown_fields_ignores_them():
 def test_parsing_schema_with_bad_type_raises():
     with pytest.raises(SchemaParseError):
         parse_element({"type": {}})
+
+
+def test_parse_element_with_arguments():
+    schema = {
+        "default": "foo",
+        "minItems": 3,
+        "maxItems": 5,
+        "minimum": 3,
+        "maximum": 5,
+        "minLength": 3,
+        "maxLength": 5,
+    }
+    expected = Element(
+        default="foo",
+        minItems=3,
+        maxItems=5,
+        minimum=3,
+        maximum=5,
+        minLength=3,
+        maxLength=5,
+    )
+    assert parse_element(schema) == expected

@@ -3,7 +3,7 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import AnyOf, Array, Element, Integer, OneOf, String
-from statham.dsl.exceptions import FeatureNotImplementedError
+from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
 from statham.dsl.parser import parse_composition, parse_element
 
 
@@ -92,3 +92,23 @@ def test_parse_composition_fails_with_no_composition_keywords():
 def test_parse_single_list_typed_schema_returns_one_type():
     parsed = parse_element({"type": ["string"]})
     assert parsed == String()
+
+
+class TestPrimitiveCompositionWithOuterKeywords:
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def element():
+        schema = {
+            "type": "integer",
+            "oneOf": [
+                {"minimum": 1, "maximum": 3},
+                {"minimum": 2, "maximum": 4},
+            ],
+        }
+        return parse_element(schema)
+
+    @staticmethod
+    @pytest.mark.xfail(reason="Not implemented", strict=True)
+    def test_element_validates_type(element):
+        with pytest.raises(ValidationError):
+            element(3.5)

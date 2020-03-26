@@ -1,13 +1,19 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from typing import Any, Callable, List, Generic, TypeVar
+from typing import Any, Callable, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
+from statham.dsl.validators import SCHEMA_ATTRIBUTE_VALIDATORS
+
 
 T = TypeVar("T")
 
+Numeric = Union[int, float]
 
+
+# This emulates the options available to a general JSONSchema object.
+# pylint: disable=too-many-instance-attributes
 class Element(Generic[T]):
     """Schema element for composing instantiation logic.
 
@@ -15,10 +21,43 @@ class Element(Generic[T]):
     type when called.
     # TODO: enum
     # TODO: const
-    # TODO: type-specific keywords don't apply to element.
     """
 
-    default: Any = NotPassed()
+    def __init__(
+        self,
+        *,
+        # Bad name to match JSONSchema keywords.
+        # pylint: disable=invalid-name
+        default: Maybe[Any] = NotPassed(),
+        minItems: Maybe[int] = NotPassed(),
+        maxItems: Maybe[int] = NotPassed(),
+        minimum: Maybe[Numeric] = NotPassed(),
+        maximum: Maybe[Numeric] = NotPassed(),
+        exclusiveMinimum: Maybe[Numeric] = NotPassed(),
+        exclusiveMaximum: Maybe[Numeric] = NotPassed(),
+        multipleOf: Maybe[Numeric] = NotPassed(),
+        # Bad name to match JSONSchema keywords.
+        # pylint: disable=redefined-builtin
+        format: Maybe[str] = NotPassed(),
+        # pylint: enable=redefined-builtin
+        pattern: Maybe[str] = NotPassed(),
+        minLength: Maybe[int] = NotPassed(),
+        maxLength: Maybe[int] = NotPassed(),
+    ):
+        # Bad name to match JSONSchema keywords.
+        # pylint: disable=invalid-name
+        self.default = default
+        self.minItems = minItems
+        self.maxItems = maxItems
+        self.minimum = minimum
+        self.maximum = maximum
+        self.exclusiveMinimum = exclusiveMinimum
+        self.exclusiveMaximum = exclusiveMaximum
+        self.multipleOf = multipleOf
+        self.format = format
+        self.pattern = pattern
+        self.minLength = minLength
+        self.maxLength = maxLength
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
@@ -48,7 +87,12 @@ class Element(Generic[T]):
 
     @property
     def validators(self) -> List[Callable]:
-        return [self.type_validator]
+        validators = [self.type_validator]
+        for key, value in vars(self).items():
+            validator = SCHEMA_ATTRIBUTE_VALIDATORS.get(key)
+            if validator and value != NotPassed():
+                validators.append(validator(value))
+        return validators
 
     # Default implementation doesn't need self.
     # pylint: disable=no-self-use
