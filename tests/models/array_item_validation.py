@@ -10,6 +10,7 @@ from statham.dsl.elements import (
     Number,
     OneOf,
     Object,
+    ObjectOptions,
     String,
 )
 from statham.dsl.property import Property

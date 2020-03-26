@@ -10,6 +10,7 @@ from statham.dsl.elements import (
     Number,
     OneOf,
     Object,
+    ObjectOptions,
     String,
 )
 from statham.dsl.property import Property
@@ -17,20 +18,28 @@ from statham.dsl.property import Property
 
 class ListOfStringsItem(Object):
 
+    options = ObjectOptions(additionalProperties=False)
+
     string_property: Maybe[str] = Property(String())
 
 
 class ListOfIntegersItem(Object):
+
+    options = ObjectOptions(additionalProperties=False)
 
     integer_property: Maybe[int] = Property(Integer())
 
 
 class ListAnyOfItem0(Object):
 
+    options = ObjectOptions(additionalProperties=False)
+
     string_prop: Maybe[str] = Property(String())
 
 
 class ListAnyOfItem1(Object):
+
+    options = ObjectOptions(additionalProperties=False)
 
     integer_prop: Maybe[int] = Property(Integer())
 

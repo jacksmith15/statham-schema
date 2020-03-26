@@ -12,10 +12,12 @@ class SchemaDefinitionError(StathamError):
 
     @classmethod
     def reserved_attribute(cls, attribute_name: str) -> "SchemaDefinitionError":
+        # TODO: Default to underscore after not before.
         return cls(
             f"May not use reserved attribute `{attribute_name}` as a property "
             "attribute name. Instead use "
-            f"`_{attribute_name} = Property(<element>, name='{attribute_name}'`"
+            f"`_{attribute_name} = Property(<element>, "
+            f"source='{attribute_name}'`"
         )
 
 
@@ -57,3 +59,22 @@ class SchemaParseError(StathamError):
             "Schema document has an unresolvable declaration tree. This "
             "generally occurs due to cyclical references."
         )
+
+    @classmethod
+    def invalid_type(cls, value):
+        return cls(f"Got invalid type keyword: {value}.")
+
+
+class FeatureNotImplementedError(SchemaParseError):
+    """Functionality not yet implemented."""
+
+    @classmethod
+    def multiple_composition_keywords(cls) -> "FeatureNotImplementedError":
+        return cls(
+            "Schema has multiple composition keywords. "
+            "This is not yet supported."
+        )
+
+    @classmethod
+    def tuple_array_items(cls) -> "FeatureNotImplementedError":
+        return cls("Tuple array items are not supported.")

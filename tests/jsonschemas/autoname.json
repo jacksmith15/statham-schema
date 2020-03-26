@@ -7,6 +7,7 @@
             "type": "array",
             "items": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "string_property": {"type": "string"}
                 }
@@ -16,6 +17,7 @@
             "type": "array",
             "items": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "integer_property": {"type": "integer"}
                 }
@@ -27,12 +29,14 @@
                 "anyOf": [
                     {
                         "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                             "string_prop": {"type": "string"}
                         }
                     },
                     {
                         "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                             "integer_prop": {"type": "integer"}
                         }

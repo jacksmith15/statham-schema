@@ -11,17 +11,17 @@ class _Property(Generic[PropType]):
     """Descriptor for a property on an object."""
 
     required: bool
-    name: str
     parent: Any
     element: Element[PropType]
-    bound_name: Optional[str]
+    name: Optional[str]
+    source: Optional[str]
 
     def __init__(
         self,
         element: Element[PropType],
         *,
         required: bool = False,
-        name: str = None
+        source: str = None
     ):
         ...
 
@@ -57,6 +57,6 @@ UNBOUND_PROPERTY: _Property
 def Property(
     element: Element[PropType],
     required: bool = False,
-    name: str = None
+    source: str = None
 ) -> PropType:
     ...

@@ -15,9 +15,10 @@ class Element(Generic[T]):
     type when called.
     # TODO: enum
     # TODO: const
+    # TODO: type-specific keywords don't apply to element.
     """
 
-    default: Any
+    default: Any = NotPassed()
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
@@ -40,9 +41,6 @@ class Element(Generic[T]):
     @property
     def annotation(self) -> str:
         return "Any"
-
-    def python(self) -> str:
-        return repr(self)
 
     @property
     def type_validator(self):

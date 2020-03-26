@@ -16,8 +16,8 @@ from statham.dsl.property import Property
 
 
 class RenamedProperty(Object):
-    renamed = Property(String(), name="default")
-    not_renamed = Property(String(), name="not_renamed")
+    renamed = Property(String(), source="default")
+    not_renamed = Property(String(), source="not_renamed")
 
 
 class StringWrapper(Object):
@@ -58,8 +58,8 @@ class ObjectWrapper(Object):
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
         (
-            RenamedProperty.properties["default"],
-            "_Property(String(), name='default')",
+            RenamedProperty.properties["renamed"],
+            "_Property(String(), source='default')",
         ),
         (RenamedProperty.properties["not_renamed"], "_Property(String())"),
     ],

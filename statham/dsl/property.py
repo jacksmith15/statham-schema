@@ -20,24 +20,21 @@ class _Property(Generic[PropType]):
     required: bool
     parent: Any
     element: Element
-    bound_name: Optional[str]
+    source: Optional[str]
+    name: Optional[str]
 
     def __init__(
         self,
         element: Element[PropType],
         *,
         required: bool = False,
-        name: str = None,
+        source: str = None,
     ):
         self.element = element
         self.required = required
-        self._name: Optional[str] = name
-        self.bound_name: Optional[str] = None
+        self.name: Optional[str] = None
+        self.source: Optional[str] = source
         self.parent = None
-
-    @property
-    def name(self) -> Optional[str]:
-        return self._name or self.bound_name
 
     def __eq__(self, other):
         if not isinstance(other, _Property):
@@ -47,14 +44,16 @@ class _Property(Generic[PropType]):
     def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""
         property_: _Property[PropType] = _Property(
-            element=self.element, required=self.required, name=self._name
+            element=self.element, required=self.required, source=self.source
         )
         property_.bind_name(name)
         property_.bind_class(self.parent)
         return property_
 
     def bind_name(self, name: str):
-        self.bound_name = name
+        if not self.source:
+            self.source = name
+        self.name = name
 
     def bind_class(self, parent: Any):
         self.parent = parent
@@ -71,8 +70,8 @@ class _Property(Generic[PropType]):
 
     def __repr__(self):
         repr_args = custom_repr_args(self)
-        if self.name == self.bound_name:
-            _ = repr_args.kwargs.pop("name")
+        if self.source == self.name:
+            _ = repr_args.kwargs.pop("source")
         return f"{self.__class__.__name__}{repr(repr_args)}"
 
     @property
@@ -86,21 +85,20 @@ class _Property(Generic[PropType]):
     def python(self) -> str:
         prop_def = repr(self).replace(type(self).__name__, Property.__name__)
         return (
-            (f"{self.bound_name}: {self.annotation} = {prop_def}")
-            if self.bound_name
+            (f"{self.name}: {self.annotation} = {prop_def}")
+            if self.name
             else prop_def
         )
 
 
-UNBOUND_PROPERTY: _Property = _Property(
-    Element(), required=False, name="<unbound>"
-)
+UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
+UNBOUND_PROPERTY.bind_name("<unbound>")
 UNBOUND_PROPERTY.bind_class(Element())
 
 
 # Behaves as a wrapper for the `_Property` class.
 # pylint: disable=invalid-name
-def Property(element: Element, *, required: bool = False, name: str = None):
+def Property(element: Element, *, required: bool = False, source: str = None):
     """Descriptor for adding a property when declaring an object schema model.
 
     Return value is typed to inform instance-level interface. See type stubs of
@@ -110,10 +108,10 @@ def Property(element: Element, *, required: bool = False, name: str = None):
     :param required: Whether this property is required. If false, then this
         field may be omitted when data is passed to the outer object's
         constructor.
-    :param name: The name of this property. Only necessary if it must differ
-        from that of the attribute, for example when the property name conflicts
-        with a reserved keyword. For example, to express a property called
-        `default`, one could do the following:
+    :param source: The source name of this property. Only necessary if it must
+        differ from that of the attribute, for example when the property name
+        conflicts with a reserved keyword. For example, to express a property
+        called `default`, one could do the following:
         ```python
         class MyObject(Object):
 
@@ -121,9 +119,7 @@ def Property(element: Element, *, required: bool = False, name: str = None):
             default = {"default": "string"}
 
             # Property called default
-            _default: str = Property(String(), name="default")
+            _default: str = Property(String(), source="default")
         ```
-        However, note that overriding the property name will confuse static
-        type checking.
     """
-    return _Property(element, required=required, name=name)
+    return _Property(element, required=required, source=source)
