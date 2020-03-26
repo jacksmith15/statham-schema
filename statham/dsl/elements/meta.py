@@ -12,7 +12,7 @@ class ObjectOptions:
 
     additionalProperties: Optional[Element]
 
-    def __init__(self, *, additionalProperties: Union[Element, bool] = False):
+    def __init__(self, *, additionalProperties: Union[Element, bool] = True):
         # Name used to match JSONSchema.
         # pylint: disable=invalid-name
         if additionalProperties is False:
@@ -29,8 +29,10 @@ class ObjectOptions:
 
     def __repr__(self):
         args = custom_repr_args(self)
-        if args.kwargs["additionalProperties"] is None:
+        if args.kwargs["additionalProperties"] == Element():
             del args.kwargs["additionalProperties"]
+        if args.kwargs["additionalProperties"] is None:
+            args.kwargs["additionalProperties"] = False
         return f"{type(self).__name__}{repr(args)}"
 
 

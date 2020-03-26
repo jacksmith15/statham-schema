@@ -26,8 +26,10 @@ class ObjectWrapper(Object):
     obj: StringWrapper = Property(StringWrapper, required=True)
 
 
-@pytest.mark.parametrize("param", [dict(value="foo")])
-def test_string_wrapper_vaccepts_valid_arguments(param):
+@pytest.mark.parametrize(
+    "param", [dict(value="foo"), dict(value="foo", other_value="anything")]
+)
+def test_string_wrapper_accepts_valid_arguments(param):
     with no_raise():
         _ = StringWrapper(param)
 
@@ -73,7 +75,6 @@ def test_list_wrapper_assigns_not_assed_correctly():
         dict(list_of_stuff=[{"value": 1}]),
         dict(list_of_stuff=["foo", {"value": 1}]),
         dict(list_of_stuff=[1, {"value": "foo"}]),
-        dict(not_a="property"),
     ],
 )
 def test_list_wrapper_fails_on_invalid_arguments(param):
@@ -129,7 +130,9 @@ def test_object_annotation():
 
 class TestRenamedProperties:
     class PropertyRename(Object):
+
         default = {"default": "string"}
+        options = ObjectOptions(additionalProperties=False)
 
         _default = Property(String(), source="default")
 

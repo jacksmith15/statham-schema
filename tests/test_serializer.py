@@ -1,5 +1,7 @@
+import pytest
+
 from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, String
+from statham.dsl.elements import Object, ObjectOptions, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
 from statham.serializer import _IMPORT_STATEMENTS, serialize_python
@@ -75,7 +77,7 @@ def test_parse_and_serialize_schema_with_no_args():
     )
 
 
-def test_parse_and_serialize_schema_with_options():
+def test_parse_and_serialize_schema_with_additional_options_element():
     schema = {
         "type": "object",
         "title": "StringContainer",
@@ -143,5 +145,18 @@ def test_serialize_object_wrapper_object():
         == """class ObjectWrapper(Object):
 
     value: Maybe[StringWrapper] = Property(StringWrapper)
+"""
+    )
+
+
+@pytest.mark.parametrize("additional_properties", [String(), False])
+def test_serialize_object_with_additional_options(additional_properties):
+    class AdditionalPropObject(Object):
+        options = ObjectOptions(additionalProperties=additional_properties)
+
+    assert AdditionalPropObject.python() == (
+        f"""class AdditionalPropObject(Object):
+
+    options = ObjectOptions(additionalProperties={additional_properties})
 """
     )
