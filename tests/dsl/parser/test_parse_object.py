@@ -3,6 +3,7 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import Element, Object, ObjectOptions, String
+from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.parser import parse_element
 from statham.dsl.property import Property
 
@@ -128,3 +129,8 @@ def test_parse_object_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
     assert parse_element(schema) == expected
+
+
+def test_parse_object_with_no_title_raises():
+    with pytest.raises(SchemaParseError):
+        parse_element({"type": "object"})

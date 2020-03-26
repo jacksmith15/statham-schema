@@ -206,7 +206,7 @@ def parse_array(
     counter = counter or name_counter()
     items = schema.get("items", {})
     if isinstance(items, list):
-        raise SchemaParseError(f"Tuple array items are not supported.")
+        raise FeatureNotImplementedError.tuple_array_items()
     schema["items"] = parse_element(items, counter)
     return Array(**keyword_filter(Array)(schema))
 

@@ -74,3 +74,7 @@ class FeatureNotImplementedError(SchemaParseError):
             "Schema has multiple composition keywords. "
             "This is not yet supported."
         )
+
+    @classmethod
+    def tuple_array_items(cls) -> "FeatureNotImplementedError":
+        return cls("Tuple array items are not supported.")
