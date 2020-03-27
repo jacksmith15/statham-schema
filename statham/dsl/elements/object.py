@@ -1,7 +1,6 @@
 from typing import Any, ClassVar, Dict
 
 from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
-from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
 from statham.dsl.constants import NotPassed
 

@@ -50,11 +50,13 @@ class Element(Generic[T]):
     # TODO: composition?
     """
 
+    # This is how many options there are!
+    # pylint: disable=too-many-locals
     def __init__(
         self,
         *,
         # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
+        # pylint: disable=invalid-name,redefined-builtin
         default: Maybe[Any] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
@@ -63,15 +65,12 @@ class Element(Generic[T]):
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
         exclusiveMaximum: Maybe[Numeric] = NotPassed(),
         multipleOf: Maybe[Numeric] = NotPassed(),
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=redefined-builtin
         format: Maybe[str] = NotPassed(),
-        # pylint: enable=redefined-builtin
         pattern: Maybe[str] = NotPassed(),
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
         required: Maybe[List[str]] = NotPassed(),
-        properties: Maybe[Dict[str, "Element"]] = NotPassed(),
+        properties: Maybe[Dict[str, "_Property"]] = NotPassed(),
         additionalProperties: Maybe["Element"] = NotPassed(),
     ):
         # Bad name to match JSONSchema keywords.
@@ -90,6 +89,10 @@ class Element(Generic[T]):
         self.maxLength = maxLength
         self.required = required
         self.properties = properties
+        if isinstance(self.properties, dict):
+            for name, prop in (self.properties or {}).items():
+                prop.bind_class(type(self))
+                prop.bind_name(name)
         self.additionalProperties = additionalProperties
 
     def __repr__(self):
@@ -149,14 +152,16 @@ class Element(Generic[T]):
 
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
-from statham.dsl.property import UNBOUND_PROPERTY
+from statham.dsl.property import _Property, UNBOUND_PROPERTY
 
 
 def object_constructor(
-    properties: Maybe[Dict[str, Element]] = NotPassed(),
+    properties: Maybe[Dict[str, _Property]] = NotPassed(),
 ) -> Callable[[dict], _AnonymousObject]:
     """Recursively construct and validate sub-properties of object input."""
-    default_properties: DefaultDict[str, Element] = defaultdict(Element)
+    default_properties: DefaultDict[str, _Property] = defaultdict(
+        lambda: _Property(Element())
+    )
     if not isinstance(properties, NotPassed):
         default_properties.update(properties)
 

@@ -3,7 +3,6 @@ from typing import Any, Generic, Optional, TypeVar
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr_args
-from statham.dsl.validation import Required
 
 
 PropType = TypeVar("PropType")
