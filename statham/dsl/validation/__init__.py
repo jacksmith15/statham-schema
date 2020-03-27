@@ -1,7 +1,7 @@
 from typing import Iterator, Type
 
 from statham.dsl.validation.array import MinItems, MaxItems
-from statham.dsl.validation.base import Validator
+from statham.dsl.validation.base import InstanceOf, Validator
 from statham.dsl.validation.numeric import (
     Minimum,
     Maximum,
@@ -19,9 +19,10 @@ def all_subclasses(klass: Type):
     )
 
 
-def validators(element) -> Iterator[Validator]:
-    """Get all validators relevant to a DSL element."""
+def get_validators(element) -> Iterator[Validator]:
     for validator_type in all_subclasses(Validator):
+        if validator_type is InstanceOf:
+            continue
         validator = validator_type.from_element(element)
         if validator:
             yield validator

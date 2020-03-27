@@ -14,13 +14,7 @@ from typing import (
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
-from statham.dsl.validation import Validator
-
-
-def all_subclasses(klass):
-    return set(klass.__subclasses__()).union(
-        [s for c in klass.__subclasses__() for s in all_subclasses(c)]
-    )
+from statham.dsl.validation import get_validators, InstanceOf, Validator
 
 
 T = TypeVar("T")
@@ -76,6 +70,7 @@ class Element(Generic[T]):
         pattern: Maybe[str] = NotPassed(),
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
+        required: Maybe[List[str]] = NotPassed(),
         properties: Maybe[Dict[str, "Element"]] = NotPassed(),
         additionalProperties: Maybe["Element"] = NotPassed(),
     ):
@@ -93,6 +88,7 @@ class Element(Generic[T]):
         self.pattern = pattern
         self.minLength = minLength
         self.maxLength = maxLength
+        self.required = required
         self.properties = properties
         self.additionalProperties = additionalProperties
 
@@ -119,34 +115,14 @@ class Element(Generic[T]):
         return "Any"
 
     @property
-    def type_validator(self):
-        return lambda _, __: None
+    def type_validator(self) -> Validator:
+        return InstanceOf()
 
     @property
-    def validators(self) -> List[Callable]:
-        validators = [self.type_validator] + [
-            validator
-            for validator in [
-                validator_type.from_element(self)
-                for validator_type in all_subclasses(Validator)
-            ]
-            if validator
-        ]
-        # for key, value in vars(self).items():
-        #     validator = SCHEMA_ATTRIBUTE_VALIDATORS.get(key)
-        #     if validator and value != NotPassed():
-        #         if key == "additionalProperties":
-        #             properties = (
-        #                 self.properties
-        #                 if isinstance(self.properties, dict)
-        #                 else {}
-        #             )
-        #             validators.append(
-        #                 validator(
-        #                     set(properties), bool(self.additionalProperties)
-        #                 )
-        #             )
-        #         validators.append(validator(value))
+    def validators(self) -> List[Validator]:
+        validators: List[Validator] = [self.type_validator] + list(
+            get_validators(self)
+        )
         return validators
 
     def construct(self, value, _property):

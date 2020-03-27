@@ -1,6 +1,6 @@
-from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
+from statham.dsl.validation import InstanceOf
 
 
 class String(Element[str]):
@@ -37,4 +37,4 @@ class String(Element[str]):
 
     @property
     def type_validator(self):
-        return val.instance_of(str)
+        return InstanceOf(str)

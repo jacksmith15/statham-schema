@@ -1,15 +1,15 @@
 import pytest
 
-from statham.dsl.validators import has_format
 from statham.dsl.constants import NotPassed
 from statham.dsl.property import UNBOUND_PROPERTY
+from statham.dsl.validation import Format
 
 
 def test_format_checker_warns_if_passed_unknown_format():
     with pytest.warns(RuntimeWarning):
         # False positive
         # pylint: disable=no-value-for-parameter
-        has_format("unknown-format")("foo", UNBOUND_PROPERTY)
+        Format("unknown-format")("foo", UNBOUND_PROPERTY)
 
 
 class TestNotPassed:

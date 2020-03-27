@@ -1,6 +1,6 @@
-from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
+from statham.dsl.validation import InstanceOf
 
 
 class Boolean(Element[bool]):
@@ -15,4 +15,4 @@ class Boolean(Element[bool]):
 
     @property
     def type_validator(self):
-        return val.instance_of(bool)
+        return InstanceOf(bool)
