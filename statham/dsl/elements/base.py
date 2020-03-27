@@ -36,60 +36,6 @@ class _AnonymousObject(dict):
         return self.__setitem__(key, value)
 
 
-def object_constructor(
-    properties: Maybe[Dict[str, Element]] = NotPassed(),
-) -> Callable[[dict], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of object input."""
-    default_properties: DefaultDict[str, Element] = defaultdict(Element)
-    if not isinstance(properties, NotPassed):
-        default_properties.update(properties)
-    props: Dict[str, Element] = properties if isinstance(
-        properties, dict
-    ) else {}
-
-    def get_element(key: str) -> Element:
-        try:
-            return props[key]
-        except KeyError:
-            if additionalProperties is True or isinstance(
-                additionalProperties, NotPassed
-            ):
-                return Element()
-            if additionalProperties is False:
-                raise AttributeError
-            if isinstance(additionalProperties, Element):
-                return additionalProperties
-            raise TypeError
-
-    def _constructor(value: Any) -> Any:
-        if not isinstance(value, dict):
-            return value
-        return _AnonymousObject(
-            {
-                key: get_element(key)(sub_value)
-                for key, sub_value in value.items()
-            }
-        )
-
-    return _constructor
-
-
-def array_constructor(
-    items: Maybe[Element] = NotPassed()
-) -> Callable[[dict], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of array input."""
-    items_element: Element = Element()
-    if isinstance(items, Element):
-        items_element = items
-
-    def _constructor(value: Any) -> Any:
-        if not isinstance(value, list):
-            return value
-        return [items_element(sub_value) for sub_value in value]
-
-    return _constructor
-
-
 # This emulates the options available to a general JSONSchema object.
 # pylint: disable=too-many-instance-attributes
 class Element(Generic[T]):
@@ -124,8 +70,8 @@ class Element(Generic[T]):
         pattern: Maybe[str] = NotPassed(),
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
-        properties: Maybe[Dict[str, Element]] = NotPassed(),
-        additionalProperties: Maybe[Element] = NotPassed(),
+        properties: Maybe[Dict[str, "Element"]] = NotPassed(),
+        additionalProperties: Maybe["Element"] = NotPassed(),
     ):
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
@@ -191,7 +137,8 @@ class Element(Generic[T]):
         return validators
 
     def construct(self, value, _property):
-        return object_constructor(self.properties)(value)
+        return value
+        # return object_constructor(self.properties)(value)
 
     def __call__(self, value, property_=None) -> Maybe[T]:
         """Validate and convert input data against the element.
@@ -214,3 +161,40 @@ class Element(Generic[T]):
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
 from statham.dsl.property import UNBOUND_PROPERTY
+
+
+def object_constructor(
+    properties: Maybe[Dict[str, Element]] = NotPassed(),
+) -> Callable[[dict], _AnonymousObject]:
+    """Recursively construct and validate sub-properties of object input."""
+    default_properties: DefaultDict[str, Element] = defaultdict(Element)
+    if not isinstance(properties, NotPassed):
+        default_properties.update(properties)
+
+    def _constructor(value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        return _AnonymousObject(
+            {
+                key: default_properties[key](sub_value)
+                for key, sub_value in value.items()
+            }
+        )
+
+    return _constructor
+
+
+def array_constructor(
+    items: Maybe[Element] = NotPassed()
+) -> Callable[[dict], _AnonymousObject]:
+    """Recursively construct and validate sub-properties of array input."""
+    items_element: Element = Element()
+    if isinstance(items, Element):
+        items_element = items
+
+    def _constructor(value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        return [items_element(sub_value) for sub_value in value]
+
+    return _constructor
