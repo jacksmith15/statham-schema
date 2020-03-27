@@ -101,6 +101,8 @@ def _attempt_schemas(
     results = [outcome.result for outcome in outcomes if not outcome.error]
     if results:
         return results
-    errors = ", ".join(filter(None, [outcome.error for outcome in outcomes]))
-    message = f"Does not match any accepted schema. Individual errors: {errors}"
-    raise ValidationError.from_validator(property_, value, message)
+    raise ValidationError.composite(
+        property_,
+        value,
+        [outcome.error for outcome in outcomes if outcome.error],
+    )

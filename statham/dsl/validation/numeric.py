@@ -26,7 +26,7 @@ class Maximum(Validator):
 class ExclusiveMinimum(Validator):
     types = (int, float)
     keywords = ("exclusiveMinimum",)
-    message = "Must be strictly greater than or equal to {exclusiveMinimum}."
+    message = "Must be strictly greater than {exclusiveMinimum}."
 
     def validate(self, value: Any):
         if value <= self.params["exclusiveMinimum"]:
@@ -36,7 +36,7 @@ class ExclusiveMinimum(Validator):
 class ExclusiveMaximum(Validator):
     types = (int, float)
     keywords = ("exclusiveMaximum",)
-    message = "Must be strictly less than or equal to {exclusiveMaximum}."
+    message = "Must be strictly less than {exclusiveMaximum}."
 
     def validate(self, value: Any):
         if value >= self.params["exclusiveMaximum"]:

@@ -9,7 +9,7 @@ from statham.dsl.validation.format import format_checker
 class Format(Validator):
     types = (str,)
     keywords = ("format",)
-    message = "Must match format described by '{format}'"
+    message = "Must match format described by '{format}'."
 
     def validate(self, value: Any):
         if not format_checker(self.params["format"], value):
@@ -42,8 +42,8 @@ class MinLength(Validator):
 class MaxLength(Validator):
     types = (str,)
     keywords = ("maxLength",)
-    message = "Must be at least {maxLength} characters long."
+    message = "Must be at most {maxLength} characters long."
 
     def validate(self, value: Any):
-        if len(value) < self.params["maxLength"]:
+        if len(value) > self.params["maxLength"]:
             raise ValidationError

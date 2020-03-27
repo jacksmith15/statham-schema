@@ -28,7 +28,7 @@ class Validator:
         self.params = dict(zip(self.keywords, args))
 
     @classmethod
-    def from_element(cls, element) -> Optional[Validator]:
+    def from_element(cls, element) -> Optional["Validator"]:
         params = tuple(
             getattr(element, keyword, NotPassed()) for keyword in cls.keywords
         )
@@ -54,17 +54,17 @@ class Validator:
             )
 
 
-class InstanceOf(Validator):
-    message = "Must be of type {type_names}."
+# class InstanceOf(Validator):
+#     message = "Must be of type {type_names}."
 
-    def __init__(self, *args):
-        super().__init__()
-        self.params["types"] = args or (object,)
-        names = (type_.__name__ for type_ in self.params["types"])
-        self.params["type_names"] = f"({','.join(names)})"
+#     def __init__(self, *args):
+#         super().__init__()
+#         self.params["types"] = args or (object,)
+#         names = (type_.__name__ for type_ in self.params["types"])
+#         self.params["type_names"] = f"({','.join(names)})"
 
-    def validate(self, value: Any):
-        if value == NotPassed():
-            return
-        if not _is_instance(value, self.params["types"]):
-            raise ValidationError
+#     def validate(self, value: Any):
+#         if value == NotPassed():
+#             return
+#         if not _is_instance(value, self.params["types"]):
+#             raise ValidationError
