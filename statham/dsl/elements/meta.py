@@ -67,7 +67,6 @@ class ObjectClassDict(dict):
         return super().__setitem__(key, value)
 
 
-# TODO: Handle properties called `default` or `self`.
 class ObjectMeta(type, Element):
     """Metaclass to allow declaring Object schemas as classes.
 

@@ -1,7 +1,7 @@
 from functools import wraps
 from logging import getLogger
 import re
-from typing import Any, Callable, Dict, Type, Union
+from typing import Any, Callable, Container, Dict, Type, Union
 from uuid import UUID
 import warnings
 
@@ -261,6 +261,19 @@ def required(is_required: bool) -> Validator:
     return _required
 
 
+def additional_properties(
+    properties: Container[str], additional_allowed: bool
+) -> Validator:
+    @on_types(dict)
+    @raises(f"Invalid properties supplied.")
+    def _additional_props(value, _property):
+        additional = set(value) - properties
+        if additional and not additional_allowed:
+            raise ValidationError
+
+    return _additional_props
+
+
 SCHEMA_ATTRIBUTE_VALIDATORS: Dict[str, Callable] = {
     "minItems": min_items,
     "maxItems": max_items,
@@ -273,5 +286,6 @@ SCHEMA_ATTRIBUTE_VALIDATORS: Dict[str, Callable] = {
     "pattern": pattern,
     "minLength": min_length,
     "maxLength": max_length,
+    "additionalProperties": additional_properties,
 }
 """Mapping of JSON Schema keywords to validators."""

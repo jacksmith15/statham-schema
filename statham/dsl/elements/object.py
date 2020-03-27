@@ -22,7 +22,6 @@ class Object(metaclass=ObjectMeta):
 
     poll = Poll({"questions": ["What's up?"]})
     ```
-    # TODO: additionalProperties
     # TODO: patternProperties
     # TODO: propertyNames
     # TODO: minProperties
