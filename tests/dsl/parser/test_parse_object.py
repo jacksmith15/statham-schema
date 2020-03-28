@@ -3,8 +3,9 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import Element, Object, ObjectOptions, String
+from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
-from statham.dsl.parser import parse_element
+from statham.dsl.parser import name_counter, parse_element
 from statham.dsl.property import Property
 
 
@@ -134,3 +135,28 @@ def test_parse_object_produces_expected_element(
 def test_parse_object_with_no_title_raises():
     with pytest.raises(SchemaParseError):
         parse_element({"type": "object"})
+
+
+def test_parse_object_with_same_name_are_enumerated():
+    schema = {
+        "type": "object",
+        "title": "Name",
+        "additionalProperties": {"type": "object", "title": "Name"},
+    }
+    element = parse_element(schema)
+    assert isinstance(element, ObjectMeta)
+    assert element.__name__ == "Name_1"
+    assert isinstance(element.options.additionalProperties, ObjectMeta)
+    assert element.options.additionalProperties.__name__ == "Name"
+
+
+def test_name_counter():
+    counter = name_counter()
+    assert bool(counter)
+
+    def next_name(name):
+        return next(counter[name])
+
+    names = ["first_name", "first_name", "second_name", "first_name"]
+    name_counts = list(map(next_name, names))
+    assert name_counts == [0, 1, 0, 2]

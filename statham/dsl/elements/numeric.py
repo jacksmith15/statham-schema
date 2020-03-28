@@ -45,10 +45,6 @@ class Integer(NumericElement[int]):
     """
 
     @property
-    def annotation(self) -> str:
-        return "int"
-
-    @property
     def type_validator(self):
         return InstanceOf(int)
 
@@ -58,10 +54,6 @@ class Number(NumericElement[float]):
 
     Provides supported validation settings via keyword arguments.
     """
-
-    @property
-    def annotation(self) -> str:
-        return "float"
 
     @property
     def type_validator(self):

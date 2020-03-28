@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Dict, Iterator, List, Set
+from typing import cast, Dict, Iterator, List, Set
 
 
 from statham.dsl.elements import Array, CompositionElement, Element
@@ -24,7 +24,7 @@ def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
     if isinstance(element, ObjectMeta):
         return [element]
     if isinstance(element, Array):
-        return _get_dependent_object_elements(element.items)
+        return _get_dependent_object_elements(cast(Array, element).items)
     if isinstance(element, CompositionElement):
         return list(
             chain.from_iterable(

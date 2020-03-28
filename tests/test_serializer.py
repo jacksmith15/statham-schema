@@ -1,7 +1,9 @@
+from typing import Any
+
 import pytest
 
 from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, ObjectOptions, String
+from statham.dsl.elements import Element, Object, ObjectOptions, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
 from statham.serializer import _IMPORT_STATEMENTS, serialize_python
@@ -158,5 +160,33 @@ def test_serialize_object_with_additional_options(additional_properties):
         f"""class AdditionalPropObject(Object):
 
     options = ObjectOptions(additionalProperties={additional_properties})
+"""
+    )
+
+
+def test_serialize_object_with_untyped_property():
+    class MyObject(Object):
+
+        value: Any = Property(
+            Element(
+                default="foo",
+                minItems=3,
+                maxItems=5,
+                minimum=3,
+                maximum=5,
+                minLength=3,
+                maxLength=5,
+                required=["value"],
+                properties={"value": Property(String(), required=True)},
+                additionalProperties=String(),
+                items=String(),
+            )
+        )
+
+    assert (
+        MyObject.python()
+        == """class MyObject(Object):
+
+    value: Any = Property(Element(default='foo', items=String(), minItems=3, maxItems=5, minimum=3, maximum=5, minLength=3, maxLength=5, required=['value'], properties={'value': Property(String(), required=True)}, additionalProperties=String()))
 """
     )

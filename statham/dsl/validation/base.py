@@ -24,7 +24,10 @@ class Validator:
 
     def __init__(self, *args):
         if len(self.keywords) != len(args):
-            raise TypeError
+            raise TypeError(
+                f"{type(self).__name__}.__init__ takes exactly "
+                f"{len(self.keywords)} ({len(args)} given)"
+            )
         self.params = dict(zip(self.keywords, args))
 
     @classmethod

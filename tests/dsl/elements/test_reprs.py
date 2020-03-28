@@ -58,6 +58,11 @@ class ObjectWrapper(Object):
         (Element(), "Element()"),
         (Element(default="foo"), "Element(default='foo')"),
         (Element(minimum=1), "Element(minimum=1)"),
+        (Element(additionalProperties=True), "Element()"),
+        (
+            Element(additionalProperties=False),
+            "Element(additionalProperties=False)",
+        ),
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
         (

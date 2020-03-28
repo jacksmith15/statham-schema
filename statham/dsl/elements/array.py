@@ -19,6 +19,8 @@ class Array(Element[List[Item]]):
     # TODO: contains
     """
 
+    items: Element[Item]
+
     def __init__(
         self,
         items: Element[Item],

@@ -10,9 +10,5 @@ class Boolean(Element[bool]):
         self.default = default
 
     @property
-    def annotation(self) -> str:
-        return "bool"
-
-    @property
     def type_validator(self):
         return InstanceOf(bool)
