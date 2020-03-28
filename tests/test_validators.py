@@ -2,7 +2,8 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.property import UNBOUND_PROPERTY
-from statham.dsl.validation import Format
+from statham.dsl.validation import Format, Validator
+from tests.helpers import no_raise
 
 
 def test_format_checker_warns_if_passed_unknown_format():
@@ -24,3 +25,14 @@ class TestNotPassed:
     @staticmethod
     def test_not_passed_repr():
         assert repr(NotPassed()) == "NotPassed"
+
+
+@pytest.mark.parametrize("args", [[], ["uuid", "date-time"]])
+def test_that_validator_fails_if_bad_number_of_arguments_is_passed(args):
+    with pytest.raises(TypeError):
+        Format(*args)
+
+
+def test_that_base_validator_does_not_raise():
+    with no_raise():
+        Validator()(None, None)
