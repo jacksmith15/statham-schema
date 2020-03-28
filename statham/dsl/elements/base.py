@@ -32,8 +32,6 @@ class Element(Generic[T]):
     type when called.
     # TODO: enum
     # TODO: const
-    # TODO: items
-    # TODO: properties
     # TODO: composition?
     """
 
