@@ -1,6 +1,4 @@
-import pytest
-
-from statham.dsl.elements import Object
+from statham.dsl.elements import Element, Object
 from statham.dsl.parser import parse
 
 
@@ -18,7 +16,7 @@ def test_parser_detects_definitions():
     class Bar(Object):
         pass
 
-    assert parse(schema) == [Foo, Bar]
+    assert parse(schema) == [Element(), Foo, Bar]
 
 
 def test_parser_detect_top_level():
