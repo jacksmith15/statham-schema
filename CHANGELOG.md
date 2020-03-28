@@ -21,6 +21,9 @@ Types of changes are:
 * Added support for `self` as a property name in object schemas.
 * Added support for `default` and validation keywords in un-typed
   schemas.
+* Added support for array `items` keyword in un-typed schemas.
+* Added support for object `required`, `properties` and
+  `additionalProperties` keywords in un-typed schemas.
 
 ### Changed
 * Moved bulk of python serialization logic to DSL element methods.
