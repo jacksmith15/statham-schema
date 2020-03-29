@@ -220,9 +220,11 @@ def parse_object(
     properties = schema.get("properties", {})
     properties.update(
         {
-            key: _Property(Element(), required=True)
+            parse_attribute_name(key): _Property(
+                Element(), required=True, source=key
+            )
             for key in schema.get("required", [])
-            if key not in properties
+            if parse_attribute_name(key) not in properties
         }
     )
     class_dict = ObjectClassDict(

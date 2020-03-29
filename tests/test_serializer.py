@@ -162,6 +162,21 @@ def test_parse_and_serialize_schema_with_composition_keywords():
     )
 
 
+def test_and_parse_schema_with_bad_name():
+    schema = {
+        "type": "object",
+        "title": "BadName",
+        "required": ["$id"],
+        "properties": {"$id": {"type": "string"}},
+    }
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class BadName(Object):
+
+    dollar_sign_id: str = Property(String(), required=True, source='$id')
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"
