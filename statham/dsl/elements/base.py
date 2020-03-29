@@ -174,6 +174,7 @@ def object_constructor(
     additional_properties: Maybe[Union[Element, bool]] = NotPassed(),
 ) -> Callable[[Any], _AnonymousObject]:
     """Recursively construct and validate sub-properties of object input."""
+    # TODO: Use same `additional_properties` interface as on `Object`.
     default_prop: _Property = _Property(Element())
     if isinstance(additional_properties, Element):
         default_prop = _Property(additional_properties)

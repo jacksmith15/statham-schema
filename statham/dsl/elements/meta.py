@@ -31,7 +31,12 @@ class ObjectOptions:
         return custom_repr(self)
 
 
-RESERVED_PROPERTIES = dir(object) + ["default", "options", "properties"]
+RESERVED_PROPERTIES = dir(object) + [
+    "default",
+    "options",
+    "properties",
+    "additional_properties",
+]
 
 
 class ObjectClassDict(dict):

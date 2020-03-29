@@ -85,6 +85,7 @@ def _check_my_format(value: str) -> bool:
 - [x] Custom string format validation
 - [x] Remote references
 - [x] `anyOf`, `oneOf`
+- [x] `additionalProperties`
 - [ ] Tuple validation of arrays
 - [ ] Built-in string format validation #6
 - [ ] Generic keywords: `enum` #8, `const` #9
@@ -93,7 +94,7 @@ def _check_my_format(value: str) -> bool:
 - [ ] `minProperties`, `maxProperties` #15
 - [ ] Property dependencies
 - [ ] Schema dependencies
-- [ ] `propertyNames`, `patternProperties`, `additionalProperties` (This is  tricky with `attrs`)
+- [ ] `propertyNames`, `patternProperties`
 - [ ] `additionalItems` keyword
 - [ ] `if`, `then`, `else` keywords
 
