@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from statham.dsl.elements import Array, Object, String
+from statham.dsl.elements import Array, Element, Object, ObjectOptions, String
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import Property
@@ -93,3 +93,28 @@ class TestMultipleEntryPointOrdering:
     ):
         ordered = {elem: idx for idx, elem in enumerate(ordered_objects)}
         assert ordered[Parent] > ordered[Related]
+
+
+def test_orderer_detects_additional_properties_dependencies():
+    class AdditionalPropertiesParent(Object):
+        options = ObjectOptions(additionalProperties=Child)
+
+    assert list(Orderer(AdditionalPropertiesParent)) == [
+        Child,
+        AdditionalPropertiesParent,
+    ]
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(additionalProperties=Child),
+        dict(properties={"value": Property(Child)}),
+        dict(items=Child),
+    ],
+)
+def test_orderer_detects_untyped_object_dependencies(kwargs):
+    class UntypedParent(Object):
+        value = Property(Element(**kwargs))
+
+    assert list(Orderer(UntypedParent)) == [Child, UntypedParent]

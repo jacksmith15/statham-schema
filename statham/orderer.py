@@ -1,10 +1,11 @@
 from itertools import chain
-from typing import cast, Dict, Iterator, List, Set
+from typing import cast, Dict, Iterator, List, Set, Union
 
-
-from statham.dsl.elements import Array, CompositionElement, Element
+from statham.dsl.constants import Maybe, NotPassed
+from statham.dsl.elements import CompositionElement, Element, ObjectOptions
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
+from statham.dsl.property import _Property
 
 
 class ClassDef:
@@ -15,7 +16,7 @@ class ClassDef:
         self.depends: Set[str] = depends
 
 
-def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
+def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
     """Extract any elements which are required by this element.
 
     Recurses through the schema tree to extract both explicit and
@@ -23,8 +24,6 @@ def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
     """
     if isinstance(element, ObjectMeta):
         return [element]
-    if isinstance(element, Array):
-        return _get_dependent_object_elements(cast(Array, element).items)
     if isinstance(element, CompositionElement):
         return list(
             chain.from_iterable(
@@ -32,7 +31,26 @@ def _get_dependent_object_elements(element: Element) -> List[ObjectMeta]:
                 for sub_element in element.elements
             )
         )
-    return []
+    get_keyword = lambda kw: getattr(element, kw, NotPassed())
+    items: Maybe[Element] = get_keyword("items")
+    properties: Maybe[Dict[str, _Property]] = get_keyword("properties")
+    additional_properties: Maybe[Union[Element, bool]] = get_keyword(
+        "additionalProperties"
+    )
+    dependent: Set[ObjectMeta] = set()
+    if not isinstance(items, NotPassed):
+        dependent = dependent | set(_get_dependent_object_elements(items))
+    if not isinstance(properties, NotPassed):
+        dependent = dependent | {
+            dep
+            for prop in properties.values()  # pylint: disable=no-member
+            for dep in _get_dependent_object_elements(prop.element)
+        }
+    if not isinstance(additional_properties, (NotPassed, bool)):
+        dependent = dependent | set(
+            _get_dependent_object_elements(additional_properties)
+        )
+    return sorted(dependent, key=lambda obj_type: obj_type.__name__)
 
 
 def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:

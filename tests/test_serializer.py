@@ -116,6 +116,29 @@ class StringWrapperContainer(Object):
     )
 
 
+def test_parse_and_serialize_schema_with_untyped_dependency():
+    schema = {
+        "type": "object",
+        "title": "Foo",
+        "properties": {
+            "value": {
+                "additionalProperties": {"type": "object", "title": "Bar"}
+            }
+        },
+    }
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class Bar(Object):
+
+    pass
+
+
+class Foo(Object):
+
+    value: Maybe[Any] = Property(Element(additionalProperties=Bar))
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"

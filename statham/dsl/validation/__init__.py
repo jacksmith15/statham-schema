@@ -13,14 +13,21 @@ from statham.dsl.validation.object import AdditionalProperties, Required
 from statham.dsl.validation.string import MinLength, MaxLength, Format, Pattern
 
 
-def all_subclasses(klass: Type):
+def _all_subclasses(klass: Type):
+    """Get all explicit and implicit subclasses of a type."""
     return set(klass.__subclasses__()).union(
-        [s for c in klass.__subclasses__() for s in all_subclasses(c)]
+        [s for c in klass.__subclasses__() for s in _all_subclasses(c)]
     )
 
 
 def get_validators(element) -> Iterator[Validator]:
-    for validator_type in all_subclasses(Validator):
+    """Iterate all applicable validators for an DSL Element.
+
+    Validators identify whether they are applicable for an element via the
+    `from_element` class method. In general, this checks whether its
+    parameters are present on the element with correct values.
+    """
+    for validator_type in _all_subclasses(Validator):
         if validator_type is InstanceOf:
             continue
         validator = validator_type.from_element(element)

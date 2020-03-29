@@ -17,12 +17,17 @@ def _is_instance(value, type_args):
 
 
 class Validator:
+    """Base validator type.
+
+    Logic for given validation keywords may be implemented as subclasses.
+    """
 
     types: ClassVar[Optional[Tuple[Type, ...]]] = None
     message: ClassVar[str] = ""
     keywords: Tuple[str, ...] = tuple()
 
     def __init__(self, *args):
+        """Accepts the parameters specified by the `keywords` class variable."""
         if len(self.keywords) != len(args):
             raise TypeError(
                 f"{type(self).__name__}.__init__ takes exactly "
@@ -32,6 +37,11 @@ class Validator:
 
     @classmethod
     def from_element(cls, element) -> Optional["Validator"]:
+        """Construct validator from a DSL Element instance.
+
+        Check for attributes matching keywords for this validator. If
+        none are present, then return None.
+        """
         params = tuple(
             getattr(element, keyword, NotPassed()) for keyword in cls.keywords
         )
@@ -41,12 +51,25 @@ class Validator:
 
     # pylint: disable=no-self-use
     def validate(self, _value: Any):
+        """Validate a value.
+
+        Validation logic should be added by base classes, and raise a
+        bare `ValidationError` on a failure. The error message will be
+        automatically generated from the `message` class variable for
+        consistency.
+        """
         return
 
     def error_message(self):
+        """Generate the error message on failed validation."""
         return self.message.format(**self.params)
 
     def __call__(self, value: Any, property_: Any):
+        """Apply the validator to a value.
+
+        Checks that `value` has correct type for this validator, runs
+        validation logic and constructs the error message on failure.
+        """
         if self.types and not _is_instance(value, self.types):
             return
         try:
