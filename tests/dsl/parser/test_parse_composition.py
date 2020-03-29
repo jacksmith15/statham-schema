@@ -8,11 +8,13 @@ from statham.dsl.elements import (
     Array,
     Element,
     Integer,
+    Number,
     OneOf,
     String,
 )
 from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
 from statham.dsl.parser import parse_composition, parse_element
+from tests.helpers import no_raise
 
 
 @pytest.mark.parametrize("keyword", ["anyOf", "oneOf"])
@@ -27,7 +29,7 @@ def test_parse_composition_fails_with_empty_list(keyword):
     [
         pytest.param(
             {"anyOf": [{"type": "string"}]},
-            AnyOf(String()),
+            String(),
             id="anyOf-with-one-sub-element",
         ),
         pytest.param(
@@ -39,6 +41,16 @@ def test_parse_composition_fails_with_empty_list(keyword):
             },
             AnyOf(String(), Array(String())),
             id="anyOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {"type": "string", "anyOf": [{"minLength": 3}]},
+            AllOf(String(), Element(minLength=3)),
+            id="anyOf-with-one-sub-element-and-outer-type",
+        ),
+        pytest.param(
+            {"type": "string", "anyOf": [{"minLength": 3}, {"maxLength": 5}]},
+            AllOf(String(), AnyOf(Element(minLength=3), Element(maxLength=5))),
+            id="anyOf-with-multiple-sub-elements-and-outer-type",
         ),
         pytest.param(
             {
@@ -57,7 +69,7 @@ def test_parse_composition_fails_with_empty_list(keyword):
         ),
         pytest.param(
             {"oneOf": [{"type": "string"}]},
-            OneOf(String()),
+            String(),
             id="oneOf-with-one-sub-element",
         ),
         pytest.param(
@@ -71,9 +83,64 @@ def test_parse_composition_fails_with_empty_list(keyword):
             id="oneOf-with-multiple-sub-elements",
         ),
         pytest.param(
+            {"type": "string", "oneOf": [{"minLength": 3}]},
+            AllOf(String(), Element(minLength=3)),
+            id="oneOf-with-one-sub-element-and-outer-type",
+        ),
+        pytest.param(
+            {"type": "string", "oneOf": [{"minLength": 3}, {"maxLength": 5}]},
+            AllOf(String(), OneOf(Element(minLength=3), Element(maxLength=5))),
+            id="oneOf-with-multiple-sub-elements-and-outer-type",
+        ),
+        pytest.param(
+            {"allOf": [{"type": "string"}]},
+            String(),
+            id="allOf-with-one-sub-element",
+        ),
+        pytest.param(
             {"allOf": [{"type": "string"}, {"minLength": 3}]},
             AllOf(String(), Element(minLength=3)),
             id="allOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {"type": "string", "allOf": [{"minLength": 3}]},
+            AllOf(String(), Element(minLength=3)),
+            id="allOf-with-one-sub-element-and-outer-type",
+        ),
+        pytest.param(
+            {"type": "string", "allOf": [{"minLength": 3}, {"maxLength": 5}]},
+            AllOf(String(), Element(minLength=3), Element(maxLength=5)),
+            id="allOf-with-multiple-sub-elements-and-outer-type",
+        ),
+        pytest.param(
+            {
+                "oneOf": [{"minimum": 3}, {"maximum": 5}],
+                "anyOf": [{"type": "number"}, {"type": "integer"}],
+                "allOf": [{"minimum": 0}, {"maximum": 10}],
+            },
+            AllOf(
+                Element(minimum=0),
+                Element(maximum=10),
+                AnyOf(Number(), Integer()),
+                OneOf(Element(minimum=3), Element(maximum=5)),
+            ),
+            id="all-compositions-no-outer",
+        ),
+        pytest.param(
+            {
+                "maximum": 7,
+                "oneOf": [{"minimum": 3}, {"maximum": 5}],
+                "anyOf": [{"type": "number"}, {"type": "integer"}],
+                "allOf": [{"minimum": 0}, {"maximum": 10}],
+            },
+            AllOf(
+                Element(maximum=7),
+                Element(minimum=0),
+                Element(maximum=10),
+                AnyOf(Number(), Integer()),
+                OneOf(Element(minimum=3), Element(maximum=5)),
+            ),
+            id="all-compositions-with-outer",
         ),
     ],
 )
@@ -121,7 +188,25 @@ class TestPrimitiveCompositionWithOuterKeywords:
         return parse_element(schema)
 
     @staticmethod
-    @pytest.mark.xfail(reason="Not implemented", strict=True)
+    def test_element_is_parsed_correctly(element):
+        assert element == AllOf(
+            Integer(),
+            OneOf(Element(minimum=1, maximum=3), Element(minimum=2, maximum=4)),
+        )
+
+    @staticmethod
     def test_element_validates_type(element):
         with pytest.raises(ValidationError):
-            element(3.5)
+            _ = element(3.5)
+
+    @staticmethod
+    @pytest.mark.parametrize("value", [2, 3])
+    def test_element_fails_on_bad_value(element, value):
+        with pytest.raises(ValidationError):
+            _ = element(value)
+
+    @staticmethod
+    @pytest.mark.parametrize("value", [1, 4])
+    def test_element_accepts_correct_value(element, value):
+        with no_raise():
+            _ = element(value)
