@@ -6,6 +6,7 @@ from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import (
+    AllOf,
     AnyOf,
     Array,
     Boolean,
@@ -95,7 +96,7 @@ def parse_element(schema: Dict[str, Any], state: ParseState = None) -> Element:
     if "items" in schema:
         schema["items"] = parse_items(schema, state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
-    if {"anyOf", "oneOf"} & set(schema):
+    if {"anyOf", "oneOf", "allOf"} & set(schema):
         return parse_composition(schema, state)
     if "type" not in schema:
         return Element(**keyword_filter(Element)(schema))
@@ -113,7 +114,7 @@ def parse_composition(
         are present.
     """
     state = state or ParseState()
-    intersect = {"anyOf", "oneOf"} & set(schema)
+    intersect = {"anyOf", "oneOf", "allOf"} & set(schema)
     element_type: Type[CompositionElement]
     if intersect == {"anyOf"}:
         element_type = AnyOf
@@ -121,6 +122,9 @@ def parse_composition(
     elif intersect == {"oneOf"}:
         element_type = OneOf
         sub_schemas = schema["oneOf"]
+    elif intersect == {"allOf"}:
+        element_type = AllOf
+        sub_schemas = schema["allOf"]
     elif not intersect:
         raise ValueError(
             "Schema passed to `parse_composition` has no supported "

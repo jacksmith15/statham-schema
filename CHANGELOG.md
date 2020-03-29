@@ -13,11 +13,14 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added support for `allOf` keyword. Ensures match against all
+  schemas, returns instance of the first.
 
 ## [0.3.0] - 2020-03-29
 ### Added
 * Added `source` keyword argument to `Property`. This allows mapping
-  of input properties to differeing model attribute names.
+  of input properties to differing model attribute names.
 * Added support for `additionalProperties` keyword argument.
 * Added support for `default` as a property name in object schemas.
 * Added support for `self` as a property name in object schemas.
