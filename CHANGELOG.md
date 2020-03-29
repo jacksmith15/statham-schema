@@ -15,6 +15,8 @@ Types of changes are:
 ## [Unreleased]
 ### Fixed
 * Fixed bug causing some properties to be parsed twice.
+* Properties which conflict with Python keywords are now re-mapped
+  on generated models.
 
 ## [0.4.0] - 2020-03-29
 ### Added

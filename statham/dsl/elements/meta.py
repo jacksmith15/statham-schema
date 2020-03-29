@@ -1,3 +1,4 @@
+import keyword
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from statham.dsl.elements.base import Element
@@ -31,12 +32,11 @@ class ObjectOptions:
         return custom_repr(self)
 
 
-RESERVED_PROPERTIES = dir(object) + [
-    "default",
-    "options",
-    "properties",
-    "additional_properties",
-]
+RESERVED_PROPERTIES = (
+    dir(object)
+    + list(keyword.kwlist)
+    + ["default", "options", "properties", "additional_properties"]
+)
 
 
 class ObjectClassDict(dict):
