@@ -19,6 +19,7 @@ class CompositionElement(Element):
     The "oneOf" and "anyOf" schemas share the same interface.
     # TODO: not
     # TODO: allOf
+    # TODO: Support outer keywords
     """
 
     mode: Mode
