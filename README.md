@@ -90,7 +90,7 @@ def _check_my_format(value: str) -> bool:
 - [ ] Built-in string format validation #6
 - [ ] Generic keywords: `enum` #8, `const` #9
 - [ ] Array keywords: `uniqueItems` #10, `contains`
-- [ ] `not` keyword
+- [ ] `not` keyword #14
 - [ ] `minProperties`, `maxProperties` #15
 - [ ] Property dependencies
 - [ ] Schema dependencies
