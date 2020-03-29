@@ -23,7 +23,7 @@ def _dedupe(seq: Iterable[T]) -> List[T]:
 class CompositionElement(Element):
     """Composition Base Element.
 
-    The "oneOf" and "anyOf" schemas share the same interface.
+    The "oneOf", "anyOf" and "allOf" elements share the same interface.
     # TODO: not
     """
 

@@ -186,3 +186,33 @@ class TestParseState:
         assert len(state.seen["Foo"]) == 2
         assert state.seen["Foo"][0] is base_type
         assert state.seen["Foo"][1] is distinct
+
+
+def test_parse_object_with_required_not_properties():
+    schema = {"type": "object", "title": "NoProperties", "required": ["value"]}
+
+    class NoProperties(Object):
+        value = Property(Element(), required=True)
+
+    assert parse_element(schema) == NoProperties
+
+
+def test_parse_object_with_invalid_names():
+    schema = {
+        "type": "object",
+        "title": "BadNames",
+        "properties": {
+            "$ref": {},
+            "a sentence": {},
+            "multiple\nlines": {},
+            "10": {},
+        },
+    }
+
+    class BadNames(Object):
+        dollar_sign_ref = Property(Element(), source="$ref")
+        a_sentence = Property(Element(), source="a sentence")
+        multiple_lines = Property(Element(), source="multiple\nlines")
+        _10 = Property(Element(), source="10")
+
+    assert parse_element(schema) == BadNames

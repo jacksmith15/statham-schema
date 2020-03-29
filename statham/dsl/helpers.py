@@ -82,3 +82,8 @@ def split_dict(
         return match, complement
 
     return _split
+
+
+def expand(function):
+    """Useful for functional operations like map."""
+    return lambda args: function(*args)
