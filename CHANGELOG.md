@@ -19,6 +19,11 @@ Types of changes are:
 * Added support for multiple composition keywords within one schema,
   including compositions of outer keywords and composition keywords.
 
+### Changed
+* Property names which are not valid python attribute names are now
+  mapped to a valid python attribute. Whitespace is replaced by "_"
+  and symbols are assigned their Unicode names.
+
 ## [0.3.0] - 2020-03-29
 ### Added
 * Added `source` keyword argument to `Property`. This allows mapping
