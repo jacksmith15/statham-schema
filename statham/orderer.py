@@ -1,8 +1,8 @@
 from itertools import chain
-from typing import cast, Dict, Iterator, List, Set, Union
+from typing import Dict, Iterator, List, Set, Union
 
 from statham.dsl.constants import Maybe, NotPassed
-from statham.dsl.elements import CompositionElement, Element, ObjectOptions
+from statham.dsl.elements import CompositionElement, Element
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import _Property
