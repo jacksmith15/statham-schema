@@ -54,7 +54,7 @@ class CompositionElement(Element):
 
 
 class AnyOf(CompositionElement):
-    """Must match at least on of the provided schemas."""
+    """Must match at least one of the provided schemas."""
 
     mode: Mode = "anyOf"
 
