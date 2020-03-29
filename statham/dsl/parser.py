@@ -2,7 +2,9 @@ from collections import defaultdict
 import inspect
 from itertools import chain
 import re
+import string
 from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
+import unicodedata
 
 from statham.dsl.constants import COMPOSITION_KEYWORDS, NotPassed
 from statham.dsl.elements import (
@@ -26,7 +28,7 @@ from statham.dsl.elements.meta import (
     RESERVED_PROPERTIES,
 )
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
-from statham.dsl.helpers import reraise, split_dict
+from statham.dsl.helpers import expand, reraise, split_dict
 from statham.dsl.property import _Property
 
 
@@ -232,11 +234,10 @@ def parse_properties(
     """Parse properties from a schema element."""
     state = state or ParseState()
     required = set(schema.get("required", []))
-    attr_name = lambda key: key if key not in RESERVED_PROPERTIES else f"_{key}"
     return {
         **{
             # TODO: Handle attribute names which don't work in python.
-            attr_name(key): _Property(
+            parse_attribute_name(key): _Property(
                 parse_element(value, state),
                 required=key in required,
                 source=key,
@@ -246,11 +247,40 @@ def parse_properties(
             if isinstance(value, dict)
         },
         **{
-            attr_name(key): prop
+            parse_attribute_name(key): prop
             for key, prop in schema.get("properties", {}).items()
             if isinstance(prop, _Property)
         },
     }
+
+
+def parse_attribute_name(name: str) -> str:
+    """Convert attibute name to valid python attribute.
+
+    Attempts to replace special characters with their unicode names.
+    """
+
+    def _char_map(idx: int, char: str) -> str:
+        if char.isalnum() or char in ("_", "-", " "):
+            return char
+        if char in string.whitespace:
+            return "_"
+        label = unicodedata.name(char, "unknown").lower()
+        if idx != 0 and name[idx - 1] != "_":
+            label = "_" + label
+        if idx != len(name) - 1 and name[idx + 1] != "_":
+            label = label + "_"
+        return label
+
+    chars = map(expand(_char_map), enumerate(name))
+    name = "".join(chars).replace(" ", "_").replace("-", "_")
+    if not name:
+        return "blank"
+    return (
+        name
+        if name not in RESERVED_PROPERTIES and name[0].isalpha()
+        else f"_{name}"
+    )
 
 
 def parse_additional_properties(
