@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Fixed bug causing some properties to be parsed twice.
 
 ## [0.4.0] - 2020-03-29
 ### Added
