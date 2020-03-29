@@ -218,6 +218,13 @@ def parse_object(
     title = _title_format(title)
     default = schema.get("default", NotPassed())
     properties = schema.get("properties", {})
+    properties.update(
+        {
+            key: _Property(Element(), required=True)
+            for key in schema.get("required", [])
+            if key not in properties
+        }
+    )
     class_dict = ObjectClassDict(
         default=default,
         options=ObjectOptions(**keyword_filter(ObjectOptions)(schema)),
@@ -234,21 +241,21 @@ def parse_properties(
     """Parse properties from a schema element."""
     state = state or ParseState()
     required = set(schema.get("required", []))
+    properties = schema.get("properties", {})
     return {
         **{
-            # TODO: Handle attribute names which don't work in python.
             parse_attribute_name(key): _Property(
                 parse_element(value, state),
                 required=key in required,
                 source=key,
             )
-            for key, value in schema.get("properties", {}).items()
+            for key, value in properties.items()
             # Ignore malformed values.
             if isinstance(value, dict)
         },
         **{
             parse_attribute_name(key): prop
-            for key, prop in schema.get("properties", {}).items()
+            for key, prop in properties.items()
             if isinstance(prop, _Property)
         },
     }
@@ -343,9 +350,9 @@ def keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
     return _filter
 
 
-def _title_format(string: str) -> str:
+def _title_format(name: str) -> str:
     """Convert titles in schemas to class names."""
-    words = list(filter(None, re.split(r"[ _-]", string)))
+    words = list(filter(None, re.split(r"[ _-]", name)))
     segments = chain.from_iterable(
         [
             re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])
