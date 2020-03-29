@@ -16,6 +16,8 @@ Types of changes are:
 ### Added
 * Added support for `allOf` keyword. Ensures match against all
   schemas, returns instance of the first.
+* Added support for multiple composition keywords within one schema,
+  including compositions of outer keywords and composition keywords.
 
 ## [0.3.0] - 2020-03-29
 ### Added
