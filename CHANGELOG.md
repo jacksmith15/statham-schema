@@ -14,7 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
-* Add support for `allOf` keyword. Ensures match against all
+* Added support for `allOf` keyword. Ensures match against all
   schemas, returns instance of the first.
 
 ## [0.3.0] - 2020-03-29
