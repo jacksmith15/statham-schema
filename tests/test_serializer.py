@@ -139,6 +139,29 @@ class Foo(Object):
     )
 
 
+def test_parse_and_serialize_schema_with_composition_keywords():
+    schema = {
+        "type": "object",
+        "title": "MyObject",
+        "properties": {
+            "any": {"anyOf": [{"type": "string"}, {"minLength": 3}]},
+            "all": {"allOf": [{"type": "string"}, {"minLength": 3}]},
+            "one": {"oneOf": [{"type": "string"}, {"minLength": 3}]},
+        },
+    }
+    # pylint: disable=line-too-long
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class MyObject(Object):
+
+    any: Maybe[Any] = Property(AnyOf(String(), Element(minLength=3)))
+
+    all: Maybe[str] = Property(AllOf(String(), Element(minLength=3)))
+
+    one: Maybe[Any] = Property(OneOf(String(), Element(minLength=3)))
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"

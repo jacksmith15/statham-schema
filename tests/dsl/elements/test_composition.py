@@ -8,6 +8,7 @@ from statham.dsl.elements import (
     AnyOf,
     Array,
     CompositionElement,
+    Element,
     Object,
     OneOf,
     String,
@@ -171,6 +172,14 @@ class TestAllOfValidation:
         assert result.value == "foo"
         assert result.additional_properties["other_value"] == "bar"
 
+    @staticmethod
+    @pytest.mark.parametrize(
+        "success,value",
+        [(True, "foo"), (True, "foo bar"), (False, None), (False, "fo")],
+    )
+    def test_it_works_with_untyped_elements(success: bool, value: Any):
+        assert_validation(AllOf(String(), Element(minLength=3)), success, value)
+
 
 def test_composition_default_keyword():
     element = OneOf(String(), Array(String()), default="foo")
@@ -178,12 +187,38 @@ def test_composition_default_keyword():
     assert element(["foo"]) == ["foo"]
 
 
-@pytest.mark.parametrize("element", [OneOf, AnyOf, AllOf])
+@pytest.mark.parametrize("element", [OneOf, AnyOf])
 def test_composition_annotation(element):
     assert element(String()).annotation == "str"
     assert (
         element(String(), Array(String())).annotation == "Union[str, List[str]]"
     )
+
+
+@pytest.mark.parametrize("element", [OneOf, AnyOf])
+def test_composition_annotations_are_deduped(element):
+    assert element(String(minLength=3), String(maxLength=5)).annotation == "str"
+
+
+@pytest.mark.parametrize("element", [OneOf, AnyOf])
+def test_composition_untyped_annotation_overrides(element):
+    assert (
+        element(String(minLength=3), Element(maxLength=5)).annotation == "Any"
+    )
+
+
+@pytest.mark.parametrize(
+    "element,annotation",
+    [
+        (AllOf(Element(minLength=3), Element(maxLength=5)), "Any"),
+        (AllOf(Element(minLength=3), String(maxLength=5)), "str"),
+        (AllOf(String(minLength=3), Element(maxLength=5)), "str"),
+        (AllOf(String(minLength=3), Array(String())), "str"),
+        (AllOf(Array(String()), String(minLength=3)), "List[str]"),
+    ],
+)
+def test_all_of_annotation(element, annotation):
+    assert element.annotation == annotation
 
 
 def test_instantiating_base_element_raises_not_implemented_error():

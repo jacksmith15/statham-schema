@@ -1,4 +1,4 @@
-from typing import Any, List, NamedTuple, Optional
+from typing import Any, Iterable, List, NamedTuple, Optional, Set, TypeVar
 from typing_extensions import Literal
 
 from statham.dsl.elements.base import Element
@@ -11,6 +11,13 @@ from statham.dsl.constants import NotPassed
 
 # This is a type annotation.
 Mode = Literal["anyOf", "oneOf", "allOf"]  # pylint: disable=invalid-name
+T = TypeVar("T")
+
+
+def _dedupe(seq: Iterable[T]) -> List[T]:
+    seen: Set[T] = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 class CompositionElement(Element):
@@ -33,12 +40,13 @@ class CompositionElement(Element):
 
     @property
     def annotation(self):
-        if len(self.elements) == 1:
-            return self.elements[0].annotation
-        annotations = ", ".join(
-            [element.annotation for element in self.elements]
-        )
-        return f"Union[{annotations}]"
+        annotations = _dedupe(elem.annotation for elem in self.elements)
+        if len(annotations) == 1:
+            return annotations[0]
+        if "Any" in annotations:
+            return "Any"
+        joined = ", ".join([annotation for annotation in annotations])
+        return f"Union[{joined}]"
 
     def construct(self, value: Any, property_: _Property):
         if not getattr(self, "mode", None):
@@ -62,6 +70,18 @@ class AllOf(CompositionElement):
     """Must match all provided schemas."""
 
     mode: Mode = "allOf"
+
+    @property
+    def annotation(self):
+        """Must be the firt explicit type, otherwise Any."""
+        return next(
+            (
+                elem.annotation
+                for elem in self.elements
+                if elem.annotation != "Any"
+            ),
+            "Any",
+        )
 
 
 class Outcome(NamedTuple):

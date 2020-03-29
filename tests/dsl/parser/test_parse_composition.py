@@ -2,7 +2,15 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import AnyOf, Array, Element, Integer, OneOf, String
+from statham.dsl.elements import (
+    AllOf,
+    AnyOf,
+    Array,
+    Element,
+    Integer,
+    OneOf,
+    String,
+)
 from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
 from statham.dsl.parser import parse_composition, parse_element
 
@@ -61,6 +69,11 @@ def test_parse_composition_fails_with_empty_list(keyword):
             },
             OneOf(String(), Array(String())),
             id="oneOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {"allOf": [{"type": "string"}, {"minLength": 3}]},
+            AllOf(String(), Element(minLength=3)),
+            id="allOf-with-multiple-sub-elements",
         ),
     ],
 )
