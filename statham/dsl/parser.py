@@ -4,7 +4,7 @@ from itertools import chain
 import re
 from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
 
-from statham.dsl.constants import NotPassed
+from statham.dsl.constants import COMPOSITION_KEYWORDS, NotPassed
 from statham.dsl.elements import (
     AllOf,
     AnyOf,
@@ -26,7 +26,7 @@ from statham.dsl.elements.meta import (
     RESERVED_PROPERTIES,
 )
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
-from statham.dsl.helpers import reraise
+from statham.dsl.helpers import reraise, split_dict
 from statham.dsl.property import _Property
 
 
@@ -105,7 +105,7 @@ def parse_element(schema: Dict[str, Any], state: ParseState = None) -> Element:
 
 def parse_composition(
     schema: Dict[str, Any], state: ParseState = None
-) -> CompositionElement:
+) -> Element:
     """Parse a schema with composition keywords.
 
     :raises ValueError: if the schema does not contain any composition
@@ -114,27 +114,49 @@ def parse_composition(
         are present.
     """
     state = state or ParseState()
-    intersect = {"anyOf", "oneOf", "allOf"} & set(schema)
-    element_type: Type[CompositionElement]
-    if intersect == {"anyOf"}:
-        element_type = AnyOf
-        sub_schemas = schema["anyOf"]
-    elif intersect == {"oneOf"}:
-        element_type = OneOf
-        sub_schemas = schema["oneOf"]
-    elif intersect == {"allOf"}:
-        element_type = AllOf
-        sub_schemas = schema["allOf"]
-    elif not intersect:
-        raise ValueError(
-            "Schema passed to `parse_composition` has no supported "
-            "validation keywords."
-        )
-    else:
-        raise FeatureNotImplementedError.multiple_composition_keywords()
-    return element_type(
-        *(parse_element(sub_schema, state) for sub_schema in sub_schemas)
-    )
+    composition, other = split_dict(COMPOSITION_KEYWORDS)(schema)
+    base_element = parse_element(other, state)
+    for key in COMPOSITION_KEYWORDS:
+        composition[key] = [
+            parse_element(sub_schema) for sub_schema in composition.get(key, [])
+        ]
+    if base_element != Element():
+        composition["allOf"] = [base_element] + composition["allOf"]
+    for key, element in [("oneOf", OneOf), ("anyOf", AnyOf)]:
+        if not composition[key]:
+            continue
+        if len(composition[key]) == 1:
+            composition["allOf"].append(composition[key][0])
+        else:
+            composition["allOf"].append(element(*composition[key]))
+    any_of = composition["anyOf"]
+    if not any_of:
+        return Element()
+    if len(any_of) == 1:
+        return any_of[0]
+    return AnyOf(*any_of)
+
+    # intersect = {"anyOf", "oneOf", "allOf"} & set(schema)
+    # element_type: Type[CompositionElement]
+    # if intersect == {"anyOf"}:
+    #     element_type = AnyOf
+    #     sub_schemas = schema["anyOf"]
+    # elif intersect == {"oneOf"}:
+    #     element_type = OneOf
+    #     sub_schemas = schema["oneOf"]
+    # elif intersect == {"allOf"}:
+    #     element_type = AllOf
+    #     sub_schemas = schema["allOf"]
+    # elif not intersect:
+    #     raise ValueError(
+    #         "Schema passed to `parse_composition` has no supported "
+    #         "validation keywords."
+    #     )
+    # else:
+    #     raise FeatureNotImplementedError.multiple_composition_keywords()
+    # return element_type(
+    #     *(parse_element(sub_schema, state) for sub_schema in sub_schemas)
+    # )
 
 
 def parse_typed(
