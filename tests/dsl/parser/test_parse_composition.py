@@ -17,11 +17,10 @@ from statham.dsl.parser import parse_composition, parse_element
 from tests.helpers import no_raise
 
 
-@pytest.mark.parametrize("keyword", ["anyOf", "oneOf"])
-def test_parse_composition_fails_with_empty_list(keyword):
+@pytest.mark.parametrize("keyword", ["anyOf", "oneOf", "allOf"])
+def test_parse_composition_with_empty_list(keyword):
     schema = {keyword: []}
-    with pytest.raises(TypeError):
-        _ = parse_element(schema)
+    assert parse_element(schema) == Element()
 
 
 @pytest.mark.parametrize(
@@ -33,6 +32,11 @@ def test_parse_composition_fails_with_empty_list(keyword):
             id="anyOf-with-one-sub-element",
         ),
         pytest.param(
+            {"anyOf": [{"type": "string"}], "default": "sample string"},
+            String(default="sample string"),
+            id="anyOf-with-one-sub-element-and-default",
+        ),
+        pytest.param(
             {
                 "anyOf": [
                     {"type": "string"},
@@ -41,6 +45,17 @@ def test_parse_composition_fails_with_empty_list(keyword):
             },
             AnyOf(String(), Array(String())),
             id="anyOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "array", "items": {"type": "string"}},
+                ],
+                "default": "sample string",
+            },
+            AnyOf(String(), Array(String()), default="sample string"),
+            id="anyOf-with-multiple-sub-elements-and-default",
         ),
         pytest.param(
             {"type": "string", "anyOf": [{"minLength": 3}]},
@@ -73,6 +88,11 @@ def test_parse_composition_fails_with_empty_list(keyword):
             id="oneOf-with-one-sub-element",
         ),
         pytest.param(
+            {"oneOf": [{"type": "string"}], "default": "sample string"},
+            String(default="sample string"),
+            id="oneOf-with-one-sub-element-and-default",
+        ),
+        pytest.param(
             {
                 "oneOf": [
                     {"type": "string"},
@@ -81,6 +101,17 @@ def test_parse_composition_fails_with_empty_list(keyword):
             },
             OneOf(String(), Array(String())),
             id="oneOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {
+                "oneOf": [
+                    {"type": "string"},
+                    {"type": "array", "items": {"type": "string"}},
+                ],
+                "default": "sample string",
+            },
+            OneOf(String(), Array(String()), default="sample string"),
+            id="oneOf-with-multiple-sub-elements-and-default",
         ),
         pytest.param(
             {"type": "string", "oneOf": [{"minLength": 3}]},
@@ -98,9 +129,22 @@ def test_parse_composition_fails_with_empty_list(keyword):
             id="allOf-with-one-sub-element",
         ),
         pytest.param(
+            {"allOf": [{"type": "string"}], "default": "sample string"},
+            String(default="sample string"),
+            id="allOf-with-one-sub-element-and-default",
+        ),
+        pytest.param(
             {"allOf": [{"type": "string"}, {"minLength": 3}]},
             AllOf(String(), Element(minLength=3)),
             id="allOf-with-multiple-sub-elements",
+        ),
+        pytest.param(
+            {
+                "allOf": [{"type": "string"}, {"minLength": 3}],
+                "default": "sample string",
+            },
+            AllOf(String(), Element(minLength=3), default="sample string"),
+            id="allOf-with-multiple-sub-elements-and-default",
         ),
         pytest.param(
             {"type": "string", "allOf": [{"minLength": 3}]},
@@ -121,8 +165,8 @@ def test_parse_composition_fails_with_empty_list(keyword):
             AllOf(
                 Element(minimum=0),
                 Element(maximum=10),
-                AnyOf(Number(), Integer()),
                 OneOf(Element(minimum=3), Element(maximum=5)),
+                AnyOf(Number(), Integer()),
             ),
             id="all-compositions-no-outer",
         ),
@@ -137,8 +181,8 @@ def test_parse_composition_fails_with_empty_list(keyword):
                 Element(maximum=7),
                 Element(minimum=0),
                 Element(maximum=10),
-                AnyOf(Number(), Integer()),
                 OneOf(Element(minimum=3), Element(maximum=5)),
+                AnyOf(Number(), Integer()),
             ),
             id="all-compositions-with-outer",
         ),
@@ -148,25 +192,6 @@ def test_parse_composition_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
     assert parse_element(schema) == expected
-
-
-def test_parse_composition_fails_on_multiple_keyword_args():
-    schema = {
-        "oneOf": [{"type": "string"}, {"type": "integer"}],
-        "anyOf": [
-            {"type": "integer", "minimum": 1, "maximum": 2},
-            {"type": "integer", "minimum": 5},
-            {"type": "string"},
-        ],
-    }
-    with pytest.raises(FeatureNotImplementedError):
-        parse_element(schema)
-
-
-def test_parse_composition_fails_with_no_composition_keywords():
-    schema = {}
-    with pytest.raises(ValueError):
-        parse_composition(schema)
 
 
 def test_parse_single_list_typed_schema_returns_one_type():

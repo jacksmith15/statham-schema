@@ -80,12 +80,5 @@ class FeatureNotImplementedError(SchemaParseError):
     """Functionality not yet implemented."""
 
     @classmethod
-    def multiple_composition_keywords(cls) -> "FeatureNotImplementedError":
-        return cls(
-            "Schema has multiple composition keywords. "
-            "This is not yet supported."
-        )
-
-    @classmethod
     def tuple_array_items(cls) -> "FeatureNotImplementedError":
         return cls("Tuple array items are not supported.")
