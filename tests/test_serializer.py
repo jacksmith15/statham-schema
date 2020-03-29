@@ -1,7 +1,9 @@
+from typing import Any
+
 import pytest
 
 from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, ObjectOptions, String
+from statham.dsl.elements import Element, Object, ObjectOptions, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
 from statham.serializer import _IMPORT_STATEMENTS, serialize_python
@@ -114,6 +116,29 @@ class StringWrapperContainer(Object):
     )
 
 
+def test_parse_and_serialize_schema_with_untyped_dependency():
+    schema = {
+        "type": "object",
+        "title": "Foo",
+        "properties": {
+            "value": {
+                "additionalProperties": {"type": "object", "title": "Bar"}
+            }
+        },
+    }
+    assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
+        """class Bar(Object):
+
+    pass
+
+
+class Foo(Object):
+
+    value: Maybe[Any] = Property(Element(additionalProperties=Bar))
+"""
+    )
+
+
 def test_annotation_for_property_with_default_is_not_maybe():
     prop = Property(String(default="sample"), required=False)
     assert prop.annotation == "str"
@@ -158,5 +183,33 @@ def test_serialize_object_with_additional_options(additional_properties):
         f"""class AdditionalPropObject(Object):
 
     options = ObjectOptions(additionalProperties={additional_properties})
+"""
+    )
+
+
+def test_serialize_object_with_untyped_property():
+    class MyObject(Object):
+
+        value: Any = Property(
+            Element(
+                default="foo",
+                minItems=3,
+                maxItems=5,
+                minimum=3,
+                maximum=5,
+                minLength=3,
+                maxLength=5,
+                required=["value"],
+                properties={"value": Property(String(), required=True)},
+                additionalProperties=String(),
+                items=String(),
+            )
+        )
+
+    assert (
+        MyObject.python()
+        == """class MyObject(Object):
+
+    value: Any = Property(Element(default='foo', items=String(), minItems=3, maxItems=5, minimum=3, maximum=5, minLength=3, maxLength=5, required=['value'], properties={'value': Property(String(), required=True)}, additionalProperties=String()))
 """
     )

@@ -1,26 +1,26 @@
-from typing import Any, cast, Dict, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
-from statham.dsl.helpers import custom_repr_args
+from statham.dsl.helpers import custom_repr
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 from statham.dsl.exceptions import SchemaDefinitionError
+from statham.dsl.validation import (
+    AdditionalProperties,
+    InstanceOf,
+    Required,
+    Validator,
+)
 
 
 class ObjectOptions:
 
-    additionalProperties: Optional[Element]
+    additionalProperties: Optional[Union[Element, bool]]
 
     def __init__(self, *, additionalProperties: Union[Element, bool] = True):
         # Name used to match JSONSchema.
         # pylint: disable=invalid-name
-        if additionalProperties is False:
-            self.additionalProperties = None
-        elif additionalProperties is True:
-            self.additionalProperties = Element()
-        else:
-            self.additionalProperties = cast(Element, additionalProperties)
+        self.additionalProperties = additionalProperties
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, ObjectOptions):
@@ -28,12 +28,7 @@ class ObjectOptions:
         return self.additionalProperties == other.additionalProperties
 
     def __repr__(self):
-        args = custom_repr_args(self)
-        if args.kwargs["additionalProperties"] == Element():
-            del args.kwargs["additionalProperties"]
-        if args.kwargs["additionalProperties"] is None:
-            args.kwargs["additionalProperties"] = False
-        return f"{type(self).__name__}{repr(args)}"
+        return custom_repr(self)
 
 
 RESERVED_PROPERTIES = dir(object) + ["default", "options", "properties"]
@@ -67,7 +62,6 @@ class ObjectClassDict(dict):
         return super().__setitem__(key, value)
 
 
-# TODO: Handle properties called `default` or `self`.
 class ObjectMeta(type, Element):
     """Metaclass to allow declaring Object schemas as classes.
 
@@ -110,8 +104,35 @@ class ObjectMeta(type, Element):
         return cls.__name__
 
     @property
-    def type_validator(cls):
-        return val.instance_of(dict, cls)
+    def type_validator(cls) -> Validator:
+        return InstanceOf(dict, cls)
+
+    @property
+    def validators(cls) -> List[Validator]:
+        return [
+            cls.type_validator,
+            Required(
+                [
+                    prop.name
+                    for prop in cls.properties.values()
+                    if prop.required and not prop.element.default
+                ]
+            ),
+            AdditionalProperties(
+                {prop.source for prop in cls.properties.values()},
+                cls.options.additionalProperties,
+            ),
+        ]
+
+    def construct_additional(cls, name: str, value: Any) -> Any:
+        """Construct properties not specified in `properties`."""
+        element: Element = Element()
+        if isinstance(cls.options.additionalProperties, Element):
+            element = cls.options.additionalProperties
+        additional_property = _Property(element)
+        additional_property.bind_class(cls)
+        additional_property.bind_name(name)
+        return additional_property(value)
 
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))

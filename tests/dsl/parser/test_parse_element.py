@@ -1,6 +1,7 @@
 import pytest
 
-from statham.dsl.elements import Element
+from statham.dsl.elements import Element, String
+from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.parser import parse_element
 
@@ -27,6 +28,10 @@ def test_parse_element_with_arguments():
         "maximum": 5,
         "minLength": 3,
         "maxLength": 5,
+        "required": ["value"],
+        "properties": {"value": {"type": "string"}},
+        "additionalProperties": {"type": "string"},
+        "items": {"type": "string"},
     }
     expected = Element(
         default="foo",
@@ -36,5 +41,9 @@ def test_parse_element_with_arguments():
         maximum=5,
         minLength=3,
         maxLength=5,
+        required=["value"],
+        properties={"value": Property(String(), required=True)},
+        additionalProperties=String(),
+        items=String(),
     )
     assert parse_element(schema) == expected

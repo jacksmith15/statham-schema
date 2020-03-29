@@ -1,6 +1,5 @@
 from typing import Any, Generic, Optional, TypeVar
 
-from statham.dsl import validators as val
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr_args
@@ -63,7 +62,6 @@ class _Property(Generic[PropType]):
             value, NotPassed
         ):
             value = self.element.default
-        val.required(self.required)(value, self)
         if isinstance(value, NotPassed):
             return value
         return self.element(value, self)

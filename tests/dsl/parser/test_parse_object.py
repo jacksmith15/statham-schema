@@ -3,8 +3,9 @@ from typing import Any, Dict
 import pytest
 
 from statham.dsl.elements import Element, Object, ObjectOptions, String
+from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
-from statham.dsl.parser import parse_element
+from statham.dsl.parser import ParseState, parse_element
 from statham.dsl.property import Property
 
 
@@ -134,3 +135,54 @@ def test_parse_object_produces_expected_element(
 def test_parse_object_with_no_title_raises():
     with pytest.raises(SchemaParseError):
         parse_element({"type": "object"})
+
+
+def test_parse_object_with_same_name_are_enumerated():
+    schema = {
+        "type": "object",
+        "title": "Name",
+        "additionalProperties": {"type": "object", "title": "Name"},
+    }
+    element = parse_element(schema)
+    assert isinstance(element, ObjectMeta)
+    assert element.__name__ == "Name_1"
+    assert isinstance(element.options.additionalProperties, ObjectMeta)
+    assert element.options.additionalProperties.__name__ == "Name"
+
+
+class TestParseState:
+    @staticmethod
+    @pytest.fixture()
+    def base_type():
+        return ObjectMeta(
+            "Foo", (Object,), ObjectClassDict(default={"foo": "bar"})
+        )
+
+    @staticmethod
+    @pytest.fixture()
+    def state(base_type):
+        state = ParseState()
+        assert state.dedupe(base_type) is base_type
+        return state
+
+    @staticmethod
+    def test_that_duplicate_type_is_replaced(state, base_type):
+        duplicate = ObjectMeta(
+            "Foo", (Object,), ObjectClassDict(default={"foo": "bar"})
+        )
+        deduped = state.dedupe(duplicate)
+        assert deduped is base_type
+        assert len(state.seen["Foo"]) == 1
+        assert state.seen["Foo"][0] is base_type
+
+    @staticmethod
+    def test_that_distinct_type_is_not_replaced(state, base_type):
+        distinct = ObjectMeta(
+            "Foo", (Object,), ObjectClassDict(default={"bar": "baz"})
+        )
+        deduped = state.dedupe(distinct)
+        assert deduped is distinct
+        assert distinct.__name__ == "Foo_1"
+        assert len(state.seen["Foo"]) == 2
+        assert state.seen["Foo"][0] is base_type
+        assert state.seen["Foo"][1] is distinct

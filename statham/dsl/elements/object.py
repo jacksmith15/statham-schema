@@ -1,7 +1,6 @@
 from typing import Any, ClassVar, Dict
 
 from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
-from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property, UNBOUND_PROPERTY
 from statham.dsl.constants import NotPassed
 
@@ -22,7 +21,6 @@ class Object(metaclass=ObjectMeta):
 
     poll = Poll({"questions": ["What's up?"]})
     ```
-    # TODO: additionalProperties
     # TODO: patternProperties
     # TODO: propertyNames
     # TODO: minProperties
@@ -49,12 +47,12 @@ class Object(metaclass=ObjectMeta):
         self, value: Any = NotPassed(), _property: _Property = UNBOUND_PROPERTY
     ):
         """Initialise the object."""
+        if value is self:
+            return
         if isinstance(value, NotPassed) and not isinstance(
             self.default, NotPassed
         ):
             value = self.default
-        if value is self:
-            return
         self.additional_properties = {}
         for attr_name, property_ in self.properties.items():
             setattr(
@@ -62,20 +60,10 @@ class Object(metaclass=ObjectMeta):
                 attr_name,
                 property_(value.pop(property_.source, NotPassed())),
             )
-        if not value:
-            return
-        if not self.options.additionalProperties:
-            raise ValidationError(
-                f"Unexpected attributes passed to {self.__class__}: "
-                f"{set(value)}. Accepted kwargs: "
-                f"{set(self.properties)}"
-            )
-        constructor = self.options.additionalProperties
-        additional_property = _Property(constructor)
         for name, argument in value.items():
-            additional_property.bind_name(name)
-            additional_property.bind_class(type(self))
-            self.additional_properties[name] = additional_property(argument)
+            self.additional_properties[name] = type(self).construct_additional(
+                name, argument
+            )
 
     def __repr__(self):
         attr_values = {

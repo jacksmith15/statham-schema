@@ -32,6 +32,17 @@ class ValidationError(StathamError):
         )
 
     @classmethod
+    def composite(cls, property_, value, messages) -> "ValidationError":
+        base_message = str(cls.from_validator(property_, value, ""))
+        message = ", ".join(messages)
+        message = message.replace(base_message, "")
+        return cls.from_validator(
+            property_,
+            value,
+            f"Does not match any accepted schema. Individual errors: {message}",
+        )
+
+    @classmethod
     def mutliple_composition_match(cls, matching_models, data):
         return cls(
             "Matches multiple possible models. Must only match one.\n"

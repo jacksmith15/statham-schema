@@ -1,10 +1,21 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from typing import Any, Callable, List, Generic, TypeVar, Union
+from collections import defaultdict
+from typing import (
+    Any,
+    Callable,
+    cast,
+    DefaultDict,
+    Dict,
+    List,
+    Generic,
+    TypeVar,
+    Union,
+)
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
-from statham.dsl.validators import SCHEMA_ATTRIBUTE_VALIDATORS
+from statham.dsl.validation import get_validators, InstanceOf, Validator
 
 
 T = TypeVar("T")
@@ -21,14 +32,18 @@ class Element(Generic[T]):
     type when called.
     # TODO: enum
     # TODO: const
+    # TODO: composition?
     """
 
+    # This is how many options there are!
+    # pylint: disable=too-many-locals
     def __init__(
         self,
         *,
         # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
+        # pylint: disable=invalid-name,redefined-builtin
         default: Maybe[Any] = NotPassed(),
+        items: Maybe["Element"] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
@@ -36,17 +51,18 @@ class Element(Generic[T]):
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
         exclusiveMaximum: Maybe[Numeric] = NotPassed(),
         multipleOf: Maybe[Numeric] = NotPassed(),
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=redefined-builtin
         format: Maybe[str] = NotPassed(),
-        # pylint: enable=redefined-builtin
         pattern: Maybe[str] = NotPassed(),
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
+        required: Maybe[List[str]] = NotPassed(),
+        properties: Maybe[Dict[str, "_Property"]] = NotPassed(),
+        additionalProperties: Union["Element", bool] = True,
     ):
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
         self.default = default
+        self.items = items
         self.minItems = minItems
         self.maxItems = maxItems
         self.minimum = minimum
@@ -58,6 +74,17 @@ class Element(Generic[T]):
         self.pattern = pattern
         self.minLength = minLength
         self.maxLength = maxLength
+        self.required = required
+        self.properties = properties
+        if isinstance(self.properties, dict):
+            for name, prop in (self.properties or {}).items():
+                prop.bind_class(type(self))
+                prop.bind_name(name)
+                if prop.required:
+                    self.required = list(
+                        set(cast(List[str], self.required or []) + [name])
+                    )
+        self.additionalProperties = additionalProperties
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
@@ -79,25 +106,31 @@ class Element(Generic[T]):
 
     @property
     def annotation(self) -> str:
-        return "Any"
+        generic = type(self).__orig_bases__[0].__args__[0]  # type: ignore
+        if isinstance(generic, TypeVar):  # type: ignore
+            return "Any"
+        return generic.__name__
 
     @property
-    def type_validator(self):
-        return lambda _, __: None
+    def type_validator(self) -> Validator:
+        return InstanceOf()
 
     @property
-    def validators(self) -> List[Callable]:
-        validators = [self.type_validator]
-        for key, value in vars(self).items():
-            validator = SCHEMA_ATTRIBUTE_VALIDATORS.get(key)
-            if validator and value != NotPassed():
-                validators.append(validator(value))
+    def validators(self) -> List[Validator]:
+        validators: List[Validator] = [self.type_validator] + list(
+            get_validators(self)
+        )
         return validators
 
-    # Default implementation doesn't need self.
-    # pylint: disable=no-self-use
     def construct(self, value, _property):
-        return value
+        properties = getattr(self, "properties", NotPassed())
+        additional_properties = getattr(
+            self, "additionalProperties", NotPassed()
+        )
+        items = getattr(self, "items", NotPassed())
+        return object_constructor(properties, additional_properties)(
+            array_constructor(items)(value, _property)
+        )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
         """Validate and convert input data against the element.
@@ -119,4 +152,66 @@ class Element(Generic[T]):
 
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
-from statham.dsl.property import UNBOUND_PROPERTY
+from statham.dsl.property import _Property, UNBOUND_PROPERTY
+
+
+class _AnonymousObject(dict):
+    """Anonymous object type.
+
+    Allows dictionaries passed to untyped objects to use attribute access,
+    to match `Object` instances.
+    """
+
+    def __getattr__(self, key: str) -> Any:
+        return self.__getitem__(key)
+
+    def __setattr__(self, key: str, value: Any):
+        return self.__setitem__(key, value)
+
+
+def object_constructor(
+    properties: Maybe[Dict[str, _Property]] = NotPassed(),
+    additional_properties: Maybe[Union[Element, bool]] = NotPassed(),
+) -> Callable[[Any], _AnonymousObject]:
+    """Recursively construct and validate sub-properties of object input."""
+    default_prop: _Property = _Property(Element())
+    if isinstance(additional_properties, Element):
+        default_prop = _Property(additional_properties)
+    default_properties: DefaultDict[str, _Property] = defaultdict(
+        lambda: default_prop
+    )
+    if not isinstance(properties, NotPassed):
+        default_properties.update(properties)
+
+    def _constructor(value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        return _AnonymousObject(
+            {
+                key: default_properties[key](sub_value)
+                for key, sub_value in value.items()
+            }
+        )
+
+    return _constructor
+
+
+def array_constructor(
+    items: Maybe[Element] = NotPassed()
+) -> Callable[[Any, _Property], _AnonymousObject]:
+    """Recursively construct and validate sub-properties of array input."""
+    items_element: Element = Element()
+    if isinstance(items, Element):
+        items_element = items
+
+    def _constructor(value: Any, property_: _Property) -> Any:
+        if not isinstance(value, list):
+            return value
+        return [
+            items_element(
+                item, property_.evolve(property_.name or "" + f"[{idx}]")
+            )
+            for idx, item in enumerate(value)
+        ]
+
+    return _constructor

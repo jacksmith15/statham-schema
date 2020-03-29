@@ -1,8 +1,8 @@
 from typing import TypeVar, Union
 
-from statham.dsl import validators as val
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
+from statham.dsl.validation import InstanceOf
 
 
 T = TypeVar("T", int, float)
@@ -45,12 +45,8 @@ class Integer(NumericElement[int]):
     """
 
     @property
-    def annotation(self) -> str:
-        return "int"
-
-    @property
     def type_validator(self):
-        return val.instance_of(int)
+        return InstanceOf(int)
 
 
 class Number(NumericElement[float]):
@@ -60,9 +56,5 @@ class Number(NumericElement[float]):
     """
 
     @property
-    def annotation(self) -> str:
-        return "float"
-
-    @property
     def type_validator(self):
-        return val.instance_of(float)
+        return InstanceOf(float)
