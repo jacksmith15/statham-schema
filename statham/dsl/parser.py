@@ -4,7 +4,7 @@ from itertools import chain
 import re
 from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
 
-from statham.dsl.constants import NotPassed
+from statham.dsl.constants import COMPOSITION_KEYWORDS, NotPassed
 from statham.dsl.elements import (
     AllOf,
     AnyOf,
@@ -26,7 +26,7 @@ from statham.dsl.elements.meta import (
     RESERVED_PROPERTIES,
 )
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
-from statham.dsl.helpers import reraise
+from statham.dsl.helpers import reraise, split_dict
 from statham.dsl.property import _Property
 
 
@@ -105,36 +105,42 @@ def parse_element(schema: Dict[str, Any], state: ParseState = None) -> Element:
 
 def parse_composition(
     schema: Dict[str, Any], state: ParseState = None
-) -> CompositionElement:
+) -> Element:
     """Parse a schema with composition keywords.
 
-    :raises ValueError: if the schema does not contain any composition
-        keywords.
-    :raises FeatureNotImplementedError: if multiple composition keywords
-        are present.
+    Handles multiple composition keywords by wrapping them in an AllOf
+    element. Similarly, non-keyword elements are parsed as usual and
+    included in an allOf element.
+
+    For example:
+    ```python
+    schema = {
+        "type": "integer",
+        "oneOf": [{"minimum": 3}, {"maximum": 5}],
+        "anyOf": [{"multipleOf": 2}, {"multipleOf": 3}],
+    }
+    parse_composition(schema) == AllOf(
+        Integer(),
+        OneOf(Element(minimum=3), Element(maximum=5)),
+        AnyOf(Element(multipleOf=2), Element(multipleOf=3)),
+    )
+    ```
     """
     state = state or ParseState()
-    intersect = {"anyOf", "oneOf", "allOf"} & set(schema)
-    element_type: Type[CompositionElement]
-    if intersect == {"anyOf"}:
-        element_type = AnyOf
-        sub_schemas = schema["anyOf"]
-    elif intersect == {"oneOf"}:
-        element_type = OneOf
-        sub_schemas = schema["oneOf"]
-    elif intersect == {"allOf"}:
-        element_type = AllOf
-        sub_schemas = schema["allOf"]
-    elif not intersect:
-        raise ValueError(
-            "Schema passed to `parse_composition` has no supported "
-            "validation keywords."
-        )
-    else:
-        raise FeatureNotImplementedError.multiple_composition_keywords()
-    return element_type(
-        *(parse_element(sub_schema, state) for sub_schema in sub_schemas)
+    composition, other = split_dict(set(COMPOSITION_KEYWORDS) | {"default"})(
+        schema
     )
+    base_element = parse_element(other, state)
+    for key in COMPOSITION_KEYWORDS:
+        composition[key] = [
+            parse_element(sub_schema) for sub_schema in composition.get(key, [])
+        ]
+    all_of = [base_element] + composition["allOf"]
+    all_of.append(_compose_elements(OneOf, composition["oneOf"]))
+    all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
+    element = _compose_elements(AllOf, all_of)
+    element.default = composition.get("default") or element.default
+    return element
 
 
 def parse_typed(
@@ -278,6 +284,22 @@ def parse_items(schema: Dict[str, Any], state: ParseState = None) -> Element:
     if isinstance(items, list):
         raise FeatureNotImplementedError.tuple_array_items()
     return parse_element(items, state)
+
+
+def _compose_elements(
+    element_type: Type[CompositionElement], elements: List[Element]
+) -> Element:
+    """Create a composition element from a type and list of component elements.
+
+    Filters out trivial elements, and simplifies compositions with only one
+    composed element.
+    """
+    elements = [elem for elem in elements if elem != Element()]
+    if not elements:
+        return Element()
+    if len(elements) == 1:
+        return elements[0]
+    return element_type(*elements)
 
 
 def keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:

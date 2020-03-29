@@ -72,14 +72,29 @@ class AllOf(CompositionElement):
 
     @property
     def annotation(self):
-        """Must be the firt explicit type, otherwise Any."""
+        """Get type annotation for element.
+
+        With an AllOf element, this should be the most restrictive
+        type. On the assumption that the composition is possible, this
+        is chosen by returning the first explicit type annotation, or the
+        first union type annotation if no explicit annotations are
+        present.
+        """
         return next(
             (
                 elem.annotation
                 for elem in self.elements
                 if elem.annotation != "Any"
+                and not elem.annotation.startswith("Union")
             ),
-            "Any",
+            next(
+                (
+                    elem.annotation
+                    for elem in self.elements
+                    if elem.annotation != "Any"
+                ),
+                "Any",
+            ),
         )
 
 

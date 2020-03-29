@@ -31,4 +31,4 @@ T = TypeVar("T")
 Maybe = Union[T, NotPassed]
 
 
-COMPOSITION_KEYWORDS = ("anyOf", "oneOf")
+COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf")

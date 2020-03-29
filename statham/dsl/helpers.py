@@ -1,6 +1,6 @@
 from functools import wraps
 import inspect
-from typing import Tuple, Type, Union
+from typing import Any, Callable, Container, Dict, Tuple, Type, TypeVar, Union
 
 
 class Args:
@@ -64,3 +64,21 @@ def reraise(catch: ExceptionTypes, throw: Type[Exception], message: str):
         return _wrapper
 
     return _decorator
+
+
+T = TypeVar("T")
+
+
+def split_dict(
+    keys: Container[T]
+) -> Callable[[Dict[T, Any]], Tuple[Dict[T, Any], Dict[T, Any]]]:
+    """Split a dictionary on matching and non-matching keys."""
+
+    def _split(dictionary: Dict[T, Any]) -> Tuple[Dict[T, Any], Dict[T, Any]]:
+        match = {key: value for key, value in dictionary.items() if key in keys}
+        complement = {
+            key: value for key, value in dictionary.items() if key not in keys
+        }
+        return match, complement
+
+    return _split

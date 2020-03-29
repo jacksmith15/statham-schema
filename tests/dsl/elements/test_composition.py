@@ -215,6 +215,7 @@ def test_composition_untyped_annotation_overrides(element):
         (AllOf(String(minLength=3), Element(maxLength=5)), "str"),
         (AllOf(String(minLength=3), Array(String())), "str"),
         (AllOf(Array(String()), String(minLength=3)), "List[str]"),
+        (AllOf(OneOf(String(), Array(String())), String()), "str"),
     ],
 )
 def test_all_of_annotation(element, annotation):
@@ -224,3 +225,10 @@ def test_all_of_annotation(element, annotation):
 def test_instantiating_base_element_raises_not_implemented_error():
     with pytest.raises(NotImplementedError):
         _ = CompositionElement(String())("foo")
+
+
+def test_default_does_not_affect_sub_schema_attempts():
+    element = OneOf(String(), String(default="foo"))
+    with no_raise():
+        result = element(NotPassed())
+    assert result is NotPassed()
