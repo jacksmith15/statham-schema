@@ -38,7 +38,11 @@ class _Property(Generic[PropType]):
     def __eq__(self, other):
         if not isinstance(other, _Property):
             return False
-        return self.element == other.element and self.required == other.required
+        return (
+            self.element == other.element
+            and self.required == other.required
+            and self.source == other.source
+        )
 
     def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""

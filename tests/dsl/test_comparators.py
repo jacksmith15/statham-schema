@@ -20,6 +20,10 @@ class Mux(Object):
     value = Property(Array(String()))
 
 
+class Qux(Object):
+    value = Property(String(), source="_value")
+
+
 @pytest.mark.parametrize(
     "left,right",
     [
@@ -43,6 +47,7 @@ def test_equivalent_schemas_are_equal(left, right):
         (Array(String()), Array(String(minLength=3))),
         (Foo, Baz),
         (Foo, Mux),
+        (Foo, Qux),
     ],
 )
 def test_non_equivalent_schemas_are_not_equal(left, right):

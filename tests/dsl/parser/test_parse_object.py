@@ -210,9 +210,9 @@ def test_parse_object_with_invalid_names():
     }
 
     class BadNames(Object):
-        dollar_sign_ref = Property(Element())
-        a_sentence = Property(Element())
-        multiple_lines = Property(Element())
-        _10 = Property(Element())
+        dollar_sign_ref = Property(Element(), source="$ref")
+        a_sentence = Property(Element(), source="a sentence")
+        multiple_lines = Property(Element(), source="multiple\nlines")
+        _10 = Property(Element(), source="10")
 
     assert parse_element(schema) == BadNames
