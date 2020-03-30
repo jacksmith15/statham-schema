@@ -86,13 +86,12 @@ def _check_my_format(value: str) -> bool:
 - [x] Type-specific validation (pattern, format, minimum, maximum etc)
 - [x] Custom string format validation
 - [x] Remote references
-- [x] `anyOf`, `oneOf`, `allOf`
+- [x] `anyOf`, `oneOf`, `allOf`, `not`
 - [x] `additionalProperties`
 - [ ] Tuple validation of arrays
 - [ ] Built-in string format validation #6
 - [ ] Generic keywords: `enum` #8, `const` #9
 - [ ] Array keywords: `uniqueItems` #10, `contains`
-- [ ] `not` keyword #14
 - [ ] `minProperties`, `maxProperties` #15
 - [ ] Property dependencies
 - [ ] Schema dependencies

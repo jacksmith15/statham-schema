@@ -46,7 +46,6 @@ class CompositionElement(Element):
     """Composition Base Element.
 
     The "oneOf", "anyOf" and "allOf" elements share the same interface.
-    # TODO: not
     """
 
     mode: Mode
