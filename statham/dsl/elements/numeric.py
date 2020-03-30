@@ -55,6 +55,9 @@ class Number(NumericElement[float]):
     Provides supported validation settings via keyword arguments.
     """
 
+    def construct(self, value, _property):  # pylint: disable=no-self-use
+        return float(value)
+
     @property
     def type_validator(self):
-        return InstanceOf(float)
+        return InstanceOf(float, int)

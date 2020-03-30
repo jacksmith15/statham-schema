@@ -13,12 +13,21 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Git submodule containing official JSON Schema test suite, and a
+  corresponding parameterized test. These tests will run if environment
+  variable `OFFICIAL_TEST_SUITE` is set to `true`.
+
 ### Fixed
 * Fixed bug causing some properties to be parsed twice.
 * Properties which conflict with Python keywords are now re-mapped
   on generated models.
 * Fixed bug where default is overriden on Object classes in parsers.
 * Fixed bug causing partially duplicated properties.
+* `Number` schema elements now accept `int` values, but convert them
+  to `float`.
+* Fixed bug causing some subschemas in `oneOf` statements to be
+  skipped.
 
 ## [0.4.0] - 2020-03-29
 ### Added

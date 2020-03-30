@@ -149,7 +149,8 @@ def _attempt_schemas(
     if mode == "oneOf":
         if len(results) > 1:
             raise ValidationError.multiple_composition_match(
-                [type(instance) for instance in results], value
+                [outcome.target for outcome in outcomes if not outcome.error],
+                value,
             )
         return results[0]
     if mode == "allOf":

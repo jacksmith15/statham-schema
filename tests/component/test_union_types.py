@@ -12,7 +12,7 @@ FIELD_VALIDATION_PARAMS: List[
 ] = [
     ({}, None, None),
     ({"number_integer": None}, ValidationError, "Must be of type (int)."),
-    ({"number_integer": None}, ValidationError, "Must be of type (float)."),
+    ({"number_integer": None}, ValidationError, "Must be of type (float,int)."),
     (
         {"number_integer": 1},
         ValidationError,
