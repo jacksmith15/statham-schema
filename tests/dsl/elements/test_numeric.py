@@ -170,7 +170,7 @@ class TestNumberValidation:
             (True, NotPassed()),
             (True, 3.6),
             (True, 12.7),
-            (False, 1),
+            (True, 1),
             (False, ["foo"]),
             (False, None),
         ],

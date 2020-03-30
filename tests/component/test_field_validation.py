@@ -97,7 +97,7 @@ FIELD_VALIDATION_PARAMS: List[
     (
         {"number_no_validation": None},
         ValidationError,
-        "Must be of type (float).",
+        "Must be of type (float,int).",
     ),
     (
         {"number_minimum": 2.4},
