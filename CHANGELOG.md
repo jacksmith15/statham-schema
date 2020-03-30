@@ -17,6 +17,7 @@ Types of changes are:
 * Git submodule containing official JSON Schema test suite, and a
   corresponding parameterized test. These tests will run if environment
   variable `OFFICIAL_TEST_SUITE` is set to `true`.
+* Added support for boolean `true` schemas.
 
 ### Fixed
 * Fixed bug causing some properties to be parsed twice.
