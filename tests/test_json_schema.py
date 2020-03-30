@@ -1,4 +1,3 @@
-# TODO: Integrate with JSON Schema official test suite.
 import json
 import os
 from os import path
