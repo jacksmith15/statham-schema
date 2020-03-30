@@ -139,7 +139,9 @@ def parse_composition(
             parse_element(sub_schema) for sub_schema in composition.get(key, [])
         ]
     all_of = [base_element] + composition["allOf"]
-    all_of.append(_compose_elements(OneOf, composition["oneOf"]))
+    all_of.append(
+        _compose_elements(OneOf, composition["oneOf"], simplify=False)
+    )
     all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
     element = _compose_elements(AllOf, all_of)
     default = schema.get("default", NotPassed())
@@ -331,14 +333,16 @@ def parse_items(schema: Dict[str, Any], state: ParseState = None) -> Element:
 
 
 def _compose_elements(
-    element_type: Type[CompositionElement], elements: List[Element]
+    element_type: Type[CompositionElement],
+    elements: List[Element],
+    simplify: bool = True,
 ) -> Element:
     """Create a composition element from a type and list of component elements.
 
     Filters out trivial elements, and simplifies compositions with only one
     composed element.
     """
-    elements = [elem for elem in elements if elem != Element()]
+    elements = [elem for elem in elements if not simplify or elem != Element()]
     if not elements:
         return Element()
     if len(elements) == 1:
