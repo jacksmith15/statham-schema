@@ -155,7 +155,9 @@ def parse_composition(
     all_of.append(
         _compose_elements(OneOf, composition["oneOf"], simplify=False)
     )
-    all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
+    all_of.append(
+        _compose_elements(AnyOf, composition["anyOf"], simplify=False)
+    )
     element = _compose_elements(AllOf, all_of)
     default = schema.get("default", NotPassed())
     if isinstance(element, ObjectMeta):

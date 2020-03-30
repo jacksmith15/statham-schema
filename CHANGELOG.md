@@ -19,6 +19,10 @@ Types of changes are:
   variable `OFFICIAL_TEST_SUITE` is set to `true`.
 * Added support for boolean `true` schemas.
 
+### Changed
+* Parsing schemas wih unsupported keywords now raises a
+  `FeatureNotImplementedError`.
+
 ### Fixed
 * Fixed bug causing some properties to be parsed twice.
 * Properties which conflict with Python keywords are now re-mapped
@@ -27,8 +31,8 @@ Types of changes are:
 * Fixed bug causing partially duplicated properties.
 * `Number` schema elements now accept `int` values, but convert them
   to `float`.
-* Fixed bug causing some subschemas in `oneOf` statements to be
-  skipped.
+* Fixed bug causing some subschemas in `oneOf` and `anyOf` statements
+  to be skipped.
 
 ## [0.4.0] - 2020-03-29
 ### Added
