@@ -7,7 +7,7 @@ from typing import Any, Dict, Iterator, List, NamedTuple, Optional
 import pytest
 
 from statham.dsl.parser import parse_element
-from statham.dsl.exceptions import ValidationError
+from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
 from tests.helpers import no_raise
 
 # This is a magic pytest constant.
@@ -45,13 +45,6 @@ NOT_IMPLEMENTED = (
 )
 
 
-def implemented(filepath: str) -> bool:
-    for tag in NOT_IMPLEMENTED:
-        if tag in filepath:
-            return False
-    return True
-
-
 def iter_files(filepath: str):
     if path.isdir(filepath):
         for subpath in os.listdir(filepath):
@@ -84,6 +77,19 @@ class Param(NamedTuple):
     def __str__(self):
         return f"{self.draft} | {self.feature} | {self.case} | {self.test}"
 
+    @property
+    def implemented(self):
+        for tag in NOT_IMPLEMENTED:
+            if tag in str(self):
+                return False
+        return True
+
+    @property
+    def marks(self):
+        return [
+            pytest.mark.skipif(not self.implemented, reason="Not implemented")
+        ]
+
 
 def _extract_tests(directory: str) -> Iterator[Param]:
     draft_dir = lambda _: path.join(directory, _)
@@ -108,29 +114,24 @@ def _extract_tests(directory: str) -> Iterator[Param]:
             for test_case in feature_test:
                 for test in test_case["tests"]:
                     assert isinstance(test, dict)
-                    marks = []
-                    if not implemented(name):
-                        marks.append(
-                            pytest.mark.skip(reason="Feature not implemented")
-                        )
-                    yield pytest.param(
-                        Param(
-                            draft=draft,
-                            feature=name,
-                            case=test_case["description"],
-                            test=test["description"],
-                            schema=test_case["schema"],
-                            data=test["data"],
-                            valid=test["valid"],
-                        ),
-                        marks=marks,
+                    param = Param(
+                        draft=draft,
+                        feature=name,
+                        case=test_case["description"],
+                        test=test["description"],
+                        schema=test_case["schema"],
+                        data=test["data"],
+                        valid=test["valid"],
                     )
+                    yield pytest.param(param, marks=param.marks)
 
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
 def test_jsonschema_official_test(param: Param):
-    with no_raise():
+    try:
         element = parse_element(param.schema)
+    except FeatureNotImplementedError:
+        return
     with no_raise() if param.valid else pytest.raises(
         (TypeError, ValidationError)
     ):
