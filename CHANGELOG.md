@@ -33,6 +33,7 @@ Types of changes are:
   to `float`.
 * Fixed bug causing some subschemas in `oneOf` and `anyOf` statements
   to be skipped.
+* Fixed bug in `MultipleOf` due to floating point errors.
 
 ## [0.4.0] - 2020-03-29
 ### Added

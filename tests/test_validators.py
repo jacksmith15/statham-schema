@@ -2,7 +2,7 @@ import pytest
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.property import UNBOUND_PROPERTY
-from statham.dsl.validation import Format, Validator
+from statham.dsl.validation import Format, MultipleOf, Validator
 from tests.helpers import no_raise
 
 
@@ -36,3 +36,9 @@ def test_that_validator_fails_if_bad_number_of_arguments_is_passed(args):
 def test_that_base_validator_does_not_raise():
     with no_raise():
         Validator()(None, None)
+
+
+def test_multiple_of_rounding():
+    validator = MultipleOf(0.0001)
+    with no_raise():
+        validator(0.0075, None)
