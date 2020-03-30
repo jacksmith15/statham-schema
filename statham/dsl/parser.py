@@ -6,7 +6,11 @@ import string
 from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
 import unicodedata
 
-from statham.dsl.constants import COMPOSITION_KEYWORDS, NotPassed
+from statham.dsl.constants import (
+    COMPOSITION_KEYWORDS,
+    NotPassed,
+    UNSUPPORTED_SCHEMA_KEYWORDS,
+)
 from statham.dsl.elements import (
     AllOf,
     AnyOf,
@@ -99,6 +103,10 @@ def parse_element(
     state = state or ParseState()
     if isinstance(schema, Element):
         return schema
+    if set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS:
+        raise FeatureNotImplementedError.unsupported_keywords(
+            set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
+        )
     if "properties" in schema:
         schema["properties"] = parse_properties(schema, state)
     if "items" in schema:

@@ -86,3 +86,9 @@ class FeatureNotImplementedError(SchemaParseError):
     @classmethod
     def false_schema(cls) -> "FeatureNotImplementedError":
         return cls("Boolean false schemas are not supported.")
+
+    @classmethod
+    def unsupported_keywords(cls, keywords) -> "FeatureNotImplementedError":
+        return cls(
+            f"The following provided keywords are not supported: {keywords}"
+        )

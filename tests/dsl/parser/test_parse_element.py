@@ -1,5 +1,6 @@
 import pytest
 
+from statham.dsl.constants import UNSUPPORTED_SCHEMA_KEYWORDS
 from statham.dsl.elements import Element, String
 from statham.dsl.property import Property
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
@@ -21,6 +22,12 @@ def test_parsing_boolean_schema_true_gives_base_element():
 @pytest.mark.xfail(raises=FeatureNotImplementedError)
 def test_parsing_boolean_schema_false():
     assert parse_element(False)
+
+
+@pytest.mark.xfail(raises=FeatureNotImplementedError)
+@pytest.mark.parametrize("keyword", UNSUPPORTED_SCHEMA_KEYWORDS)
+def test_parsing_unsupported_keywords(keyword):
+    assert parse_element({keyword: True})
 
 
 def test_parsing_schema_with_bad_type_raises():
