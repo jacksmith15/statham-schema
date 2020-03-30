@@ -28,11 +28,11 @@ class _FormatString:
                 (
                     f"""No validator found for format string {format_string}.
 To register new formats, please register a checker with
-{full_name} as follows:\n
-```\n
-@{self.__name__}({format_string})\n
-def is_{format_string.replace('-', '_')}value) -> bool:\n
-    ...\n
+{full_name} as follows:
+```
+@{self.__name__}({format_string})
+def is_{format_string.replace('-', '_')}(value) -> bool:
+    ...
 ```
 """
                 ),
