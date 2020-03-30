@@ -88,9 +88,14 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     SchemaParseError,
     "Could not parse cyclical dependencies of this schema.",
 )
-def parse_element(schema: Dict[str, Any], state: ParseState = None) -> Element:
+def parse_element(
+    schema: Union[bool, Dict[str, Any]], state: ParseState = None
+) -> Element:
     """Parse a JSONSchema element to a DSL Element object."""
-    # TODO: Allow true and false.
+    if isinstance(schema, bool):
+        if not schema:
+            raise FeatureNotImplementedError.false_schema()
+        return Element()
     state = state or ParseState()
     if isinstance(schema, Element):
         return schema

@@ -82,3 +82,7 @@ class FeatureNotImplementedError(SchemaParseError):
     @classmethod
     def tuple_array_items(cls) -> "FeatureNotImplementedError":
         return cls("Tuple array items are not supported.")
+
+    @classmethod
+    def false_schema(cls) -> "FeatureNotImplementedError":
+        return cls("Boolean false schemas are not supported.")

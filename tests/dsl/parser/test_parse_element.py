@@ -2,16 +2,25 @@ import pytest
 
 from statham.dsl.elements import Element, String
 from statham.dsl.property import Property
-from statham.dsl.exceptions import SchemaParseError
+from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
 from statham.dsl.parser import parse_element
 
 
 def test_parsing_empty_schema_results_in_base_element():
-    assert type(parse_element({})) is Element
+    assert parse_element({}) == Element()
 
 
 def test_parsing_schema_with_unknown_fields_ignores_them():
-    assert type(parse_element({"foo": "bar"})) is Element
+    assert parse_element({"foo": "bar"}) == Element()
+
+
+def test_parsing_boolean_schema_true_gives_base_element():
+    assert parse_element(True) == Element()
+
+
+@pytest.mark.xfail(raises=FeatureNotImplementedError)
+def test_parsing_boolean_schema_false():
+    assert parse_element(False)
 
 
 def test_parsing_schema_with_bad_type_raises():
