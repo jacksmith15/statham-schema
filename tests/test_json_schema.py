@@ -69,9 +69,11 @@ def load_file(filepath: str) -> Optional[List]:
 
 
 DIRECTORY = "tests/JSON-Schema-Test-Suite/tests"
+SUPPORTED_DRAFTS = ("draft4",)
 
 
 class Param(NamedTuple):
+    draft: str
     feature: str
     case: str
     test: str
@@ -80,35 +82,49 @@ class Param(NamedTuple):
     valid: bool
 
     def __str__(self):
-        return f"{self.feature} | {self.case} | {self.test}"
+        return f"{self.draft} | {self.feature} | {self.case} | {self.test}"
 
 
 def _extract_tests(directory: str) -> Iterator[Param]:
+    draft_dir = lambda _: path.join(directory, _)
+    draft_tests = (
+        (
+            draft,
+            (
+                (key.replace(draft_dir(draft), "").lstrip("/"), value)
+                for key, value in iter_files(draft_dir(draft))
+                if value
+            ),
+        )
+        for draft in SUPPORTED_DRAFTS
+    )
     feature_tests = (
         (key.replace(directory, ""), value)
         for key, value in iter_files(directory)
         if value
     )
-    for name, feature_test in feature_tests:
-        for test_case in feature_test:
-            for test in test_case["tests"]:
-                assert isinstance(test, dict)
-                marks = []
-                if not implemented(name):
-                    marks.append(
-                        pytest.mark.skip(reason="Feature not implemented")
+    for draft, feature_tests in draft_tests:
+        for name, feature_test in feature_tests:
+            for test_case in feature_test:
+                for test in test_case["tests"]:
+                    assert isinstance(test, dict)
+                    marks = []
+                    if not implemented(name):
+                        marks.append(
+                            pytest.mark.skip(reason="Feature not implemented")
+                        )
+                    yield pytest.param(
+                        Param(
+                            draft=draft,
+                            feature=name,
+                            case=test_case["description"],
+                            test=test["description"],
+                            schema=test_case["schema"],
+                            data=test["data"],
+                            valid=test["valid"],
+                        ),
+                        marks=marks,
                     )
-                yield pytest.param(
-                    Param(
-                        feature=name,
-                        case=test_case["description"],
-                        test=test["description"],
-                        schema=test_case["schema"],
-                        data=test["data"],
-                        valid=test["valid"],
-                    ),
-                    marks=marks,
-                )
 
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
