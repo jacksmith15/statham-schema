@@ -31,7 +31,7 @@ T = TypeVar("T")
 Maybe = Union[T, NotPassed]
 
 
-COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf")
+COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf", "not")
 
 
 UNSUPPORTED_SCHEMA_KEYWORDS = {
@@ -46,7 +46,6 @@ UNSUPPORTED_SCHEMA_KEYWORDS = {
     "else",
     "maxProperties",
     "minProperties",
-    "not",
     "patternProperties",
     "propertyNames",
     "unevaluatedItems",
