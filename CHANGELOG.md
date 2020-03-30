@@ -35,6 +35,7 @@ Types of changes are:
   to be skipped.
 * Fixed bug in `MultipleOf` due to floating point errors.
 * Fixed bug where anonymous object properties are not renamed.
+* Fixed unanchored pattern searching on strings.
 
 ## [0.4.0] - 2020-03-29
 ### Added

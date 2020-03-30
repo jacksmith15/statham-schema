@@ -39,6 +39,7 @@ UNSUPPORTED_SCHEMA_KEYWORDS = {
     "const",
     "contains",
     "$defs",
+    "dependencies",
     "enum",
     "if",
     "then",
