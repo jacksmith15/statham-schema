@@ -62,7 +62,7 @@ def load_file(filepath: str) -> Optional[List]:
 
 
 DIRECTORY = "tests/JSON-Schema-Test-Suite/tests"
-SUPPORTED_DRAFTS = ("draft4",)
+SUPPORTED_DRAFTS = ("draft6",)
 
 
 class Param(NamedTuple):
@@ -128,8 +128,9 @@ def _extract_tests(directory: str) -> Iterator[Param]:
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
 def test_jsonschema_official_test(param: Param):
+    schema = {**param.schema, "title": "Test"}
     try:
-        element = parse_element(param.schema)
+        element = parse_element(schema)
     except FeatureNotImplementedError:
         return
     with no_raise() if param.valid else pytest.raises(
