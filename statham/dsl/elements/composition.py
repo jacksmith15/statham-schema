@@ -20,6 +20,28 @@ def _dedupe(seq: Iterable[T]) -> List[T]:
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 
+class Not(Element[T]):
+    """JSONSchema "not" element.
+
+    Element fails to validate if enclosed schema validates.
+    """
+
+    def __init__(self, element: Element, default: Any = NotPassed()):
+        self.element = element
+        super().__init__(default=default)
+
+    def construct(self, value: Any, property_: _Property):
+        if value is NotPassed():
+            return value
+        try:
+            _ = self.element(value, property_)
+        except (TypeError, ValidationError):
+            return value
+        raise ValidationError.from_validator(
+            property_, value, f"Must not match {self.element}."
+        )
+
+
 class CompositionElement(Element):
     """Composition Base Element.
 

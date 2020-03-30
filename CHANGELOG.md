@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added support for `not` keyword.
 
 ## [0.5.0] - 2020-03-30
 ### Added

@@ -147,6 +147,7 @@ def test_parse_and_serialize_schema_with_composition_keywords():
             "any": {"anyOf": [{"type": "string"}, {"minLength": 3}]},
             "all": {"allOf": [{"type": "string"}, {"minLength": 3}]},
             "one": {"oneOf": [{"type": "string"}, {"minLength": 3}]},
+            "not": {"not": {"type": "string"}},
         },
     }
     # pylint: disable=line-too-long
@@ -158,6 +159,8 @@ def test_parse_and_serialize_schema_with_composition_keywords():
     all: Maybe[str] = Property(AllOf(String(), Element(minLength=3)))
 
     one: Maybe[Any] = Property(OneOf(String(), Element(minLength=3)))
+
+    _not: Maybe[Any] = Property(Not(String()), source='not')
 """
     )
 

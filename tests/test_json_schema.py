@@ -13,6 +13,17 @@ from tests.helpers import no_raise
 NOT_IMPLEMENTED = ("optional", "definitions", "defs", "ref", "refRemote")
 
 
+def _add_titles(schema):
+    if not isinstance(schema, (dict, list)):
+        return schema
+    if isinstance(schema, list):
+        return [_add_titles(val) for val in schema]
+    return {
+        "title": "Title",
+        **{key: _add_titles(value) for key, value in schema.items()},
+    }
+
+
 def iter_files(filepath: str):
     if path.isdir(filepath):
         for subpath in os.listdir(filepath):
@@ -96,9 +107,7 @@ def _extract_tests(directory: str) -> Iterator[Param]:
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
 def test_jsonschema_official_test(param: Param):
-    schema = param.schema
-    if isinstance(schema, dict):
-        schema = {**param.schema, "title": "Test"}
+    schema = _add_titles(param.schema)
     try:
         element = parse_element(schema)
     except FeatureNotImplementedError:

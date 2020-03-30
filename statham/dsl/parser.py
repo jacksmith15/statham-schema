@@ -1,9 +1,11 @@
 from collections import defaultdict
+from functools import partial
 import inspect
 from itertools import chain
+import operator as op
 import re
 import string
-from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
+from typing import Any, Callable, DefaultDict, Dict, Iterable, List, Type, Union
 import unicodedata
 
 from statham.dsl.constants import (
@@ -18,6 +20,7 @@ from statham.dsl.elements import (
     Boolean,
     CompositionElement,
     Integer,
+    Not,
     Nothing,
     Null,
     Number,
@@ -111,7 +114,7 @@ def parse_element(
     if "items" in schema:
         schema["items"] = parse_items(schema, state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
-    if {"anyOf", "oneOf", "allOf"} & set(schema):
+    if set(COMPOSITION_KEYWORDS) & set(schema):
         return parse_composition(schema, state)
     if "type" not in schema:
         return Element(**keyword_filter(Element)(schema))
@@ -146,18 +149,19 @@ def parse_composition(
         schema
     )
     base_element = parse_element(other, state)
-    for key in COMPOSITION_KEYWORDS:
+    for key in set(COMPOSITION_KEYWORDS) - {"not"}:
         composition[key] = [
-            parse_element(sub_schema) for sub_schema in composition.get(key, [])
+            parse_element(sub_schema, state)
+            for sub_schema in composition.get(key, [])
         ]
     all_of = [base_element] + composition["allOf"]
-    all_of.append(
-        _compose_elements(OneOf, composition["oneOf"], simplify=False)
+    all_of.append(_compose_elements(OneOf, composition["oneOf"]))
+    all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
+    if "not" in composition:
+        all_of.append(Not(parse_element(schema["not"], state)))
+    element = _compose_elements(
+        AllOf, filter(partial(op.ne, Element()), all_of)
     )
-    all_of.append(
-        _compose_elements(AnyOf, composition["anyOf"], simplify=False)
-    )
-    element = _compose_elements(AllOf, all_of)
     default = schema.get("default", NotPassed())
     if isinstance(element, ObjectMeta):
         return AllOf(element, default=default)
@@ -347,16 +351,14 @@ def parse_items(schema: Dict[str, Any], state: ParseState = None) -> Element:
 
 
 def _compose_elements(
-    element_type: Type[CompositionElement],
-    elements: List[Element],
-    simplify: bool = True,
+    element_type: Type[CompositionElement], elements: Iterable[Element]
 ) -> Element:
     """Create a composition element from a type and list of component elements.
 
     Filters out trivial elements, and simplifies compositions with only one
     composed element.
     """
-    elements = [elem for elem in elements if not simplify or elem != Element()]
+    elements = list(elements)
     if not elements:
         return Element()
     if len(elements) == 1:

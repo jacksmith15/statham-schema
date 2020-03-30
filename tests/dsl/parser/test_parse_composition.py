@@ -8,6 +8,7 @@ from statham.dsl.elements import (
     Array,
     Element,
     Integer,
+    Not,
     Number,
     Object,
     OneOf,
@@ -28,6 +29,12 @@ def test_parse_composition_with_empty_list(keyword):
 @pytest.mark.parametrize(
     "schema,expected",
     [
+        pytest.param({"not": {}}, Not(Element()), id="not-with-blank-element"),
+        pytest.param(
+            {"not": {"type": "string"}},
+            Not(String()),
+            id="not-with-typed-element",
+        ),
         pytest.param(
             {"anyOf": [{"type": "string"}]},
             String(),
@@ -163,12 +170,14 @@ def test_parse_composition_with_empty_list(keyword):
                 "oneOf": [{"minimum": 3}, {"maximum": 5}],
                 "anyOf": [{"type": "number"}, {"type": "integer"}],
                 "allOf": [{"minimum": 0}, {"maximum": 10}],
+                "not": {"multipleOf": 2},
             },
             AllOf(
                 Element(minimum=0),
                 Element(maximum=10),
                 OneOf(Element(minimum=3), Element(maximum=5)),
                 AnyOf(Number(), Integer()),
+                Not(Element(multipleOf=2)),
             ),
             id="all-compositions-no-outer",
         ),
@@ -178,6 +187,7 @@ def test_parse_composition_with_empty_list(keyword):
                 "oneOf": [{"minimum": 3}, {"maximum": 5}],
                 "anyOf": [{"type": "number"}, {"type": "integer"}],
                 "allOf": [{"minimum": 0}, {"maximum": 10}],
+                "not": {"multipleOf": 2},
             },
             AllOf(
                 Element(maximum=7),
@@ -185,6 +195,7 @@ def test_parse_composition_with_empty_list(keyword):
                 Element(maximum=10),
                 OneOf(Element(minimum=3), Element(maximum=5)),
                 AnyOf(Number(), Integer()),
+                Not(Element(multipleOf=2)),
             ),
             id="all-compositions-with-outer",
         ),

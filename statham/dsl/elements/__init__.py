@@ -5,6 +5,7 @@ from statham.dsl.elements.composition import (
     AllOf,
     AnyOf,
     CompositionElement,
+    Not,
     OneOf,
 )
 from statham.dsl.elements.meta import ObjectOptions
