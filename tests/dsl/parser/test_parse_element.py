@@ -1,7 +1,7 @@
 import pytest
 
 from statham.dsl.constants import UNSUPPORTED_SCHEMA_KEYWORDS
-from statham.dsl.elements import Element, String
+from statham.dsl.elements import Element, Nothing, String
 from statham.dsl.property import Property
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
 from statham.dsl.parser import parse_element
@@ -19,9 +19,8 @@ def test_parsing_boolean_schema_true_gives_base_element():
     assert parse_element(True) == Element()
 
 
-@pytest.mark.xfail(raises=FeatureNotImplementedError)
-def test_parsing_boolean_schema_false():
-    assert parse_element(False)
+def test_parsing_boolean_schema_false_gives_nothing():
+    assert parse_element(False) == Nothing()
 
 
 @pytest.mark.xfail(raises=FeatureNotImplementedError)

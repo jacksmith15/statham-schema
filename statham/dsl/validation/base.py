@@ -94,3 +94,12 @@ class InstanceOf(Validator):
             return
         if not _is_instance(value, self.params["types"]):
             raise ValidationError
+
+
+class NoMatch(Validator):
+    message = "Schema does not accept any values."
+
+    def validate(self, value: Any):
+        if value is NotPassed():
+            return
+        raise ValidationError

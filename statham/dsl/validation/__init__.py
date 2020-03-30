@@ -1,7 +1,7 @@
 from typing import Iterator, Type
 
 from statham.dsl.validation.array import MinItems, MaxItems
-from statham.dsl.validation.base import InstanceOf, Validator
+from statham.dsl.validation.base import InstanceOf, NoMatch, Validator
 from statham.dsl.validation.numeric import (
     Minimum,
     Maximum,
@@ -28,7 +28,7 @@ def get_validators(element) -> Iterator[Validator]:
     parameters are present on the element with correct values.
     """
     for validator_type in _all_subclasses(Validator):
-        if validator_type is InstanceOf:
+        if validator_type in (InstanceOf, NoMatch):
             continue
         validator = validator_type.from_element(element)
         if validator:

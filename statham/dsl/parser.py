@@ -18,6 +18,7 @@ from statham.dsl.elements import (
     Boolean,
     CompositionElement,
     Integer,
+    Nothing,
     Null,
     Number,
     Object,
@@ -83,7 +84,7 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     return [parse_element(schema, state)] + [
         parse_element(definition, state)
         for definition in schema.get("definitions", {}).values()
-        if isinstance(definition, (dict, Element))
+        if isinstance(definition, (dict, bool, Element))
     ]
 
 
@@ -97,9 +98,7 @@ def parse_element(
 ) -> Element:
     """Parse a JSONSchema element to a DSL Element object."""
     if isinstance(schema, bool):
-        if not schema:
-            raise FeatureNotImplementedError.false_schema()
-        return Element()
+        return Element() if schema else Nothing()
     state = state or ParseState()
     if isinstance(schema, Element):
         return schema
@@ -274,7 +273,7 @@ def parse_properties(
             )
             for key, value in properties.items()
             # Ignore malformed values.
-            if isinstance(value, dict)
+            if isinstance(value, (dict, bool))
         },
         **{
             parse_attribute_name(key): prop
