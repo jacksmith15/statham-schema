@@ -27,6 +27,8 @@ class Poll(Object):
     choices: List[Choice] = Property(Array(Choice), required=True)
 ```
 
+Development currently targets compatibility with JSONSchema Draft 6.
+
 # Requirements
 This package is currently tested for Python 3.6.
 
