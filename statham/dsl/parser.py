@@ -141,7 +141,10 @@ def parse_composition(
     all_of.append(_compose_elements(OneOf, composition["oneOf"]))
     all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
     element = _compose_elements(AllOf, all_of)
-    element.default = composition.get("default") or element.default
+    default = schema.get("default", NotPassed())
+    if isinstance(element, ObjectMeta):
+        return AllOf(element, default=default)
+    element.default = default or element.default
     return element
 
 

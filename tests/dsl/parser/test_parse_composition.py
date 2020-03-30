@@ -9,11 +9,13 @@ from statham.dsl.elements import (
     Element,
     Integer,
     Number,
+    Object,
     OneOf,
     String,
 )
-from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
-from statham.dsl.parser import parse_composition, parse_element
+from statham.dsl.exceptions import ValidationError
+from statham.dsl.parser import parse_element
+from statham.dsl.property import Property
 from tests.helpers import no_raise
 
 
@@ -235,3 +237,22 @@ class TestPrimitiveCompositionWithOuterKeywords:
     def test_element_accepts_correct_value(element, value):
         with no_raise():
             _ = element(value)
+
+
+def test_parse_of_with_outer_default_does_not_override_other_element():
+    sub_schema = {"type": "object", "title": "Child"}
+    schema = {"type": "object", "title": "Parent", "properties": {}}
+    schema["properties"]["value"] = sub_schema
+    schema["properties"]["other"] = {
+        "allOf": [sub_schema],
+        "default": {"foo": "bar"},
+    }
+
+    class Child(Object):
+        pass
+
+    class Parent(Object):
+        value = Property(Child)
+        other = Property(AllOf(Child, default={"foo": "bar"}))
+
+    assert parse_element(schema) == Parent
