@@ -9,40 +9,8 @@ from statham.dsl.parser import parse_element
 from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
 from tests.helpers import no_raise
 
-# This is a magic pytest constant.
-# pylint: disable=invalid-name
-pytestmark = [
-    pytest.mark.skipif(
-        os.getenv("OFFICIAL_TEST_SUITE", "false").lower() not in ("true", "1"),
-        reason=("Test against JSONSchema official test pack."),
-    )
-]
 
-
-NOT_IMPLEMENTED = (
-    "optional",
-    "additionalItems",
-    "anchor",
-    "const",
-    "contains",
-    "definitions",
-    "defs",
-    "dependentRequired",
-    "dependentSchemas",
-    "dependencies",
-    "enum",
-    "if-then-else",
-    "maxProperties",
-    "minProperties",
-    "not",
-    "patternProperties",
-    "propertyNames",
-    "ref",
-    "refRemote",
-    "unevaluatedItems",
-    "unevaluatedProperties",
-    "uniqueItems",
-)
+NOT_IMPLEMENTED = ("optional", "definitions", "defs", "ref", "refRemote")
 
 
 def iter_files(filepath: str):

@@ -25,7 +25,7 @@ class Pattern(Validator):
         return self.message.format(pattern=repr(self.params["pattern"]))
 
     def validate(self, value: Any):
-        if not re.match(self.params["pattern"], value):
+        if not re.search(self.params["pattern"], value):
             raise ValidationError
 
 

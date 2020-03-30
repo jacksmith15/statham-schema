@@ -210,3 +210,11 @@ class TestAnonymousObject:
     def test_that_attributes_can_be_set(result):
         result.new = "foo"
         assert result.new == "foo"
+
+
+def test_nothing_element_is_falsey():
+    assert not Nothing()
+
+
+def test_nothing_element_annotation_is_none():
+    assert Nothing().annotation == "None"
