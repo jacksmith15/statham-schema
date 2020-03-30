@@ -288,9 +288,10 @@ def parse_attribute_name(name: str) -> str:
     name = "".join(chars).replace(" ", "_").replace("-", "_")
     if not name:
         return "blank"
+    first_chars = set(string.ascii_letters) | {"_"}
     return (
         name
-        if name not in RESERVED_PROPERTIES and name[0].isalpha()
+        if name not in RESERVED_PROPERTIES and name[0] in first_chars
         else f"_{name}"
     )
 

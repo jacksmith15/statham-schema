@@ -18,6 +18,7 @@ Types of changes are:
 * Properties which conflict with Python keywords are now re-mapped
   on generated models.
 * Fixed bug where default is overriden on Object classes in parsers.
+* Fixed bug causing partially duplicated properties.
 
 ## [0.4.0] - 2020-03-29
 ### Added
