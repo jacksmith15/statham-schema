@@ -15,7 +15,12 @@ from typing import (
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.helpers import custom_repr
-from statham.dsl.validation import get_validators, InstanceOf, Validator
+from statham.dsl.validation import (
+    get_validators,
+    InstanceOf,
+    NoMatch,
+    Validator,
+)
 
 
 T = TypeVar("T")
@@ -148,6 +153,24 @@ class Element(Generic[T]):
         if isinstance(value, NotPassed):
             return value
         return self.construct(value, property_)
+
+
+class Nothing(Element):
+    """Element which matches nothing. Equivalent to False."""
+
+    def __init__(self):
+        super().__init__()  # Don't allow args to Nothing.
+
+    def __bool__(self):
+        return False
+
+    @property
+    def annotation(self) -> str:
+        return "None"
+
+    @property
+    def validators(self) -> List[Validator]:
+        return [NoMatch()]
 
 
 # Needs to be imported last to prevent cyclic import.

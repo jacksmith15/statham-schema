@@ -1,5 +1,5 @@
 from statham.dsl.elements.array import Array
-from statham.dsl.elements.base import Element
+from statham.dsl.elements.base import Element, Nothing
 from statham.dsl.elements.boolean import Boolean
 from statham.dsl.elements.composition import (
     AllOf,

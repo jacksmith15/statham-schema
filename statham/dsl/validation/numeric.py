@@ -49,5 +49,11 @@ class MultipleOf(Validator):
     message = "Must be a multiple of {multipleOf}."
 
     def validate(self, value: Any):
-        if value % self.params["multipleOf"]:
+        multiple_of = self.params["multipleOf"]
+        if isinstance(multiple_of, float):
+            quotient = value / multiple_of
+            if int(quotient) != quotient:
+                raise ValidationError
+            return
+        if value % multiple_of:
             raise ValidationError

@@ -239,7 +239,7 @@ class TestPrimitiveCompositionWithOuterKeywords:
             _ = element(value)
 
 
-def test_parse_of_with_outer_default_does_not_override_other_element():
+def test_parse_allOf_with_outer_default_does_not_override_other_element():
     sub_schema = {"type": "object", "title": "Child"}
     schema = {"type": "object", "title": "Parent", "properties": {}}
     schema["properties"]["value"] = sub_schema
@@ -256,3 +256,10 @@ def test_parse_of_with_outer_default_does_not_override_other_element():
         other = Property(AllOf(Child, default={"foo": "bar"}))
 
     assert parse_element(schema) == Parent
+
+
+def test_parse_anyOf_with_one_empty_element():
+    schema = {"anyOf": [{"type": "number"}, {}]}
+    element = parse_element(schema)
+    with no_raise():
+        _ = element("foo")

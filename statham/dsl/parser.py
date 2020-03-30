@@ -6,7 +6,11 @@ import string
 from typing import Any, Callable, DefaultDict, Dict, List, Type, Union
 import unicodedata
 
-from statham.dsl.constants import COMPOSITION_KEYWORDS, NotPassed
+from statham.dsl.constants import (
+    COMPOSITION_KEYWORDS,
+    NotPassed,
+    UNSUPPORTED_SCHEMA_KEYWORDS,
+)
 from statham.dsl.elements import (
     AllOf,
     AnyOf,
@@ -14,6 +18,7 @@ from statham.dsl.elements import (
     Boolean,
     CompositionElement,
     Integer,
+    Nothing,
     Null,
     Number,
     Object,
@@ -79,7 +84,7 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     return [parse_element(schema, state)] + [
         parse_element(definition, state)
         for definition in schema.get("definitions", {}).values()
-        if isinstance(definition, (dict, Element))
+        if isinstance(definition, (dict, bool, Element))
     ]
 
 
@@ -88,12 +93,19 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     SchemaParseError,
     "Could not parse cyclical dependencies of this schema.",
 )
-def parse_element(schema: Dict[str, Any], state: ParseState = None) -> Element:
+def parse_element(
+    schema: Union[bool, Dict[str, Any]], state: ParseState = None
+) -> Element:
     """Parse a JSONSchema element to a DSL Element object."""
-    # TODO: Allow true and false.
+    if isinstance(schema, bool):
+        return Element() if schema else Nothing()
     state = state or ParseState()
     if isinstance(schema, Element):
         return schema
+    if set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS:
+        raise FeatureNotImplementedError.unsupported_keywords(
+            set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
+        )
     if "properties" in schema:
         schema["properties"] = parse_properties(schema, state)
     if "items" in schema:
@@ -142,7 +154,9 @@ def parse_composition(
     all_of.append(
         _compose_elements(OneOf, composition["oneOf"], simplify=False)
     )
-    all_of.append(_compose_elements(AnyOf, composition["anyOf"]))
+    all_of.append(
+        _compose_elements(AnyOf, composition["anyOf"], simplify=False)
+    )
     element = _compose_elements(AllOf, all_of)
     default = schema.get("default", NotPassed())
     if isinstance(element, ObjectMeta):
@@ -259,7 +273,7 @@ def parse_properties(
             )
             for key, value in properties.items()
             # Ignore malformed values.
-            if isinstance(value, dict)
+            if isinstance(value, (dict, bool))
         },
         **{
             parse_attribute_name(key): prop

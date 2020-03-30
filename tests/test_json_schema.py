@@ -25,6 +25,7 @@ NOT_IMPLEMENTED = (
     "anchor",
     "const",
     "contains",
+    "definitions",
     "defs",
     "dependentRequired",
     "dependentSchemas",
@@ -127,7 +128,9 @@ def _extract_tests(directory: str) -> Iterator[Param]:
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
 def test_jsonschema_official_test(param: Param):
-    schema = {**param.schema, "title": "Test"}
+    schema = param.schema
+    if isinstance(schema, dict):
+        schema = {**param.schema, "title": "Test"}
     try:
         element = parse_element(schema)
     except FeatureNotImplementedError:

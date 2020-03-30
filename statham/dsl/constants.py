@@ -32,3 +32,23 @@ Maybe = Union[T, NotPassed]
 
 
 COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf")
+
+
+UNSUPPORTED_SCHEMA_KEYWORDS = {
+    "additionalItems",
+    "const",
+    "contains",
+    "$defs",
+    "enum",
+    "if",
+    "then",
+    "else",
+    "maxProperties",
+    "minProperties",
+    "not",
+    "patternProperties",
+    "propertyNames",
+    "unevaluatedItems",
+    "unevaluatedProperties",
+    "uniqueItems",
+}

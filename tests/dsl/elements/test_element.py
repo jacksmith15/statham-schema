@@ -2,7 +2,7 @@ from typing import Any, Iterator, List, NamedTuple, Tuple
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Element, String
+from statham.dsl.elements import Element, Nothing, String
 from statham.dsl.elements.base import _AnonymousObject
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
@@ -152,6 +152,11 @@ CASES = [
             ["foo", 1],
         ],
         bad=[{}, {"foo": "bar"}],
+    ),
+    Case(
+        element=Nothing(),
+        good=[NotPassed()],
+        bad=[None, True, 1, 1.2, "foo", {"foo": "bar"}, ["foo", 1]],
     ),
 ]
 

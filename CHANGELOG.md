@@ -17,6 +17,11 @@ Types of changes are:
 * Git submodule containing official JSON Schema test suite, and a
   corresponding parameterized test. These tests will run if environment
   variable `OFFICIAL_TEST_SUITE` is set to `true`.
+* Added support for boolean schemas.
+
+### Changed
+* Parsing schemas wih unsupported keywords now raises a
+  `FeatureNotImplementedError`.
 
 ### Fixed
 * Fixed bug causing some properties to be parsed twice.
@@ -26,8 +31,9 @@ Types of changes are:
 * Fixed bug causing partially duplicated properties.
 * `Number` schema elements now accept `int` values, but convert them
   to `float`.
-* Fixed bug causing some subschemas in `oneOf` statements to be
-  skipped.
+* Fixed bug causing some subschemas in `oneOf` and `anyOf` statements
+  to be skipped.
+* Fixed bug in `MultipleOf` due to floating point errors.
 
 ## [0.4.0] - 2020-03-29
 ### Added
