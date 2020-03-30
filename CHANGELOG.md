@@ -34,6 +34,7 @@ Types of changes are:
 * Fixed bug causing some subschemas in `oneOf` and `anyOf` statements
   to be skipped.
 * Fixed bug in `MultipleOf` due to floating point errors.
+* Fixed bug where anonymous object properties are not renamed.
 
 ## [0.4.0] - 2020-03-29
 ### Added

@@ -205,14 +205,17 @@ def object_constructor(
         lambda: default_prop
     )
     if not isinstance(properties, NotPassed):
-        default_properties.update(properties)
+        default_properties.update(
+            {prop.source or key: prop for key, prop in properties.items()}
+        )
 
     def _constructor(value: Any) -> Any:
         if not isinstance(value, dict):
             return value
         return _AnonymousObject(
             {
-                key: default_properties[key](sub_value)
+                default_properties[key].name
+                or key: default_properties[key](sub_value)
                 for key, sub_value in value.items()
             }
         )
