@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-03-30
 ### Added
 * Git submodule containing official JSON Schema test suite, and a
   corresponding parameterized test. These tests will run if environment
@@ -148,7 +150,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.4.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.5.0..HEAD
+[0.5.0]: http://github.com/jacksmith15/statham-schema/compare/0.4.0..0.5.0
 [0.4.0]: http://github.com/jacksmith15/statham-schema/compare/0.3.0..0.4.0
 [0.3.0]: http://github.com/jacksmith15/statham-schema/compare/0.2.0..0.3.0
 [0.2.0]: http://github.com/jacksmith15/statham-schema/compare/0.1.1..0.2.0
