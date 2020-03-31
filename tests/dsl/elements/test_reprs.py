@@ -39,6 +39,7 @@ class ObjectWrapper(Object):
         ),
         (Array(String()), "Array(String())"),
         (Array(String(), minItems=3), "Array(String(), minItems=3)"),
+        (Array([String(), Integer()]), "Array([String(), Integer()])"),
         (Boolean(), "Boolean()"),
         (Boolean(default=True), "Boolean(default=True)"),
         (Integer(), "Integer()"),

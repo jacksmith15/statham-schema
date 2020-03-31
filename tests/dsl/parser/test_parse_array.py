@@ -2,8 +2,7 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import Array, Element, String
-from statham.dsl.exceptions import FeatureNotImplementedError
+from statham.dsl.elements import Array, Element, Integer, String
 from statham.dsl.parser import parse_element
 
 
@@ -26,6 +25,22 @@ from statham.dsl.parser import parse_element
             },
             Array(String(), default=["foo", "bar"], minItems=1, maxItems=3),
             id="with-items-and-keywords",
+        ),
+        pytest.param(
+            {
+                "type": "array",
+                "items": [{"type": "string"}, {"type": "integer"}],
+                "default": ["foo", 1],
+                "minItems": 2,
+                "additionalItems": False,
+            },
+            Array(
+                [String(), Integer()],
+                default=["foo", 1],
+                minItems=2,
+                additionalItems=False,
+            ),
+            id="with-tuple-items-and-keywords",
         ),
     ],
 )
