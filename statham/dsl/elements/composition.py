@@ -1,23 +1,17 @@
-from typing import Any, Iterable, List, NamedTuple, Optional, Set, TypeVar
+from typing import Any, List, NamedTuple, Optional, TypeVar
 from typing_extensions import Literal
 
+from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element
+from statham.dsl.helpers import remove_duplicates
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
-from statham.dsl.constants import NotPassed
-
 
 # TODO: if, then, else
 
 # This is a type annotation.
 Mode = Literal["anyOf", "oneOf", "allOf"]  # pylint: disable=invalid-name
 T = TypeVar("T")
-
-
-def _dedupe(seq: Iterable[T]) -> List[T]:
-    seen: Set[T] = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 class Not(Element[T]):
@@ -59,7 +53,9 @@ class CompositionElement(Element):
 
     @property
     def annotation(self):
-        annotations = _dedupe(elem.annotation for elem in self.elements)
+        annotations = remove_duplicates(
+            elem.annotation for elem in self.elements
+        )
         if len(annotations) == 1:
             return annotations[0]
         if "Any" in annotations:

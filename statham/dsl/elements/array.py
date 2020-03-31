@@ -1,7 +1,8 @@
 from typing import List, TypeVar, Union
 
-from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
+from statham.dsl.elements.base import Element
+from statham.dsl.helpers import remove_duplicates
 from statham.dsl.validation import InstanceOf
 
 
@@ -19,16 +20,16 @@ class Array(Element[List[Item]]):
     # TODO: contains
     """
 
-    items: Union[Element[Item], List[Element[Item]]]
+    items: Union[Element[Item], List[Element]]
 
     def __init__(
         self,
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
-        items: Union[Element[Item], List[Element[Item]]],
+        items: Union[Element[Item], List[Element]],
         *,
-        additionalItems: Union[Element[Item], bool] = True,
-        default: Maybe[List[Item]] = NotPassed(),
+        additionalItems: Union[Element, bool] = True,
+        default: Maybe[List] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
     ):
@@ -42,10 +43,25 @@ class Array(Element[List[Item]]):
 
     @property
     def annotation(self) -> str:
+        if not self.item_annotations:
+            return "List"
+        if len(self.item_annotations) == 1:
+            return f"List[{self.item_annotations[0]}]"
+        return f"List[Union[{', '.join(self.item_annotations)}]]"
+
+    @property
+    def item_annotations(self) -> List[str]:
+        """Get a list of possible type annotations."""
         if isinstance(self.items, Element):
-            return f"List[{self.items.annotation}]"
-        annotations = ", ".join(item.annotation for item in self.items)
-        return f"List[Union[{annotations}]]"
+            return [self.items.annotation]
+        annotations: List[str] = [item.annotation for item in self.items]
+        if self.additionalItems is True:
+            return ["Any"]
+        if isinstance(self.additionalItems, Element):
+            annotations.append(self.additionalItems.annotation)
+        if "Any" in annotations:
+            return ["Any"]
+        return remove_duplicates(annotations)
 
     @property
     def type_validator(self):
