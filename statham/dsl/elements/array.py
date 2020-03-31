@@ -14,8 +14,6 @@ class Array(Element[List[Item]]):
 
     Requires schema element for "items" keyword as first positional
     argument. Supported validation keywords provided via keyword arguments.
-    # TODO: tuple items
-    # TODO: additionalItems
     # TODO: unqiueItems
     # TODO: contains
     """

@@ -98,7 +98,9 @@ def main(input_uri: str) -> str:
         '$ref' attribute.
     :return: Python module contents for generated models, as a string.
     """
-    schema = materialize(RefDict(input_uri), context_labeller=title_labeller())
+    schema = materialize(
+        RefDict.from_uri(input_uri), context_labeller=title_labeller()
+    )
     return serialize_python(*parse(schema))
 
 
