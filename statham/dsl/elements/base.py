@@ -48,7 +48,7 @@ class Element(Generic[T]):
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name,redefined-builtin
         default: Maybe[Any] = NotPassed(),
-        items: Maybe["Element"] = NotPassed(),
+        items: Maybe[Union["Element", List["Element"]]] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),

@@ -80,10 +80,6 @@ class FeatureNotImplementedError(SchemaParseError):
     """Functionality not yet implemented."""
 
     @classmethod
-    def tuple_array_items(cls) -> "FeatureNotImplementedError":
-        return cls("Tuple array items are not supported.")
-
-    @classmethod
     def unsupported_keywords(cls, keywords) -> "FeatureNotImplementedError":
         return cls(
             f"The following provided keywords are not supported: {keywords}"
