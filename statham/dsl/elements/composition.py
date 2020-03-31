@@ -25,8 +25,6 @@ class Not(Element[T]):
         super().__init__(default=default)
 
     def construct(self, value: Any, property_: _Property):
-        if value is NotPassed():
-            return value
         try:
             _ = self.element(value, property_)
         except (TypeError, ValidationError):

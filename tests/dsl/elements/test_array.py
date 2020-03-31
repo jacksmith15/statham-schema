@@ -99,8 +99,9 @@ def test_array_default_keyword():
     [
         (Array(String()), "List[str]"),
         (Array(Element()), "List[Any]"),
-        (Array([String(), String()]), "List[Any]"),
+        (Array([String(), Element()]), "List[Any]"),
         (Array([String(), String()], additionalItems=False), "List[str]"),
+        (Array([String(), Element()], additionalItems=False), "List[Any]"),
         (
             Array([String(), String()], additionalItems=Integer()),
             "List[Union[str, int]]",
