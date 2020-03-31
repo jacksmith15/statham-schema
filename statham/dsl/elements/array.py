@@ -23,18 +23,20 @@ class Array(Element[List[Item]]):
 
     def __init__(
         self,
-        items: Union[Element[Item], List[Element[Item]]],
-        *,
-        default: Maybe[List[Item]] = NotPassed(),
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
+        items: Union[Element[Item], List[Element[Item]]],
+        *,
+        additionalItems: Union[Element[Item], bool] = True,
+        default: Maybe[List[Item]] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
     ):
-        self.items = items
-        self.default = default
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name
+        self.items = items
+        self.additionalItems = additionalItems
+        self.default = default
         self.minItems = minItems
         self.maxItems = maxItems
 
@@ -48,19 +50,3 @@ class Array(Element[List[Item]]):
     @property
     def type_validator(self):
         return InstanceOf(list)
-
-    def construct(self, value, property_):
-        get_prop = lambda idx: property_.evolve(property_.name + f"[{idx}]")
-        if isinstance(self.items, Element):
-            return [
-                self.items(item, get_prop(idx))
-                for idx, item in enumerate(value)
-            ]
-        num_items = len(self.items)
-        return [
-            elem(value, get_prop(idx))
-            for idx, (elem, value) in enumerate(zip(self.items, value))
-        ] + [
-            self.construct_additional(item, get_prop(idx))
-            for idx, item in enumerate(value[num_items:], start=num_items)
-        ]

@@ -33,13 +33,3 @@ def test_parse_array_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
     assert parse_element(schema) == expected
-
-
-def test_parse_array_tuple_items_raises():
-    with pytest.raises(FeatureNotImplementedError):
-        parse_element(
-            {
-                "type": "array",
-                "items": [{"type": "string"}, {"type": "integer"}],
-            }
-        )

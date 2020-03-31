@@ -1,6 +1,6 @@
 from typing import Iterator, Type
 
-from statham.dsl.validation.array import MinItems, MaxItems
+from statham.dsl.validation.array import AdditionalItems, MinItems, MaxItems
 from statham.dsl.validation.base import InstanceOf, NoMatch, Validator
 from statham.dsl.validation.numeric import (
     Minimum,
