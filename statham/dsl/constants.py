@@ -35,7 +35,6 @@ COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf", "not")
 
 
 UNSUPPORTED_SCHEMA_KEYWORDS = {
-    "additionalItems",
     "const",
     "contains",
     "$defs",

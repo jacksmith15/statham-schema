@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Array, String
+from statham.dsl.elements import Array, Element, Integer, String
 from statham.dsl.helpers import Args
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise
@@ -94,5 +94,25 @@ def test_array_default_keyword():
     assert element(["foo"]) == ["foo"]
 
 
-def test_array_type_annotation():
+@pytest.mark.parametrize(
+    "element,annotation",
+    [
+        (Array(String()), "List[str]"),
+        (Array(Element()), "List[Any]"),
+        (Array([String(), Element()]), "List[Any]"),
+        (Array([String(), String()], additionalItems=False), "List[str]"),
+        (Array([String(), Element()], additionalItems=False), "List[Any]"),
+        (
+            Array([String(), String()], additionalItems=Integer()),
+            "List[Union[str, int]]",
+        ),
+        (
+            Array([String(), Integer()], additionalItems=False),
+            "List[Union[str, int]]",
+        ),
+        (Array([], additionalItems=False), "List"),
+    ],
+)
+def test_array_type_annotation(element: Array, annotation: str):
+    assert element.annotation == annotation
     assert Array(String()).annotation == "List[str]"

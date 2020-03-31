@@ -1,6 +1,7 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
 from collections import defaultdict
+from itertools import zip_longest
 from typing import (
     Any,
     Callable,
@@ -48,7 +49,8 @@ class Element(Generic[T]):
         # Bad name to match JSONSchema keywords.
         # pylint: disable=invalid-name,redefined-builtin
         default: Maybe[Any] = NotPassed(),
-        items: Maybe["Element"] = NotPassed(),
+        items: Maybe[Union["Element", List["Element"]]] = NotPassed(),
+        additionalItems: Union["Element", bool] = True,
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
@@ -68,6 +70,7 @@ class Element(Generic[T]):
         # pylint: disable=invalid-name
         self.default = default
         self.items = items
+        self.additionalItems = additionalItems
         self.minItems = minItems
         self.maxItems = maxItems
         self.minimum = minimum
@@ -129,12 +132,11 @@ class Element(Generic[T]):
 
     def construct(self, value, _property):
         properties = getattr(self, "properties", NotPassed())
-        additional_properties = getattr(
-            self, "additionalProperties", NotPassed()
-        )
+        additional_properties = getattr(self, "additionalProperties", True)
         items = getattr(self, "items", NotPassed())
+        additional_items = getattr(self, "additionalItems", True)
         return object_constructor(properties, additional_properties)(
-            array_constructor(items)(value, _property)
+            array_constructor(items, additional_items)(value, _property)
         )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
@@ -194,7 +196,7 @@ class _AnonymousObject(dict):
 
 def object_constructor(
     properties: Maybe[Dict[str, _Property]] = NotPassed(),
-    additional_properties: Maybe[Union[Element, bool]] = NotPassed(),
+    additional_properties: Union[Element, bool] = True,
 ) -> Callable[[Any], _AnonymousObject]:
     """Recursively construct and validate sub-properties of object input."""
     # TODO: Use same `additional_properties` interface as on `Object`.
@@ -204,7 +206,7 @@ def object_constructor(
     default_properties: DefaultDict[str, _Property] = defaultdict(
         lambda: default_prop
     )
-    if not isinstance(properties, NotPassed):
+    if isinstance(properties, dict):
         default_properties.update(
             {prop.source or key: prop for key, prop in properties.items()}
         )
@@ -224,21 +226,39 @@ def object_constructor(
 
 
 def array_constructor(
-    items: Maybe[Element] = NotPassed()
+    items: Maybe[Union[Element, List[Element]]] = NotPassed(),
+    additional_items: Union[Element, bool] = True,
 ) -> Callable[[Any, _Property], _AnonymousObject]:
     """Recursively construct and validate sub-properties of array input."""
-    items_element: Element = Element()
-    if isinstance(items, Element):
+    items_element: Union[Element, List[Element]] = Element()
+    additional: Element = Element()  # False already checked by validator.
+    if isinstance(additional_items, Element):
+        additional = additional_items
+    if isinstance(items, NotPassed):
+        items_element = additional
+    else:
         items_element = items
 
     def _constructor(value: Any, property_: _Property) -> Any:
         if not isinstance(value, list):
             return value
+        get_prop = lambda idx: property_.evolve(
+            property_.name or "" + f"[{idx}]"
+        )
+        if isinstance(items_element, Element):
+            return [
+                # Callable is ensured by outer clause.
+                # pylint: disable=not-callable
+                items_element(subval, get_prop(idx))
+                for idx, subval in enumerate(value)
+            ]
         return [
-            items_element(
-                item, property_.evolve(property_.name or "" + f"[{idx}]")
+            elem(subval, get_prop(idx))
+            for idx, (elem, subval) in enumerate(
+                # Additional items to be handled by "additional".
+                zip_longest(items_element, value, fillvalue=additional)
             )
-            for idx, item in enumerate(value)
+            if idx < len(value)
         ]
 
     return _constructor

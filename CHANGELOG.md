@@ -15,6 +15,11 @@ Types of changes are:
 ## [Unreleased]
 ### Added
 * Added support for `not` keyword.
+* Added support for "tuple" definition of `items` keyword.
+* Added support for `additionalItems` keyword.
+
+### Changed
+* Raised dependency on `json-ref-dict` to version `0.5.1`.
 
 ## [0.5.0] - 2020-03-30
 ### Added

@@ -22,3 +22,18 @@ class MaxItems(Validator):
     def validate(self, value: Any):
         if len(value) > self.params["maxItems"]:
             raise ValidationError
+
+
+class AdditionalItems(Validator):
+    types = (list,)
+    keywords = ("items", "additionalItems")
+    message = "Must not contain additional items. Accepts: {items}"
+
+    def validate(self, value: Any):
+        if not isinstance(self.params["items"], list):
+            return
+        if len(value) <= len(self.params["items"]):
+            return
+        if self.params["additionalItems"]:
+            return
+        raise ValidationError

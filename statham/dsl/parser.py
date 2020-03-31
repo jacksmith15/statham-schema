@@ -114,6 +114,7 @@ def parse_element(
     if "items" in schema:
         schema["items"] = parse_items(schema, state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
+    schema["additionalItems"] = parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
         return parse_composition(schema, state)
     if "type" not in schema:
@@ -317,6 +318,21 @@ def parse_attribute_name(name: str) -> str:
     )
 
 
+def parse_additional(
+    key: str, schema: Dict[str, Any], state: ParseState = None
+) -> Union[Element, bool]:
+    """Parse additional items or properties.
+
+    Booleans are retained for these values, as they are more semantically
+    meaningful than in general schemas.
+    """
+    state = state or ParseState()
+    additional_properties = schema.get(key, True)
+    if isinstance(additional_properties, bool):
+        return additional_properties
+    return parse_element(additional_properties, state)
+
+
 def parse_additional_properties(
     schema: Dict[str, Any], state: ParseState = None
 ) -> Union[Element, bool]:
@@ -324,11 +340,17 @@ def parse_additional_properties(
 
     If key is not present, defaults to `True`.
     """
-    state = state or ParseState()
-    additional_properties = schema.get("additionalProperties", True)
-    if isinstance(additional_properties, bool):
-        return additional_properties
-    return parse_element(additional_properties, state)
+    return parse_additional("additionalProperties", schema, state)
+
+
+def parse_additional_items(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Union[Element, bool]:
+    """Parse additionalProperties from a schema element.
+
+    If key is not present, defaults to `True`.
+    """
+    return parse_additional("additionalItems", schema, state)
 
 
 def parse_array(schema: Dict[str, Any], state: ParseState = None) -> Array:
@@ -338,7 +360,9 @@ def parse_array(schema: Dict[str, Any], state: ParseState = None) -> Array:
     return Array(**{**keyword_filter(Array)(schema), "items": items})
 
 
-def parse_items(schema: Dict[str, Any], state: ParseState = None) -> Element:
+def parse_items(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Union[Element, List[Element]]:
     """Parse array items keyword to DSL Element.
 
     If not present, defaults to `Element()`.
@@ -346,7 +370,7 @@ def parse_items(schema: Dict[str, Any], state: ParseState = None) -> Element:
     state = state or ParseState()
     items = schema.get("items", {})
     if isinstance(items, list):
-        raise FeatureNotImplementedError.tuple_array_items()
+        return [parse_element(item, state) for item in items]
     return parse_element(items, state)
 
 

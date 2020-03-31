@@ -1,6 +1,19 @@
 from functools import wraps
 import inspect
-from typing import Any, Callable, Container, Dict, Tuple, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Container,
+    Dict,
+    Hashable,
+    Iterable,
+    List,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 
 class Args:
@@ -87,3 +100,13 @@ def split_dict(
 def expand(function):
     """Useful for functional operations like map."""
     return lambda args: function(*args)
+
+
+SequenceItem = TypeVar("SequenceItem", bound=Hashable)
+
+
+def remove_duplicates(seq: Iterable[SequenceItem]) -> List[SequenceItem]:
+    """Remove duplicates whilst preserving order."""
+    seen: Set[SequenceItem] = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]

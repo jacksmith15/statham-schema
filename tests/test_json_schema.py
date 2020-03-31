@@ -1,12 +1,17 @@
+from copy import deepcopy
 import json
 import os
 from os import path
 from typing import Any, Dict, Iterator, List, NamedTuple, Optional
+from unittest.mock import patch
 
+from json_ref_dict import materialize, RefDict
+from json_ref_dict.ref_pointer import resolve_uri
 import pytest
 
 from statham.dsl.parser import parse_element
 from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
+from statham.titles import title_labeller
 from tests.helpers import no_raise
 
 
@@ -107,7 +112,7 @@ def _extract_tests(directory: str) -> Iterator[Param]:
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
 def test_jsonschema_official_test(param: Param):
-    schema = _add_titles(param.schema)
+    schema = _load_schema(param.schema)
     try:
         element = parse_element(schema)
     except FeatureNotImplementedError:
@@ -116,3 +121,55 @@ def test_jsonschema_official_test(param: Param):
         (TypeError, ValidationError)
     ):
         _ = element(param.data)
+
+
+def _load_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
+    """Perform mock pre-processing.
+
+    De-references and labels schema.
+    """
+    schema_copy = deepcopy(schema)
+
+    def _get_document(_base_uri: str):
+        return deepcopy(schema_copy)
+
+    with patch("json_ref_dict.ref_pointer.get_document", new=_get_document):
+        resolve_uri.cache_clear()
+        return materialize(
+            RefDict.from_uri("testuri"), context_labeller=title_labeller()
+        )
+
+
+@pytest.mark.foo
+def test_load_schema():
+    with open(
+        path.join(DIRECTORY, "draft6", "items.json"), "r", encoding="utf8"
+    ) as file:
+        data = json.load(file)
+    schema = next(
+        item for item in data if item["description"] == "items and subitems"
+    )["schema"]
+    sub_item = {
+        "type": "object",
+        "required": ["foo"],
+        "_x_autotitle": "sub-item",
+    }
+    item = {
+        "type": "array",
+        "additionalItems": False,
+        "items": [sub_item, sub_item],
+        "_x_autotitle": "item",
+    }
+    expected = {
+        "type": "array",
+        "additionalItems": False,
+        "items": [item, item, item],
+        "definitions": {
+            "item": item,
+            "sub-item": sub_item,
+            "_x_autotitle": "definitions",
+        },
+        "_x_autotitle": "testuri",
+    }
+    loaded_schema = _load_schema(schema)
+    assert loaded_schema == expected
