@@ -73,7 +73,7 @@ class _Property(Generic[PropType]):
     def __repr__(self):
         repr_args = custom_repr_args(self)
         if self.source == self.name:
-            _ = repr_args.kwargs.pop("source")
+            _ = repr_args.kwargs.pop("source", None)
         return f"{self.__class__.__name__}{repr(repr_args)}"
 
     @property
