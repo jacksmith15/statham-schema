@@ -127,7 +127,6 @@ class TestSchemaNestedDefault:
         assert instance.value.value == "bar"
 
     @staticmethod
-    @pytest.mark.foo
     def test_default_object_no_match():
         class DefaultStringWrapper(Object):
             default = dict(other="bar")

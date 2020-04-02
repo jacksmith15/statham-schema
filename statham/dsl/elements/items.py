@@ -1,9 +1,10 @@
+from statham.dsl.constants import NotPassed
 from statham.dsl.elements.base import Element, Nothing
 
 
 class Items:
     def __init__(self, items, additional=True):
-        self.items = items or Element()
+        self.items = Element() if isinstance(items, NotPassed) else items
         if isinstance(additional, bool):
             self.additional = {True: Element(), False: Nothing()}[additional]
         else:
@@ -31,6 +32,6 @@ class Items:
 
     def __call__(self, value, property_):
         return [
-            self[index](sub_value, property_=self.property(property_, index))
+            self[index](sub_value, self.property(property_, index))
             for index, sub_value in enumerate(value)
         ]

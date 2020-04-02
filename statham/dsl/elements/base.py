@@ -1,7 +1,6 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from itertools import zip_longest
-from typing import Any, Callable, cast, Dict, List, Generic, TypeVar, Union
+from typing import Any, cast, Dict, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.exceptions import ValidationError
@@ -140,7 +139,7 @@ class Element(Generic[T]):
     def __items__(self) -> "Items":
         return Items(
             getattr(self, "items", NotPassed()),
-            getattr(self, "additionalItems", NotPassed()),
+            getattr(self, "additionalItems", True),
         )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
@@ -209,42 +208,3 @@ class _AnonymousObject(dict):
 
     def __setattr__(self, key: str, value: Any):
         return self.__setitem__(key, value)
-
-
-def array_constructor(
-    items: Maybe[Union[Element, List[Element]]] = NotPassed(),
-    additional_items: Union[Element, bool] = True,
-) -> Callable[[Any, _Property], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of array input."""
-    items_element: Union[Element, List[Element]] = Element()
-    additional: Element = Element()  # False already checked by validator.
-    if isinstance(additional_items, Element):
-        additional = additional_items
-    if isinstance(items, NotPassed):
-        items_element = additional
-    else:
-        items_element = items
-
-    def _constructor(value: Any, property_: _Property) -> Any:
-        if not isinstance(value, list):
-            return value
-        get_prop = lambda idx: property_.evolve(
-            property_.name or "" + f"[{idx}]"
-        )
-        if isinstance(items_element, Element):
-            return [
-                # Callable is ensured by outer clause.
-                # pylint: disable=not-callable
-                items_element(subval, get_prop(idx))
-                for idx, subval in enumerate(value)
-            ]
-        return [
-            elem(subval, get_prop(idx))
-            for idx, (elem, subval) in enumerate(
-                # Additional items to be handled by "additional".
-                zip_longest(items_element, value, fillvalue=additional)
-            )
-            if idx < len(value)
-        ]
-
-    return _constructor
