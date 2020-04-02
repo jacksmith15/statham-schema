@@ -8,7 +8,7 @@ from statham.dsl.property import _Property as Property
 
 
 class Properties:
-    def __init__(self, element, props, pattern, additional=True):
+    def __init__(self, element, props, pattern=None, additional=True):
         self.element = element
         self.props = props or {}
         self.pattern = PatternDict(pattern or {})

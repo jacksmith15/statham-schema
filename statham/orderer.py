@@ -59,7 +59,7 @@ def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
             for elem in pattern_properties.values()  # pylint: disable=no-member
             for dep in _get_dependent_object_elements(elem)
         }
-        return sorted(dependent, key=lambda obj_type: obj_type.__name__)
+    return sorted(dependent, key=lambda obj_type: obj_type.__name__)
 
 
 def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
