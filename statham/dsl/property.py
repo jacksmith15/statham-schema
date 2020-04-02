@@ -81,7 +81,7 @@ class _Property(Generic[PropType]):
         return f"Maybe[{self.element.annotation}]"
 
     def python(self) -> str:
-        prop_def = repr(self).replace(type(self).__name__, Property.__name__)
+        prop_def = repr(self)
         return (
             (f"{self.name}: {self.annotation} = {prop_def}")
             if self.name
