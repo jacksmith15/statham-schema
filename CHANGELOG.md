@@ -20,6 +20,13 @@ Types of changes are:
 
 ### Changed
 * Raised dependency on `json-ref-dict` to version `0.5.1`.
+* Additional properties are now exposed on a model's `__getitem__`
+  instead of under an `additional_properties` attribute.
+* Additional properties are now declared as a class argument to
+  `Object` subclasses.
+
+### Removed
+* Removed `ObjectOptions` class.
 
 ## [0.5.0] - 2020-03-30
 ### Added

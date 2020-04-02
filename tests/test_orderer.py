@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from statham.dsl.elements import Array, Element, Object, ObjectOptions, String
+from statham.dsl.elements import Array, Element, Object, String
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import Property
@@ -96,8 +96,8 @@ class TestMultipleEntryPointOrdering:
 
 
 def test_orderer_detects_additional_properties_dependencies():
-    class AdditionalPropertiesParent(Object):
-        options = ObjectOptions(additionalProperties=Child)
+    class AdditionalPropertiesParent(Object, additionalProperties=Child):
+        pass
 
     assert list(Orderer(AdditionalPropertiesParent)) == [
         Child,

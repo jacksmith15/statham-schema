@@ -3,8 +3,9 @@ from typing import Any
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Array, Element, Integer, String
+from statham.dsl.elements import Array, Element, Integer, Object, String
 from statham.dsl.helpers import Args
+from statham.dsl.property import Property
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise
 
@@ -116,3 +117,22 @@ def test_array_default_keyword():
 def test_array_type_annotation(element: Array, annotation: str):
     assert element.annotation == annotation
     assert Array(String()).annotation == "List[str]"
+
+
+class TestArrayDefault:
+    class Foo(Object):
+        value = Property(String(), required=True)
+
+    def test_array_default_match(self):
+        element = Array(self.Foo, default=[{"value": "foo"}])
+        instance = element(NotPassed())
+        assert instance == [self.Foo({"value": "foo"})]
+
+    def test_array_default_no_match(self):
+        element = Array(self.Foo, default=[None])
+        assert element(NotPassed()) == [None]
+
+    def test_array_default_no_match_object(self):
+        element = Array(self.Foo, default=[{"other": "foo"}])
+        instance = element(NotPassed())
+        assert instance == [{"other": "foo"}]

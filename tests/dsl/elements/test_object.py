@@ -1,9 +1,8 @@
-from typing import Any, ClassVar, List, Union
+from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Object, OneOf, String
-from statham.dsl.elements.meta import ObjectOptions
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
@@ -34,7 +33,9 @@ def test_string_wrapper_accepts_valid_arguments(param):
         _ = StringWrapper(param)
 
 
-@pytest.mark.parametrize("param", [dict(value="fo"), dict(), dict(value=3)])
+@pytest.mark.parametrize(
+    "param", [dict(value="fo"), dict(), dict(value=3), "foo"]
+)
 def test_string_wrapper_fails_on_invalid_arguments(param):
     with pytest.raises(ValidationError):
         _ = StringWrapper(param)
@@ -61,7 +62,7 @@ def test_list_wrapper_accepts_valid_arguments(param):
         _ = ListWrapper(param)
 
 
-def test_list_wrapper_assigns_not_assed_correctly():
+def test_list_wrapper_assigns_not_passed_correctly():
     instance = ListWrapper({})
     assert instance.list_of_stuff is NotPassed()
 
@@ -100,12 +101,42 @@ class TestSchemaWithDefault:
     def test_that_it_accepts_no_args(self):
         with no_raise():
             instance = self.DefaultStringWrapper()
+        assert isinstance(instance, self.DefaultStringWrapper)
         assert instance.value == "bar"
 
     def test_that_it_accepts_an_arg(self):
         with no_raise():
             instance = self.DefaultStringWrapper({"value": "baz"})
+        assert isinstance(instance, self.DefaultStringWrapper)
         assert instance.value == "baz"
+
+
+class TestSchemaNestedDefault:
+    @staticmethod
+    def test_default_object_match():
+        class DefaultStringWrapper(Object):
+            default = dict(value="bar")
+            value: str = Property(String(), required=True)
+
+        class WrapDefaultObject(Object):
+            value = Property(DefaultStringWrapper)
+
+        instance = WrapDefaultObject({})
+        assert isinstance(instance.value, DefaultStringWrapper)
+        assert instance.value.value == "bar"
+
+    @staticmethod
+    def test_default_object_no_match():
+        class DefaultStringWrapper(Object):
+            default = dict(other="bar")
+            value: str = Property(String(), required=True)
+
+        class WrapDefaultObject(Object):
+            value = Property(DefaultStringWrapper)
+
+        instance = WrapDefaultObject({})
+        assert isinstance(instance.value, dict)
+        assert instance.value == {"other": "bar"}
 
 
 class TestSchemaPropertyWithDefault:
@@ -129,10 +160,9 @@ def test_object_annotation():
 
 
 class TestRenamedProperties:
-    class PropertyRename(Object):
+    class PropertyRename(Object, additionalProperties=False):
 
         default = {"default": "string"}
-        options = ObjectOptions(additionalProperties=False)
 
         _default = Property(String(), source="default")
 
@@ -160,16 +190,17 @@ class TestBadPropertyConflictErrors:
 
 
 class TestAdditionalPropertiesAsElement:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=Integer()):
 
-        options = ObjectOptions(additionalProperties=Integer())
         value = Property(String())
 
     def test_valid_instantiation(self):
         with no_raise():
             instance = self.MyObject({"value": "foo", "other_value": 3})
         assert instance.value == "foo"
-        assert instance.additional_properties["other_value"] == 3
+        with pytest.raises(AttributeError):
+            _ = instance.other_value
+        assert instance["other_value"] == 3
 
     def test_additional_value_is_not_accepted_for_declared_value(self):
         with pytest.raises(ValidationError):
@@ -181,9 +212,8 @@ class TestAdditionalPropertiesAsElement:
 
 
 class TestAdditionalPropertiesAsTrue:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=True):
 
-        options = ObjectOptions(additionalProperties=True)
         value = Property(String())
 
     @pytest.mark.parametrize(
@@ -194,13 +224,14 @@ class TestAdditionalPropertiesAsTrue:
             instance = self.MyObject(
                 {"value": "foo", "other_value": additional_value}
             )
-        assert instance.additional_properties["other_value"] == additional_value
+        with pytest.raises(AttributeError):
+            _ = instance.other_value
+        assert instance["other_value"] == additional_value
 
 
 class TestAdditionalPropertiesAsFalse:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=False):
 
-        options = ObjectOptions(additionalProperties=False)
         value = Property(String())
 
     @pytest.mark.parametrize(

@@ -1,21 +1,11 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from collections import defaultdict
-from itertools import zip_longest
-from typing import (
-    Any,
-    Callable,
-    cast,
-    DefaultDict,
-    Dict,
-    List,
-    Generic,
-    TypeVar,
-    Union,
-)
+from typing import Any, cast, Dict, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.helpers import custom_repr
+from statham.dsl.property import _Property
 from statham.dsl.validation import (
     get_validators,
     InstanceOf,
@@ -130,13 +120,26 @@ class Element(Generic[T]):
         )
         return validators
 
-    def construct(self, value, _property):
-        properties = getattr(self, "properties", NotPassed())
-        additional_properties = getattr(self, "additionalProperties", True)
-        items = getattr(self, "items", NotPassed())
-        additional_items = getattr(self, "additionalItems", True)
-        return object_constructor(properties, additional_properties)(
-            array_constructor(items, additional_items)(value, _property)
+    def construct(self, value, property_):
+        if isinstance(value, list):
+            return self.__items__(value, property_)
+        if isinstance(value, dict):
+            return _AnonymousObject(**self.__properties__(value))
+        return value
+
+    @property
+    def __properties__(self) -> "Properties":
+        return Properties(
+            self,
+            getattr(self, "properties", NotPassed()),
+            getattr(self, "additionalProperties", True),
+        )
+
+    @property
+    def __items__(self) -> "Items":
+        return Items(
+            getattr(self, "items", NotPassed()),
+            getattr(self, "additionalItems", True),
         )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
@@ -146,15 +149,27 @@ class Element(Generic[T]):
         `construct` on the input.
         """
         property_ = property_ or UNBOUND_PROPERTY
+
+        def create(value):
+            for validator in self.validators:
+                validator(value, property_)
+            return self.construct(value, property_)
+
         if not isinstance(self.default, NotPassed) and isinstance(
             value, NotPassed
         ):
-            value = self.default
-        for validator in self.validators:
-            validator(value, property_)
+            try:
+                return create(self.default)
+            except (TypeError, ValidationError):
+                return self.default
         if isinstance(value, NotPassed):
             return value
-        return self.construct(value, property_)
+        return create(value)
+
+
+UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
+UNBOUND_PROPERTY.bind_name("<unbound>")
+UNBOUND_PROPERTY.bind_class(Element())
 
 
 class Nothing(Element):
@@ -177,7 +192,8 @@ class Nothing(Element):
 
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
-from statham.dsl.property import _Property, UNBOUND_PROPERTY
+from statham.dsl.elements.properties import Properties
+from statham.dsl.elements.items import Items
 
 
 class _AnonymousObject(dict):
@@ -192,73 +208,3 @@ class _AnonymousObject(dict):
 
     def __setattr__(self, key: str, value: Any):
         return self.__setitem__(key, value)
-
-
-def object_constructor(
-    properties: Maybe[Dict[str, _Property]] = NotPassed(),
-    additional_properties: Union[Element, bool] = True,
-) -> Callable[[Any], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of object input."""
-    # TODO: Use same `additional_properties` interface as on `Object`.
-    default_prop: _Property = _Property(Element())
-    if isinstance(additional_properties, Element):
-        default_prop = _Property(additional_properties)
-    default_properties: DefaultDict[str, _Property] = defaultdict(
-        lambda: default_prop
-    )
-    if isinstance(properties, dict):
-        default_properties.update(
-            {prop.source or key: prop for key, prop in properties.items()}
-        )
-
-    def _constructor(value: Any) -> Any:
-        if not isinstance(value, dict):
-            return value
-        return _AnonymousObject(
-            {
-                default_properties[key].name
-                or key: default_properties[key](sub_value)
-                for key, sub_value in value.items()
-            }
-        )
-
-    return _constructor
-
-
-def array_constructor(
-    items: Maybe[Union[Element, List[Element]]] = NotPassed(),
-    additional_items: Union[Element, bool] = True,
-) -> Callable[[Any, _Property], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of array input."""
-    items_element: Union[Element, List[Element]] = Element()
-    additional: Element = Element()  # False already checked by validator.
-    if isinstance(additional_items, Element):
-        additional = additional_items
-    if isinstance(items, NotPassed):
-        items_element = additional
-    else:
-        items_element = items
-
-    def _constructor(value: Any, property_: _Property) -> Any:
-        if not isinstance(value, list):
-            return value
-        get_prop = lambda idx: property_.evolve(
-            property_.name or "" + f"[{idx}]"
-        )
-        if isinstance(items_element, Element):
-            return [
-                # Callable is ensured by outer clause.
-                # pylint: disable=not-callable
-                items_element(subval, get_prop(idx))
-                for idx, subval in enumerate(value)
-            ]
-        return [
-            elem(subval, get_prop(idx))
-            for idx, (elem, subval) in enumerate(
-                # Additional items to be handled by "additional".
-                zip_longest(items_element, value, fillvalue=additional)
-            )
-            if idx < len(value)
-        ]
-
-    return _constructor

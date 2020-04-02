@@ -1,11 +1,12 @@
 import pytest
 
+from statham.dsl.exceptions import ValidationError
 from tests.models.multi_object import Category, Child, Model
 
 
 def test_required_properties_validate_correctly():
-    with pytest.raises(TypeError):
-        _ = Category()
+    with pytest.raises(ValidationError):
+        _ = Category({})
 
 
 def test_category_may_be_passed_to_both_other_models():

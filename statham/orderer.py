@@ -57,8 +57,8 @@ def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
     """Iterate over related elements to an Object subclass."""
     for prop in object_type.properties.values():
         yield prop.element
-    if isinstance(object_type.options.additionalProperties, Element):
-        yield object_type.options.additionalProperties
+    if isinstance(object_type.additionalProperties, Element):
+        yield object_type.additionalProperties
 
 
 class Orderer:

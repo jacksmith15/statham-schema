@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import Element, Object, ObjectOptions, String
+from statham.dsl.elements import Element, Object, String
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.parser import ParseState, parse_element
@@ -31,16 +31,16 @@ class ObjectWithDefaultProp(Object):
     _default = Property(String(), source="default")
 
 
-class ObjectWithAdditionalPropElement(Object):
-    options = ObjectOptions(additionalProperties=String())
+class ObjectWithAdditionalPropElement(Object, additionalProperties=String()):
+    pass
 
 
-class ObjectWithAdditionalPropTrue(Object):
-    options = ObjectOptions(additionalProperties=True)
+class ObjectWithAdditionalPropTrue(Object, additionalProperties=True):
+    pass
 
 
-class ObjectWithAdditionalPropFalse(Object):
-    options = ObjectOptions(additionalProperties=False)
+class ObjectWithAdditionalPropFalse(Object, additionalProperties=False):
+    pass
 
 
 @pytest.mark.parametrize(
@@ -146,8 +146,8 @@ def test_parse_object_with_same_name_are_enumerated():
     element = parse_element(schema)
     assert isinstance(element, ObjectMeta)
     assert element.__name__ == "Name_1"
-    assert isinstance(element.options.additionalProperties, ObjectMeta)
-    assert element.options.additionalProperties.__name__ == "Name"
+    assert isinstance(element.additionalProperties, ObjectMeta)
+    assert element.additionalProperties.__name__ == "Name"
 
 
 class TestParseState:

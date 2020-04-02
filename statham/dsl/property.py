@@ -1,8 +1,10 @@
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, TYPE_CHECKING
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements.base import Element
 from statham.dsl.helpers import custom_repr_args
+
+if TYPE_CHECKING:
+    from statham.dsl.elements.base import Element  # pragma: no cover
 
 
 PropType = TypeVar("PropType")
@@ -18,13 +20,13 @@ class _Property(Generic[PropType]):
 
     required: bool
     parent: Any
-    element: Element
+    element: "Element"
     source: Optional[str]
     name: Optional[str]
 
     def __init__(
         self,
-        element: Element[PropType],
+        element: "Element[PropType]",
         *,
         required: bool = False,
         source: str = None,
@@ -62,19 +64,13 @@ class _Property(Generic[PropType]):
         self.parent = parent
 
     def __call__(self, value):
-        if not isinstance(self.element.default, NotPassed) and isinstance(
-            value, NotPassed
-        ):
-            value = self.element.default
-        if isinstance(value, NotPassed):
-            return value
         return self.element(value, self)
 
     def __repr__(self):
         repr_args = custom_repr_args(self)
         if self.source == self.name:
-            _ = repr_args.kwargs.pop("source")
-        return f"{self.__class__.__name__}{repr(repr_args)}"
+            _ = repr_args.kwargs.pop("source", None)
+        return f"{self.__class__.__name__.lstrip('_')}{repr(repr_args)}"
 
     @property
     def annotation(self):
@@ -85,7 +81,7 @@ class _Property(Generic[PropType]):
         return f"Maybe[{self.element.annotation}]"
 
     def python(self) -> str:
-        prop_def = repr(self).replace(type(self).__name__, Property.__name__)
+        prop_def = repr(self)
         return (
             (f"{self.name}: {self.annotation} = {prop_def}")
             if self.name
@@ -93,14 +89,9 @@ class _Property(Generic[PropType]):
         )
 
 
-UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
-UNBOUND_PROPERTY.bind_name("<unbound>")
-UNBOUND_PROPERTY.bind_class(Element())
-
-
 # Behaves as a wrapper for the `_Property` class.
 # pylint: disable=invalid-name
-def Property(element: Element, *, required: bool = False, source: str = None):
+def Property(element: "Element", *, required: bool = False, source: str = None):
     """Descriptor for adding a property when declaring an object schema model.
 
     Return value is typed to inform instance-level interface. See type stubs of
