@@ -16,14 +16,19 @@ class Required(Validator):
 
 class AdditionalProperties(Validator):
     types = (dict,)
-    keywords = ("properties", "additionalProperties")
+    keywords = ("__properties__",)
     message = "Must not contain unspecified properties. Accepts: {properties}"
 
     def error_message(self):
-        return self.message.format(properties=set(self.params["properties"]))
+        return self.message.format(
+            properties=set(self.params["__properties__"])
+        )
 
     def validate(self, value: Any):
-        if self.params["additionalProperties"]:
+        if self.params["__properties__"].additional:
             return
-        if set(value) - set(self.params["properties"]):
+        bad_properties = {
+            key for key in value if key not in self.params["__properties__"]
+        }
+        if bad_properties:
             raise ValidationError
