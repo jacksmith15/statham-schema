@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from statham.dsl.constants import Maybe
-from statham.dsl.elements import Element, Object, ObjectOptions, String
+from statham.dsl.elements import Element, Object, String
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
 from statham.serializer import _IMPORT_STATEMENTS, serialize_python
@@ -79,21 +79,21 @@ def test_parse_and_serialize_schema_with_no_args():
     )
 
 
-def test_parse_and_serialize_schema_with_additional_options_element():
+def test_parse_and_serialize_schema_with_additional_properties_element():
     schema = {
         "type": "object",
         "title": "StringContainer",
         "additionalProperties": {"type": "string"},
     }
     assert serialize_python(*parse(schema)) == _IMPORT_STATEMENTS + (
-        """class StringContainer(Object):
+        """class StringContainer(Object, additionalProperties=String()):
 
-    options = ObjectOptions(additionalProperties=String())
+    pass
 """
     )
 
 
-def test_parse_and_serialize_schema_with_option_dependencies():
+def test_parse_and_serialize_schema_with_additional_property_dependencies():
     schema = {
         "type": "object",
         "title": "StringWrapperContainer",
@@ -109,9 +109,9 @@ def test_parse_and_serialize_schema_with_option_dependencies():
     value: Maybe[str] = Property(String())
 
 
-class StringWrapperContainer(Object):
+class StringWrapperContainer(Object, additionalProperties=StringWrapper):
 
-    options = ObjectOptions(additionalProperties=StringWrapper)
+    pass
 """
     )
 
@@ -216,14 +216,17 @@ def test_serialize_object_wrapper_object():
 
 
 @pytest.mark.parametrize("additional_properties", [String(), False])
-def test_serialize_object_with_additional_options(additional_properties):
-    class AdditionalPropObject(Object):
-        options = ObjectOptions(additionalProperties=additional_properties)
+def test_serialize_object_with_additional_properties(additional_properties):
+    class AdditionalPropObject(
+        Object, additionalProperties=additional_properties
+    ):
+        pass
 
+    # pylint: disable=line-too-long
     assert AdditionalPropObject.python() == (
-        f"""class AdditionalPropObject(Object):
+        f"""class AdditionalPropObject(Object, additionalProperties={additional_properties}):
 
-    options = ObjectOptions(additionalProperties={additional_properties})
+    pass
 """
     )
 

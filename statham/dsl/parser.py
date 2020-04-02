@@ -25,7 +25,6 @@ from statham.dsl.elements import (
     Null,
     Number,
     Object,
-    ObjectOptions,
     OneOf,
     Element,
     String,
@@ -252,13 +251,15 @@ def parse_object(
             if parse_attribute_name(key) not in properties
         }
     )
-    class_dict = ObjectClassDict(
-        default=default,
-        options=ObjectOptions(**keyword_filter(ObjectOptions)(schema)),
-    )
+    class_dict = ObjectClassDict(default=default)
     for key, value in properties.items():
         class_dict[key] = value
-    object_type = ObjectMeta(title, (Object,), class_dict)
+    object_type = ObjectMeta(
+        title,
+        (Object,),
+        class_dict,
+        additionalProperties=schema["additionalProperties"],
+    )
     return state.dedupe(object_type)
 
 

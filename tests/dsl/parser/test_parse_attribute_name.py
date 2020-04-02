@@ -9,7 +9,7 @@ from statham.dsl.parser import parse_attribute_name
         ("name", "name"),
         ("default", "_default"),
         ("properties", "_properties"),
-        ("options", "_options"),
+        ("options", "options"),
         ("additional_properties", "additional_properties"),
         ("_dict", "__dict"),
         ("__init__", "___init__"),

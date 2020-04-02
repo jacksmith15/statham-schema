@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.elements import String, Object, ObjectOptions, Array
+from statham.dsl.elements import String, Object, Array
 from statham.dsl.property import Property
 
 
@@ -24,13 +24,11 @@ class Qux(Object):
     value = Property(String(), source="_value")
 
 
-class Raz(Object):
-    options = ObjectOptions(additionalProperties=False)
+class Raz(Object, additionalProperties=False):
     value = Property(String())
 
 
-class Maz(Object):
-    options = ObjectOptions(additionalProperties=False)
+class Maz(Object, additionalProperties=False):
     value = Property(String())
 
 

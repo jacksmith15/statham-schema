@@ -1,9 +1,8 @@
-from typing import Any, ClassVar, List, Union
+from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Object, OneOf, String
-from statham.dsl.elements.meta import ObjectOptions
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
@@ -161,10 +160,9 @@ def test_object_annotation():
 
 
 class TestRenamedProperties:
-    class PropertyRename(Object):
+    class PropertyRename(Object, additionalProperties=False):
 
         default = {"default": "string"}
-        options = ObjectOptions(additionalProperties=False)
 
         _default = Property(String(), source="default")
 
@@ -192,9 +190,8 @@ class TestBadPropertyConflictErrors:
 
 
 class TestAdditionalPropertiesAsElement:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=Integer()):
 
-        options = ObjectOptions(additionalProperties=Integer())
         value = Property(String())
 
     def test_valid_instantiation(self):
@@ -215,9 +212,8 @@ class TestAdditionalPropertiesAsElement:
 
 
 class TestAdditionalPropertiesAsTrue:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=True):
 
-        options = ObjectOptions(additionalProperties=True)
         value = Property(String())
 
     @pytest.mark.parametrize(
@@ -234,9 +230,8 @@ class TestAdditionalPropertiesAsTrue:
 
 
 class TestAdditionalPropertiesAsFalse:
-    class MyObject(Object):
+    class MyObject(Object, additionalProperties=False):
 
-        options = ObjectOptions(additionalProperties=False)
         value = Property(String())
 
     @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
-from typing import Any, ClassVar, Dict
+from typing import Any, ClassVar, Dict, Union
 
-from statham.dsl.elements.base import UNBOUND_PROPERTY
-from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
+from statham.dsl.elements.base import Element, UNBOUND_PROPERTY
+from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
@@ -31,8 +31,7 @@ class Object(metaclass=ObjectMeta):
 
     properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]
-    options: ClassVar[ObjectOptions]
-    additional_properties: Dict[str, Any]
+    additionalProperties: ClassVar[Union[Element, bool]]
 
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY
