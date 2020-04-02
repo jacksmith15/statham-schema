@@ -122,10 +122,8 @@ class Element(Generic[T]):
         return validators
 
     def construct(self, value, property_):
-        items = getattr(self, "items", NotPassed())
-        additional_items = getattr(self, "additionalItems", True)
         if isinstance(value, list):
-            return array_constructor(items, additional_items)(value, property_)
+            return self.__items__(value, property_)
         if isinstance(value, dict):
             return _AnonymousObject(**self.__properties__(value))
         return value
@@ -136,6 +134,13 @@ class Element(Generic[T]):
             self,
             getattr(self, "properties", NotPassed()),
             getattr(self, "additionalProperties", True),
+        )
+
+    @property
+    def __items__(self) -> "Items":
+        return Items(
+            getattr(self, "items", NotPassed()),
+            getattr(self, "additionalItems", NotPassed()),
         )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
@@ -189,6 +194,7 @@ class Nothing(Element):
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
 from statham.dsl.elements.properties import Properties
+from statham.dsl.elements.items import Items
 
 
 class _AnonymousObject(dict):
