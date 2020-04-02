@@ -1,5 +1,6 @@
+from statham.dsl.constants import NotPassed
+from statham.dsl.elements.base import Element, Nothing
 from statham.dsl.property import _Property as Property
-from statham.dsl.elements import Element, Nothing
 
 
 class Properties:
@@ -19,21 +20,33 @@ class Properties:
         prop.bind_class(self.element)
         return prop
 
+    def __repr__(self):
+        props = [repr(self.props)]
+        if self.additional == Nothing():
+            props.append("additionalProperties=False")
+        elif self.additional != Element():
+            props.append(f"additionalProperties={self.additional}")
+        return f"{type(self).__name__}({', '.join(props)})"
+
     def __getitem__(self, key):
         try:
             return {prop.source: prop for prop in self.props.values()}[key]
         except KeyError:
             pass
-        if not self.additional:
-            raise KeyError
         return self.property(self.additional)
 
     def __contains__(self, key):
-        try:
-            _ = self[key]
-            return True
-        except KeyError:
-            return False
+        return bool(self[key] != Property(Nothing()))
 
     def __iter__(self):
         return iter(self.props)
+
+    def __call__(self, value):
+        value = {
+            **{prop.name: NotPassed() for prop in self.props.values()},
+            **value,
+        }
+        return {
+            self[key].name or key: self[key](sub_value)
+            for key, sub_value in value.items()
+        }

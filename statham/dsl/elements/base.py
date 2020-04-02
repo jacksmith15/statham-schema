@@ -1,21 +1,12 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from collections import defaultdict
 from itertools import zip_longest
-from typing import (
-    Any,
-    Callable,
-    cast,
-    DefaultDict,
-    Dict,
-    List,
-    Generic,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, cast, Dict, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.helpers import custom_repr
+from statham.dsl.property import _Property
 from statham.dsl.validation import (
     get_validators,
     InstanceOf,
@@ -130,13 +121,21 @@ class Element(Generic[T]):
         )
         return validators
 
-    def construct(self, value, _property):
-        properties = getattr(self, "properties", NotPassed())
-        additional_properties = getattr(self, "additionalProperties", True)
+    def construct(self, value, property_):
         items = getattr(self, "items", NotPassed())
         additional_items = getattr(self, "additionalItems", True)
-        return object_constructor(properties, additional_properties)(
-            array_constructor(items, additional_items)(value, _property)
+        if isinstance(value, list):
+            return array_constructor(items, additional_items)(value, property_)
+        if isinstance(value, dict):
+            return _AnonymousObject(**self.__properties__(value))
+        return value
+
+    @property
+    def __properties__(self) -> "Properties":
+        return Properties(
+            self,
+            getattr(self, "properties", NotPassed()),
+            getattr(self, "additionalProperties", True),
         )
 
     def __call__(self, value, property_=None) -> Maybe[T]:
@@ -146,15 +145,27 @@ class Element(Generic[T]):
         `construct` on the input.
         """
         property_ = property_ or UNBOUND_PROPERTY
+
+        def create(value):
+            for validator in self.validators:
+                validator(value, property_)
+            return self.construct(value, property_)
+
         if not isinstance(self.default, NotPassed) and isinstance(
             value, NotPassed
         ):
-            value = self.default
-        for validator in self.validators:
-            validator(value, property_)
+            try:
+                return create(self.default)
+            except (TypeError, ValidationError):
+                return self.default
         if isinstance(value, NotPassed):
             return value
-        return self.construct(value, property_)
+        return create(value)
+
+
+UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
+UNBOUND_PROPERTY.bind_name("<unbound>")
+UNBOUND_PROPERTY.bind_class(Element())
 
 
 class Nothing(Element):
@@ -177,7 +188,7 @@ class Nothing(Element):
 
 # Needs to be imported last to prevent cyclic import.
 # pylint: disable=wrong-import-position
-from statham.dsl.property import _Property, UNBOUND_PROPERTY
+from statham.dsl.elements.properties import Properties
 
 
 class _AnonymousObject(dict):
@@ -192,37 +203,6 @@ class _AnonymousObject(dict):
 
     def __setattr__(self, key: str, value: Any):
         return self.__setitem__(key, value)
-
-
-def object_constructor(
-    properties: Maybe[Dict[str, _Property]] = NotPassed(),
-    additional_properties: Union[Element, bool] = True,
-) -> Callable[[Any], _AnonymousObject]:
-    """Recursively construct and validate sub-properties of object input."""
-    # TODO: Use same `additional_properties` interface as on `Object`.
-    default_prop: _Property = _Property(Element())
-    if isinstance(additional_properties, Element):
-        default_prop = _Property(additional_properties)
-    default_properties: DefaultDict[str, _Property] = defaultdict(
-        lambda: default_prop
-    )
-    if isinstance(properties, dict):
-        default_properties.update(
-            {prop.source or key: prop for key, prop in properties.items()}
-        )
-
-    def _constructor(value: Any) -> Any:
-        if not isinstance(value, dict):
-            return value
-        return _AnonymousObject(
-            {
-                default_properties[key].name
-                or key: default_properties[key](sub_value)
-                for key, sub_value in value.items()
-            }
-        )
-
-    return _constructor
 
 
 def array_constructor(

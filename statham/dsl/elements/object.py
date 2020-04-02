@@ -1,7 +1,9 @@
 from typing import Any, ClassVar, Dict
 
+from statham.dsl.elements.base import UNBOUND_PROPERTY
 from statham.dsl.elements.meta import ObjectMeta, ObjectOptions
-from statham.dsl.property import _Property, UNBOUND_PROPERTY
+from statham.dsl.exceptions import ValidationError
+from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 
 
@@ -35,35 +37,46 @@ class Object(metaclass=ObjectMeta):
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY
     ):
-        for validator in cls.validators:
-            validator(value, property_)
+        """Preprocess new instances.
+
+        If value isn't passed, attempt to instantiate the default, but
+        allow non-matching defaults.
+
+        This is the equivalent of `Element.__call__`.
+        """
         if isinstance(value, cls):
             return value
-        if isinstance(value, NotPassed) and isinstance(cls.default, NotPassed):
-            raise TypeError(f"Missing value argument to {cls}.")
+        if not isinstance(cls.default, NotPassed) and isinstance(
+            value, NotPassed
+        ):
+            try:
+                return cls(cls.default, property_)
+            except (TypeError, ValidationError):
+                return cls.default
+        if isinstance(value, NotPassed):
+            return value
+        for validator in cls.validators:
+            validator(value, property_)
         return object.__new__(cls)
 
     def __init__(
         self, value: Any = NotPassed(), _property: _Property = UNBOUND_PROPERTY
     ):
-        """Initialise the object."""
+        """Initialise the object.
+
+        The equivalent of `Element.__call__`, but on a class/instance.
+        """
         if value is self:
             return
         if isinstance(value, NotPassed) and not isinstance(
             self.default, NotPassed
         ):
             value = self.default
-        self.additional_properties = {}
-        for attr_name, property_ in self.properties.items():
-            setattr(
-                self,
-                attr_name,
-                property_(value.pop(property_.source, NotPassed())),
-            )
-        for name, argument in value.items():
-            self.additional_properties[name] = type(self).construct_additional(
-                name, argument
-            )
+        self._dict: Dict[str, Any] = {}
+        for attr_name, attr_value in type(self).__properties__(value).items():
+            if attr_name in self.properties:
+                setattr(self, attr_name, attr_value)
+            self._dict[attr_name] = attr_value
 
     def __repr__(self):
         attr_values = {
@@ -77,3 +90,13 @@ class Object(metaclass=ObjectMeta):
             ]
         )
         return f"{self.__class__.__name__}({attr_repr})"
+
+    def __eq__(self, other):
+        return (
+            type(self) is type(other)
+            # pylint: disable=protected-access
+            and self._dict == other._dict
+        )
+
+    def __getitem__(self, key: str) -> Any:
+        return self._dict[key]

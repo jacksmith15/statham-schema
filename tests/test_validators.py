@@ -1,7 +1,7 @@
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.property import UNBOUND_PROPERTY
+from statham.dsl.elements.base import UNBOUND_PROPERTY
 from statham.dsl.validation import Format, MultipleOf, Validator
 from tests.helpers import no_raise
 

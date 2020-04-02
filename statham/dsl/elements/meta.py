@@ -35,7 +35,7 @@ class ObjectOptions:
 RESERVED_PROPERTIES = (
     dir(object)
     + list(keyword.kwlist)
-    + ["default", "options", "properties", "additional_properties"]
+    + ["default", "options", "properties", "_dict"]
 )
 
 
@@ -96,6 +96,7 @@ class ObjectMeta(type, Element):
             property_.bind_class(cls)
         cls.default = classdict.default
         cls.options = classdict.options
+        cls.additionalProperties = classdict.options.additionalProperties
         return cls
 
     def __hash__(cls):
@@ -128,16 +129,6 @@ class ObjectMeta(type, Element):
                 cls.options.additionalProperties,
             ),
         ]
-
-    def construct_additional(cls, name: str, value: Any) -> Any:
-        """Construct properties not specified in `properties`."""
-        element: Element = Element()
-        if isinstance(cls.options.additionalProperties, Element):
-            element = cls.options.additionalProperties
-        additional_property = _Property(element)
-        additional_property.bind_class(cls)
-        additional_property.bind_name(name)
-        return additional_property(value)
 
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))

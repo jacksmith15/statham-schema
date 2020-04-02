@@ -140,7 +140,6 @@ def _load_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
         )
 
 
-@pytest.mark.foo
 def test_load_schema():
     with open(
         path.join(DIRECTORY, "draft6", "items.json"), "r", encoding="utf8"

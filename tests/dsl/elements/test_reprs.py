@@ -68,9 +68,9 @@ class ObjectWrapper(Object):
         (StringWrapper, "StringWrapper"),
         (
             RenamedProperty.properties["renamed"],
-            "_Property(String(), source='default')",
+            "Property(String(), source='default')",
         ),
-        (RenamedProperty.properties["not_renamed"], "_Property(String())"),
+        (RenamedProperty.properties["not_renamed"], "Property(String())"),
     ],
 )
 def test_reprs_are_correct(element: Element, expected: str):

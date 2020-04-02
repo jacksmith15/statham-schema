@@ -170,7 +170,9 @@ class TestAllOfValidation:
         result = AllOf(Foo, Bar)({"value": "foo", "other_value": "bar"})
         assert isinstance(result, Foo)
         assert result.value == "foo"
-        assert result.additional_properties["other_value"] == "bar"
+        with pytest.raises(AttributeError):
+            _ = result.other_value
+        assert result["other_value"] == "bar"
 
     @staticmethod
     @pytest.mark.parametrize(

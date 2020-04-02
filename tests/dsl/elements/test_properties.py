@@ -36,8 +36,7 @@ def test_properties_no_additional():
     assert properties["value"].element == String()
     assert properties["value"].parent == parent
     assert "other" not in properties
-    with pytest.raises(KeyError):
-        _ = properties["other"]
+    assert properties["other"].element == Nothing()
     assert properties.additional == Nothing()
 
 
@@ -53,3 +52,33 @@ def test_properties_specific_additional():
     assert properties["other"].element == Integer()
     assert properties["other"].parent == parent
     assert properties.additional == Integer()
+
+
+@pytest.mark.parametrize(
+    "additional,expected",
+    [
+        (True, ""),
+        (Element(), ""),
+        (False, ", additionalProperties=False"),
+        (Nothing(), ", additionalProperties=False"),
+        (Integer(), ", additionalProperties=Integer()"),
+    ],
+)
+def test_properties_repr(additional, expected):
+    parent = Element()
+    properties = Properties(
+        parent, {"value": Property(String())}, additional=additional
+    )
+    assert repr(properties) == (
+        "Properties({'value': Property(String())}" f"{expected})"
+    )
+
+
+def test_properties_iter():
+    parent = Element()
+    properties = Properties(
+        parent,
+        {"value": Property(String()), "other": Property(Integer())},
+        False,
+    )
+    assert set(properties) == {"value", "other"}

@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.elements import String, Object, Array
+from statham.dsl.elements import String, Object, ObjectOptions, Array
 from statham.dsl.property import Property
 
 
@@ -24,6 +24,16 @@ class Qux(Object):
     value = Property(String(), source="_value")
 
 
+class Raz(Object):
+    options = ObjectOptions(additionalProperties=False)
+    value = Property(String())
+
+
+class Maz(Object):
+    options = ObjectOptions(additionalProperties=False)
+    value = Property(String())
+
+
 @pytest.mark.parametrize(
     "left,right",
     [
@@ -33,6 +43,7 @@ class Qux(Object):
         (Array(String(), minItems=3), Array(String(), minItems=3)),
         (Array(String(minLength=3)), Array(String(minLength=3))),
         (Foo, Bar),
+        (Raz, Maz),
     ],
 )
 def test_equivalent_schemas_are_equal(left, right):
@@ -48,6 +59,7 @@ def test_equivalent_schemas_are_equal(left, right):
         (Foo, Baz),
         (Foo, Mux),
         (Foo, Qux),
+        (Foo, Raz),
     ],
 )
 def test_non_equivalent_schemas_are_not_equal(left, right):
