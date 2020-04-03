@@ -311,3 +311,15 @@ def test_serialize_object_with_const():
     pass
 """
     )
+
+
+def test_serialize_object_with_enum():
+    class MyObject(Object, enum=[{"foo": "bar"}, {"qux": "mux"}]):
+        pass
+
+    assert MyObject.python() == (
+        """class MyObject(Object, enum=[{'foo': 'bar'}, {'qux': 'mux'}]):
+
+    pass
+"""
+    )

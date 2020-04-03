@@ -1,4 +1,4 @@
-from typing import Any, TypeVar, Union
+from typing import Any, List, TypeVar, Union
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -10,6 +10,7 @@ T = TypeVar("T", int, float)
 Numeric = Union[int, float]
 
 
+# pylint: disable=too-many-instance-attributes
 class NumericElement(Element[T]):
     """JSONSchema base numeric element.
 
@@ -21,6 +22,7 @@ class NumericElement(Element[T]):
         *,
         default: Maybe[T] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
+        enum: Maybe[List[Any]] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
         maximum: Maybe[Numeric] = NotPassed(),
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
@@ -29,6 +31,7 @@ class NumericElement(Element[T]):
     ):
         self.default = default
         self.const = const
+        self.enum = enum
         self.minimum = minimum
         self.maximum = maximum
         self.exclusiveMinimum = exclusiveMinimum

@@ -179,6 +179,11 @@ CASES = [
         ],
         bad=[[], [1, 2, 3]],
     ),
+    Case(
+        element=Element(enum=[1, 2, 3, 4]),
+        good=[NotPassed(), 1, 2, 3, 4],
+        bad=[None, True, 5, 1.2, "foo", {"foo": "bar"}, ["foo", 1]],
+    ),
 ]
 
 

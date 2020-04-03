@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -13,9 +13,11 @@ class Null(Element[None]):
         *,
         default: Maybe[None] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
+        enum: Maybe[List[Any]] = NotPassed(),
     ):
         self.default = default
         self.const = const
+        self.enum = enum
 
     @property
     def annotation(self) -> str:

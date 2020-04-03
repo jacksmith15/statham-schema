@@ -7,7 +7,13 @@ from statham.dsl.validation.array import (
     MaxItems,
     UniqueItems,
 )
-from statham.dsl.validation.base import Const, InstanceOf, NoMatch, Validator
+from statham.dsl.validation.base import (
+    Const,
+    Enum,
+    InstanceOf,
+    NoMatch,
+    Validator,
+)
 from statham.dsl.validation.numeric import (
     Minimum,
     Maximum,

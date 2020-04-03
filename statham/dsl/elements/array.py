@@ -25,6 +25,7 @@ class Array(Element[List[Item]]):
         *,
         default: Maybe[List] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
+        enum: Maybe[List[Any]] = NotPassed(),
         additionalItems: Union[Element, bool] = True,
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
@@ -34,6 +35,7 @@ class Array(Element[List[Item]]):
         self.items = items
         self.default = default
         self.const = const
+        self.enum = enum
         self.additionalItems = additionalItems
         self.minItems = minItems
         self.maxItems = maxItems

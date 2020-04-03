@@ -61,6 +61,10 @@ class ObjectWithConst(Object, const={"foo": "bar"}):
     pass
 
 
+class ObjectWithEnum(Object, enum=[{"foo": "bar"}, {"qux": "mux"}]):
+    pass
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -178,6 +182,15 @@ class ObjectWithConst(Object, const={"foo": "bar"}):
             },
             ObjectWithConst,
             id="with-const",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithEnum",
+                "enum": [{"foo": "bar"}, {"qux": "mux"}],
+            },
+            ObjectWithEnum,
+            id="with-enum",
         ),
     ],
 )

@@ -8,6 +8,7 @@ from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.validation import (
     AdditionalProperties,
     Const,
+    Enum,
     InstanceOf,
     MaxProperties,
     MinProperties,
@@ -61,6 +62,7 @@ class ObjectMeta(type, Element):
     maxProperties: Maybe[int]
     propertyNames: Maybe[Element]
     const: Maybe[Any]
+    enum: Maybe[List[Any]]
 
     @staticmethod
     def __subclasses__():
@@ -88,6 +90,7 @@ class ObjectMeta(type, Element):
         cls.maxProperties = kwargs.get("maxProperties", NotPassed())
         cls.propertyNames = kwargs.get("propertyNames", NotPassed())
         cls.const = kwargs.get("const", NotPassed())
+        cls.enum = kwargs.get("enum", NotPassed())
         return cls
 
     def __hash__(cls):
@@ -120,12 +123,17 @@ class ObjectMeta(type, Element):
             MaxProperties.from_element(cls),
             PropertyNames.from_element(cls),
             Const.from_element(cls),
+            Enum.from_element(cls),
         ]
         return [validator for validator in possible_validators if validator]
 
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
+        if not isinstance(cls.const, NotPassed):
+            cls_args.append(f"const={cls.const}")
+        if not isinstance(cls.enum, NotPassed):
+            cls_args.append(f"enum={cls.enum}")
         if cls.minProperties:
             cls_args.append(f"minProperties={cls.minProperties}")
         if not isinstance(cls.maxProperties, NotPassed):
@@ -136,8 +144,6 @@ class ObjectMeta(type, Element):
             cls_args.append(f"additionalProperties={cls.additionalProperties}")
         if not isinstance(cls.propertyNames, NotPassed):
             cls_args.append(f"propertyNames={cls.propertyNames}")
-        if not isinstance(cls.const, NotPassed):
-            cls_args.append(f"const={cls.const}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
         if not cls.properties and isinstance(cls.default, NotPassed):

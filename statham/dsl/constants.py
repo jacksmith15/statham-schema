@@ -37,7 +37,6 @@ COMPOSITION_KEYWORDS = ("anyOf", "oneOf", "allOf", "not")
 UNSUPPORTED_SCHEMA_KEYWORDS = {
     "$defs",
     "dependencies",
-    "enum",
     "if",
     "then",
     "else",
