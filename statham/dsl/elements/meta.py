@@ -81,7 +81,7 @@ class ObjectMeta(type, Element):
         cls.properties = classdict.properties
         for property_ in cls.properties.values():
             property_.bind_class(cls)
-        cls.default = classdict.default
+        cls.default = classdict.default  # TODO: Make this a class arg.
         cls.additionalProperties = kwargs.get("additionalProperties", True)
         cls.patternProperties = kwargs.get("patternProperties", {})
         cls.minProperties = kwargs.get("minProperties", NotPassed())
