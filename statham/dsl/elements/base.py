@@ -37,7 +37,7 @@ class Element(Generic[T]):
         self,
         *,
         # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name,redefined-builtin
+        # pylint: disable=redefined-builtin
         default: Maybe[Any] = NotPassed(),
         items: Maybe[Union["Element", List["Element"]]] = NotPassed(),
         additionalItems: Union["Element", bool] = True,
@@ -57,8 +57,6 @@ class Element(Generic[T]):
         patternProperties: Maybe[Dict[str, "Element"]] = NotPassed(),
         additionalProperties: Union["Element", bool] = True,
     ):
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         self.default = default
         self.items = items
         self.additionalItems = additionalItems
