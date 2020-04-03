@@ -36,6 +36,10 @@ class Taz(Object, minProperties=1, maxProperties=2):
     value = Property(String())
 
 
+class Doo(Object, const={"value": "foo"}):
+    value = Property(String())
+
+
 @pytest.mark.parametrize(
     "left,right",
     [
@@ -63,6 +67,7 @@ def test_equivalent_schemas_are_equal(left, right):
         (Foo, Qux),
         (Foo, Raz),
         (Foo, Taz),
+        (Foo, Doo),
     ],
 )
 def test_non_equivalent_schemas_are_not_equal(left, right):

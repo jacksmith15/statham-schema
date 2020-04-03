@@ -57,6 +57,10 @@ class ObjectWithPropertyNames(Object, propertyNames=String(maxLength=3)):
     pass
 
 
+class ObjectWithConst(Object, const={"foo": "bar"}):
+    pass
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -165,6 +169,16 @@ class ObjectWithPropertyNames(Object, propertyNames=String(maxLength=3)):
             },
             ObjectWithPropertyNames,
             id="with-property-names",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithConst",
+                "const": {"foo": "bar"},
+            },
+            ObjectWithConst,
+            id="with-const",
+            marks=pytest.mark.foo,
         ),
     ],
 )

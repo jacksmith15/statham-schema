@@ -287,6 +287,8 @@ def parse_object(
         cls_args["maxProperties"] = schema["maxProperties"]
     if "propertyNames" in schema:
         cls_args["propertyNames"] = schema["propertyNames"]
+    if "const" in schema:
+        cls_args["const"] = schema["const"]
     object_type = ObjectMeta(title, (Object,), class_dict, **cls_args)
     return state.dedupe(object_type)
 
