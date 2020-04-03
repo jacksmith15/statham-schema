@@ -65,6 +65,12 @@ class ObjectWithEnum(Object, enum=[{"foo": "bar"}, {"qux": "mux"}]):
     pass
 
 
+class ObjectWithDependencies(
+    Object, dependencies={"foo": ["bar"], "qux": Element(minProperties=2)}
+):
+    pass
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -191,6 +197,15 @@ class ObjectWithEnum(Object, enum=[{"foo": "bar"}, {"qux": "mux"}]):
             },
             ObjectWithEnum,
             id="with-enum",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithDependencies",
+                "dependencies": {"foo": ["bar"], "qux": {"minProperties": 2}},
+            },
+            ObjectWithDependencies,
+            id="with-dependencies",
         ),
     ],
 )

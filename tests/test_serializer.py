@@ -323,3 +323,18 @@ def test_serialize_object_with_enum():
     pass
 """
     )
+
+
+def test_serialize_object_with_dependencies():
+    class MyObject(
+        Object, dependencies={"foo": ["bar"], "qux": Element(minProperties=2)}
+    ):
+        pass
+
+    # pylint: disable=line-too-long
+    assert MyObject.python() == (
+        """class MyObject(Object, dependencies={'foo': ['bar'], 'qux': Element(minProperties=2)}):
+
+    pass
+"""
+    )

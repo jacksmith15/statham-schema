@@ -292,6 +292,7 @@ def parse_object(
         "minProperties",
         "maxProperties",
         "propertyNames",
+        "dependencies",
         "const",
         "enum",
     ]:
