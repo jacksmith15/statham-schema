@@ -335,3 +335,21 @@ class TestConst:
             (TypeError, ValidationError)
         ):
             _ = self.MyObject(data)
+
+    def test_const_accepts_instance(self):
+        instance = self.MyObject({"value": "bar"})
+        with no_raise():
+            _ = self.MyObject(instance)
+
+    @pytest.mark.xfail(strict=True, reason="Not supported")
+    def test_const_accepts_nested_instance(self):
+        instance = self.MyObject({"value": "bar"})
+        element = Array(self.MyObject, const=[{"value": "bar"}])
+        with no_raise():
+            _ = element([instance])
+
+    @pytest.mark.xfail(strict=True, reason="Not supported")
+    def test_instance_const_accepts_non_instance(self):
+        element = Array(self.MyObject, const=[self.MyObject({"value": "bar"})])
+        with no_raise():
+            _ = element([{"value": "bar"}])
