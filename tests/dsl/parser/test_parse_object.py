@@ -53,6 +53,10 @@ class ObjectWithSizeValidation(Object, minProperties=1, maxProperties=2):
     pass
 
 
+class ObjectWithPropertyNames(Object, propertyNames=String(maxLength=3)):
+    pass
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -152,6 +156,15 @@ class ObjectWithSizeValidation(Object, minProperties=1, maxProperties=2):
             },
             ObjectWithSizeValidation,
             id="with-size-validation",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithSizeValidation",
+                "propertyNames": {"type": "string", "maxLength": 3},
+            },
+            ObjectWithPropertyNames,
+            id="with-property-names",
         ),
     ],
 )
