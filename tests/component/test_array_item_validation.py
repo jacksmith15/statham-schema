@@ -19,23 +19,14 @@ def test_valid_arguments(kwargs):
         _ = Model(kwargs)
 
 
-_ARRAY_VALIDATION_MARKS = [pytest.mark.github_issue(34), pytest.mark.xfail]
-
-
 @pytest.mark.parametrize(
     "kwargs",
     [
         {"list_of_strings": "A string"},
-        pytest.param({"list_of_strings": [1]}, marks=_ARRAY_VALIDATION_MARKS),
-        pytest.param(
-            {"list_of_strings": ["A string", 1]}, marks=_ARRAY_VALIDATION_MARKS
-        ),
-        pytest.param(
-            {"list_of_strings": [1, "A string"]}, marks=_ARRAY_VALIDATION_MARKS
-        ),
-        pytest.param(
-            {"list_of_strings": [None]}, marks=_ARRAY_VALIDATION_MARKS
-        ),
+        {"list_of_strings": [1]},
+        {"list_of_strings": ["A string", 1]},
+        {"list_of_strings": [1, "A string"]},
+        {"list_of_strings": [None]},
     ],
 )
 def test_invalid_arguments(kwargs):
