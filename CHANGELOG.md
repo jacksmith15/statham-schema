@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.6.0] - 2020-04-03
 ### Added
 * Added support for `not` keyword.
 * Added support for "tuple" definition of `items` keyword.
@@ -165,7 +167,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.5.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.6.0..HEAD
+[0.6.0]: http://github.com/jacksmith15/statham-schema/compare/0.5.0..0.6.0
 [0.5.0]: http://github.com/jacksmith15/statham-schema/compare/0.4.0..0.5.0
 [0.4.0]: http://github.com/jacksmith15/statham-schema/compare/0.3.0..0.4.0
 [0.3.0]: http://github.com/jacksmith15/statham-schema/compare/0.2.0..0.3.0
