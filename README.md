@@ -97,9 +97,8 @@ def _check_my_format(value: str) -> bool:
 - [x] `const` keyword
 - [x] `contains` keyword
 - [x] `enum` keyword
+- [x] `dependencies` keyword
 - [ ] Built-in string format validation #6
-- [ ] Property dependencies
-- [ ] Schema dependencies
 - [ ] `if`, `then`, `else` keywords
 
 # Development
