@@ -111,16 +111,16 @@ def parse_element(
     for literal_key in ("default", "const", "enum"):
         if literal_key in schema:
             schema[literal_key] = parse_literal(schema[literal_key])
-    if "properties" in schema:
-        schema["properties"] = parse_properties(schema, state)
-    if "items" in schema:
-        schema["items"] = parse_items(schema, state)
-    if "patternProperties" in schema:
-        schema["patternProperties"] = parse_pattern_properties(schema, state)
-    if "propertyNames" in schema:
-        schema["propertyNames"] = parse_element(schema["propertyNames"], state)
-    if "contains" in schema:
-        schema["contains"] = parse_element(schema["contains"], state)
+    for keyword, parser in (
+        ("properties", parse_properties),
+        ("items", parse_items),
+        ("patternProperties", parse_pattern_properties),
+        ("propertyNames", parse_property_names),
+        ("contains", parse_contains),
+        ("dependencies", parse_dependencies),
+    ):
+        if keyword in schema:
+            schema[keyword] = parser(schema, state)  # type: ignore
     schema["additionalProperties"] = parse_additional_properties(schema, state)
     schema["additionalItems"] = parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
@@ -145,6 +145,12 @@ def parse_literal(literal: Any) -> Any:
         for key, val in literal.items()
         if key != "_x_autotitle"
     }
+
+
+def parse_contains(schema: Dict[str, Any], state: ParseState = None) -> Element:
+    """Parse schema contains keyword."""
+    state = state or ParseState()
+    return parse_element(schema["contains"], state)
 
 
 def parse_composition(
@@ -354,6 +360,7 @@ def parse_attribute_name(name: str) -> str:
 def parse_pattern_properties(
     schema: Dict[str, Any], state: ParseState = None
 ) -> Dict[str, Element]:
+    """Parse schema patternProperties keyword."""
     state = state or ParseState()
     return {
         **{
@@ -367,6 +374,14 @@ def parse_pattern_properties(
             if isinstance(value, Element)
         },
     }
+
+
+def parse_property_names(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Element:
+    """Parse schema propertyNames keyword."""
+    state = state or ParseState()
+    return parse_element(schema["propertyNames"], state)
 
 
 def parse_additional(
@@ -423,6 +438,25 @@ def parse_items(
     if isinstance(items, list):
         return [parse_element(item, state) for item in items]
     return parse_element(items, state)
+
+
+def parse_dependencies(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Dict[str, Union[List[str], Element]]:
+    """Parse dependencies keyword from schema."""
+    state = state or ParseState()
+    return {
+        **{
+            key: value
+            for key, value in schema["dependencies"].items()
+            if isinstance(value, (list, Element))
+        },
+        **{
+            key: parse_element(value, state)
+            for key, value in schema["dependencies"].items()
+            if isinstance(value, (dict, bool))
+        },
+    }
 
 
 def _compose_elements(

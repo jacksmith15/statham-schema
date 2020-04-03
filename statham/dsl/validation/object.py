@@ -65,3 +65,25 @@ class PropertyNames(Validator):
                 self.params["propertyNames"](prop_name)
             except (ValidationError, TypeError):
                 raise ValidationError
+
+
+class Dependencies(Validator):
+    types = (dict,)
+    keywords = ("dependencies",)
+    message = "Must match defined dependencies: {dependencies}."
+
+    def validate(self, value: Any):
+        for key, dep in self.params["dependencies"].items():
+            if key not in value:
+                continue
+            if isinstance(dep, list):
+                Required(dep).validate(value)
+            else:
+                self.validate_schema_dependency(dep, value)
+
+    @staticmethod
+    def validate_schema_dependency(dependency, value):
+        try:
+            _ = dependency(value)
+        except (TypeError, ValidationError):
+            raise ValidationError
