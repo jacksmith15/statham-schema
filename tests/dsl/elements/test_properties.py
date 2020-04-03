@@ -1,7 +1,7 @@
 import pytest
 
 from statham.dsl.elements import Element, Integer, Nothing, String
-from statham.dsl.elements.properties import Properties
+from statham.dsl.elements.properties import PatternDict, Properties
 from statham.dsl.property import _Property as Property
 
 
@@ -116,3 +116,35 @@ def test_properties_iter():
         False,
     )
     assert set(properties) == {"value", "other"}
+
+
+class TestPatternDict:
+    pattern_dict = PatternDict({"^foo": "bar"})
+
+    @staticmethod
+    @pytest.fixture(
+        params=[
+            ("foo", True),
+            ("foobar", True),
+            ("barfoo", False),
+            ("^foo", False),
+            (1, False),
+        ]
+    )
+    def param(request):
+        return request.param
+
+    def test_pattern_dict_contains(self, param):
+        key, valid = param
+        if valid:
+            assert key in self.pattern_dict
+        else:
+            assert key not in self.pattern_dict
+
+    def test_pattern_dict_getitem(self, param):
+        key, valid = param
+        if valid:
+            assert self.pattern_dict[key] == "bar"
+        else:
+            with pytest.raises(KeyError):
+                _ = self.pattern_dict[key]

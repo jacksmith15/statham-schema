@@ -38,7 +38,7 @@ def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
         "additionalProperties"
     )
     pattern_properties: Maybe[Dict[str, Element]] = get_keyword(
-        "pattern_properties"
+        "patternProperties"
     )
     dependent: Set[ObjectMeta] = set()
     if not isinstance(items, NotPassed):
