@@ -114,6 +114,8 @@ def parse_element(
         schema["items"] = parse_items(schema, state)
     if "patternProperties" in schema:
         schema["patternProperties"] = parse_pattern_properties(schema, state)
+    if "propertyNames" in schema:
+        schema["propertyNames"] = parse_property_names(schema, state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
     schema["additionalItems"] = parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
@@ -263,6 +265,8 @@ def parse_object(
         cls_args["minProperties"] = schema["minProperties"]
     if "maxProperties" in schema:
         cls_args["maxProperties"] = schema["maxProperties"]
+    if "propertyNames" in schema:
+        cls_args["propertyNames"] = schema["propertyNames"]
     object_type = ObjectMeta(title, (Object,), class_dict, **cls_args)
     return state.dedupe(object_type)
 
@@ -350,10 +354,10 @@ def parse_additional(
     meaningful than in general schemas.
     """
     state = state or ParseState()
-    additional_properties = schema.get(key, True)
-    if isinstance(additional_properties, bool):
-        return additional_properties
-    return parse_element(additional_properties, state)
+    additional = schema.get(key, True)
+    if isinstance(additional, bool):
+        return additional
+    return parse_element(additional, state)
 
 
 def parse_additional_properties(
@@ -374,6 +378,15 @@ def parse_additional_items(
     If key is not present, defaults to `True`.
     """
     return parse_additional("additionalItems", schema, state)
+
+
+def parse_property_names(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Element:
+    """Parse propertyNames from a schema element."""
+    state = state or ParseState()
+    property_names = schema["propertyNames"]
+    return parse_element(property_names, state)
 
 
 def parse_array(schema: Dict[str, Any], state: ParseState = None) -> Array:

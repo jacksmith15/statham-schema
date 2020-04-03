@@ -13,6 +13,7 @@ from statham.dsl.validation.object import (
     AdditionalProperties,
     MaxProperties,
     MinProperties,
+    PropertyNames,
     Required,
 )
 from statham.dsl.validation.string import MinLength, MaxLength, Format, Pattern
