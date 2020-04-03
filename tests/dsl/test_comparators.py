@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.elements import String, Object, Array
+from statham.dsl.elements import Array, Element, Object, String
 from statham.dsl.property import Property
 
 
@@ -48,6 +48,10 @@ class Doo(Object, const={"value": "foo"}):
         (Array(String()), Array(String())),
         (Array(String(), minItems=3), Array(String(), minItems=3)),
         (Array(String(minLength=3)), Array(String(minLength=3))),
+        (
+            Array(Element(), contains=String()),
+            Array(Element(), contains=String()),
+        ),
         (Foo, Bar),
         (Raz, Maz),
     ],
@@ -62,6 +66,7 @@ def test_equivalent_schemas_are_equal(left, right):
         (String(), String(default="foo")),
         (Array(String()), Array(String(), minItems=3)),
         (Array(String()), Array(String(minLength=3))),
+        (Array(Element()), Array(Element(), contains=String())),
         (Foo, Baz),
         (Foo, Mux),
         (Foo, Qux),

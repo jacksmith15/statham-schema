@@ -43,6 +43,7 @@ class Element(Generic[T]):
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         uniqueItems: bool = False,
+        contains: Maybe["Element"] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
         maximum: Maybe[Numeric] = NotPassed(),
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
@@ -67,6 +68,7 @@ class Element(Generic[T]):
         self.minItems = minItems
         self.maxItems = maxItems
         self.uniqueItems = uniqueItems
+        self.contains = contains
         self.minimum = minimum
         self.maximum = maximum
         self.exclusiveMinimum = exclusiveMinimum

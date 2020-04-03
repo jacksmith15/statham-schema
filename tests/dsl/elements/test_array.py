@@ -108,6 +108,25 @@ class TestArrayValidation:
     ):
         assert_validation(Array(Element(), uniqueItems=True), success, value)
 
+    @staticmethod
+    @pytest.mark.parametrize(
+        "success,value",
+        [
+            (True, NotPassed()),
+            (True, ["foo"]),
+            (True, ["foo", 1]),
+            (True, ["foo", 1, "bar"]),
+            (False, []),
+            (False, [True, True]),
+            (False, [1, 2, 3]),
+            (False, "foo"),
+        ],
+    )
+    def test_validation_performs_with_contains_keyword(
+        success: bool, value: Any
+    ):
+        assert_validation(Array(Element(), contains=String()), success, value)
+
 
 def test_array_default_keyword():
     element = Array(String(), default=[])

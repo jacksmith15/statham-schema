@@ -70,3 +70,18 @@ class UniqueItems(Validator):
             if len(remove_duplicates(aliased_value)) == length:
                 return
         raise ValidationError
+
+
+class Contains(Validator):
+    types = (list,)
+    keywords = ("contains",)
+    message = "Must contain one element matching {contains}."
+
+    def validate(self, value: Any):
+        for sub_value in value:
+            try:
+                _ = self.params["contains"](sub_value)
+                return
+            except (TypeError, ValidationError):
+                continue
+        raise ValidationError

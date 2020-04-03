@@ -9,12 +9,12 @@ from statham.dsl.validation import InstanceOf
 Item = TypeVar("Item")
 
 
+# pylint: disable=too-many-instance-attributes
 class Array(Element[List[Item]]):
     """JSONSchema array element.
 
     Requires schema element for "items" keyword as first positional
     argument. Supported validation keywords provided via keyword arguments.
-    # TODO: contains
     """
 
     items: Union[Element[Item], List[Element]]
@@ -29,6 +29,7 @@ class Array(Element[List[Item]]):
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         uniqueItems: bool = False,
+        contains: Maybe[Element] = NotPassed(),
     ):
         self.items = items
         self.default = default
@@ -37,6 +38,7 @@ class Array(Element[List[Item]]):
         self.minItems = minItems
         self.maxItems = maxItems
         self.uniqueItems = uniqueItems
+        self.contains = contains
 
     @property
     def annotation(self) -> str:

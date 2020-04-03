@@ -42,6 +42,16 @@ from statham.dsl.parser import parse_element
             ),
             id="with-tuple-items-and-keywords",
         ),
+        pytest.param(
+            {"type": "array", "uniqueItems": True},
+            Array(Element(), uniqueItems=True),
+            id="with-unique-items",
+        ),
+        pytest.param(
+            {"type": "array", "contains": {"type": "string"}},
+            Array(Element(), contains=String()),
+            id="with-contains",
+        ),
     ],
 )
 def test_parse_array_produces_expected_element(

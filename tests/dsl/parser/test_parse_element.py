@@ -58,6 +58,7 @@ def test_parse_element_with_arguments():
         "items": {"type": "string"},
         "uniqueItems": True,
         "propertyNames": {"type": "string", "maxLength": 3},
+        "contains": {"type": "string"},
     }
     expected = Element(
         default="foo",
@@ -77,6 +78,7 @@ def test_parse_element_with_arguments():
         items=String(),
         uniqueItems=True,
         propertyNames=String(maxLength=3),
+        contains=String(),
     )
     assert parse_element(schema) == expected
 

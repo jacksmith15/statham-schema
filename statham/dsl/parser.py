@@ -118,7 +118,9 @@ def parse_element(
     if "patternProperties" in schema:
         schema["patternProperties"] = parse_pattern_properties(schema, state)
     if "propertyNames" in schema:
-        schema["propertyNames"] = parse_property_names(schema, state)
+        schema["propertyNames"] = parse_element(schema["propertyNames"], state)
+    if "contains" in schema:
+        schema["contains"] = parse_element(schema["contains"], state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
     schema["additionalItems"] = parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
@@ -400,15 +402,6 @@ def parse_additional_items(
     If key is not present, defaults to `True`.
     """
     return parse_additional("additionalItems", schema, state)
-
-
-def parse_property_names(
-    schema: Dict[str, Any], state: ParseState = None
-) -> Element:
-    """Parse propertyNames from a schema element."""
-    state = state or ParseState()
-    property_names = schema["propertyNames"]
-    return parse_element(property_names, state)
 
 
 def parse_array(schema: Dict[str, Any], state: ParseState = None) -> Array:
