@@ -49,6 +49,10 @@ class ObjectWithPatternProps(
     pass
 
 
+class ObjectWithSizeValidation(Object, minProperties=1, maxProperties=2):
+    pass
+
+
 @pytest.mark.parametrize(
     "schema,expected",
     [
@@ -138,6 +142,16 @@ class ObjectWithPatternProps(
             },
             ObjectWithPatternProps,
             id="with-pattern-props",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithSizeValidation",
+                "minProperties": 1,
+                "maxProperties": 2,
+            },
+            ObjectWithSizeValidation,
+            id="with-size-validation",
         ),
     ],
 )

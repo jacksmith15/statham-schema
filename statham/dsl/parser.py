@@ -259,6 +259,10 @@ def parse_object(
     cls_args = dict(additionalProperties=schema["additionalProperties"])
     if "patternProperties" in schema:
         cls_args["patternProperties"] = schema["patternProperties"]
+    if "minProperties" in schema:
+        cls_args["minProperties"] = schema["minProperties"]
+    if "maxProperties" in schema:
+        cls_args["maxProperties"] = schema["maxProperties"]
     object_type = ObjectMeta(title, (Object,), class_dict, **cls_args)
     return state.dedupe(object_type)
 

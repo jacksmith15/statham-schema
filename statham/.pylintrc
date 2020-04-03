@@ -233,6 +233,8 @@ good-names=i,
            exclusiveMinimum,
            exclusiveMaximum,
            multipleOf,
+           minProperties,
+           maxProperties
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no

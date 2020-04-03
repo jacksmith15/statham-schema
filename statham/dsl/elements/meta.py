@@ -1,13 +1,15 @@
 import keyword
 from typing import Any, Dict, List, Tuple, Type, Union
 
+from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements.base import Element
 from statham.dsl.property import _Property
-from statham.dsl.constants import NotPassed
 from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.validation import (
     AdditionalProperties,
     InstanceOf,
+    MaxProperties,
+    MinProperties,
     Required,
     Validator,
 )
@@ -53,6 +55,8 @@ class ObjectMeta(type, Element):
     properties: Dict[str, _Property]
     additionalProperties: Union[Element, bool]
     patternProperties: Dict[str, Element]
+    minProperties: Maybe[int]
+    maxProperties: Maybe[int]
 
     @staticmethod
     def __subclasses__():
@@ -76,6 +80,8 @@ class ObjectMeta(type, Element):
         cls.default = classdict.default
         cls.additionalProperties = kwargs.get("additionalProperties", True)
         cls.patternProperties = kwargs.get("patternProperties", {})
+        cls.minProperties = kwargs.get("minProperties", NotPassed())
+        cls.maxProperties = kwargs.get("maxProperties", NotPassed())
         return cls
 
     def __hash__(cls):
@@ -94,7 +100,7 @@ class ObjectMeta(type, Element):
 
     @property
     def validators(cls) -> List[Validator]:
-        return [
+        possible_validators = [
             cls.type_validator,
             Required(
                 [
@@ -104,11 +110,18 @@ class ObjectMeta(type, Element):
                 ]
             ),
             AdditionalProperties(cls.__properties__),
+            MinProperties.from_element(cls),
+            MaxProperties.from_element(cls),
         ]
+        return [validator for validator in possible_validators if validator]
 
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
+        if cls.minProperties:
+            cls_args.append(f"minProperties={cls.minProperties}")
+        if not isinstance(cls.maxProperties, NotPassed):
+            cls_args.append(f"maxProperties={cls.maxProperties}")
         if cls.patternProperties:
             cls_args.append(f"patternProperties={cls.patternProperties}")
         if cls.additionalProperties not in (True, Element()):

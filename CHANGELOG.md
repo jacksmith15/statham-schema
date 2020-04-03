@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added support for `minProperties` and `maxProperties` keywords.
 
 ## [0.6.0] - 2020-04-03
 ### Added

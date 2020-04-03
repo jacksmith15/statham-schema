@@ -24,8 +24,6 @@ class Object(metaclass=ObjectMeta):
     poll = Poll({"questions": ["What's up?"]})
     ```
     # TODO: propertyNames
-    # TODO: minProperties
-    # TODO: maxProperties
     """
 
     properties: ClassVar[Dict[str, _Property]]

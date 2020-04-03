@@ -273,3 +273,23 @@ class TestPatternProperties:
     def test_that_the_schema_fails_on_bad_args(self, args):
         with pytest.raises((TypeError, ValidationError)):
             _ = self.MyObject(args)
+
+
+class TestSizeValidators:
+    class MyObject(Object, minProperties=1, maxProperties=2):
+        pass
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, False),
+            ({"foo": "bar"}, True),
+            ({"foo": "bar", "qux": "mux"}, True),
+            ({"foo": "bar", "qux": "mux", "raz": "maz"}, False),
+        ],
+    )
+    def test_arguments_are_validated(self, data, valid):
+        with no_raise() if valid else pytest.raises(
+            (TypeError, ValidationError)
+        ):
+            _ = self.MyObject(data)

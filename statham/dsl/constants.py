@@ -43,8 +43,6 @@ UNSUPPORTED_SCHEMA_KEYWORDS = {
     "if",
     "then",
     "else",
-    "maxProperties",
-    "minProperties",
     "propertyNames",
     "unevaluatedItems",
     "unevaluatedProperties",

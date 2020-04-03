@@ -275,3 +275,15 @@ def test_serialize_object_with_pattern_properties():
     pass
 """
     )
+
+
+def test_serialize_object_with_size_validation():
+    class MyObject(Object, minProperties=1, maxProperties=2):
+        pass
+
+    assert MyObject.python() == (
+        """class MyObject(Object, minProperties=1, maxProperties=2):
+
+    pass
+"""
+    )
