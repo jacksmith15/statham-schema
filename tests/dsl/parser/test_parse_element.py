@@ -42,6 +42,7 @@ def test_parsing_schema_with_bad_type_raises():
 def test_parse_element_with_arguments():
     schema = {
         "default": "foo",
+        "const": "foo",
         "minItems": 3,
         "maxItems": 5,
         "minimum": 3,
@@ -60,6 +61,7 @@ def test_parse_element_with_arguments():
     }
     expected = Element(
         default="foo",
+        const="foo",
         minItems=3,
         maxItems=5,
         minimum=3,

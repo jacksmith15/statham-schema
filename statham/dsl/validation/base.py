@@ -103,3 +103,17 @@ class NoMatch(Validator):
         if value is NotPassed():
             return
         raise ValidationError
+
+
+class Const(Validator):
+    keywords = ("const",)
+    message = "Must match constant value: {const}"
+
+    def validate(self, value: Any):
+        true = object()
+        false = object()
+        alias = lambda x: true if x is True else false if x is False else x
+        aliased = alias(value)
+        const = alias(self.params["const"])
+        if aliased != const:
+            raise ValidationError

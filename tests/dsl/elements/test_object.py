@@ -314,3 +314,24 @@ class TestPropertyNames:
             (TypeError, ValidationError)
         ):
             _ = self.MyObject(data)
+
+
+class TestConst:
+    class MyObject(Object, const={"value": "bar"}):
+        value = Property(String())
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, False),
+            ({"value": "bar"}, True),
+            ({"value": "foo"}, False),
+            ({"value": "bar", "qux": "mux"}, False),
+            ({"qux": "mux"}, False),
+        ],
+    )
+    def test_arguments_are_validated(self, data, valid):
+        with no_raise() if valid else pytest.raises(
+            (TypeError, ValidationError)
+        ):
+            _ = self.MyObject(data)

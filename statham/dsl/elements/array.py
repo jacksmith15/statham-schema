@@ -1,4 +1,4 @@
-from typing import List, TypeVar, Union
+from typing import Any, List, TypeVar, Union
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements.base import Element
@@ -23,15 +23,17 @@ class Array(Element[List[Item]]):
         self,
         items: Union[Element[Item], List[Element]],
         *,
-        additionalItems: Union[Element, bool] = True,
         default: Maybe[List] = NotPassed(),
+        const: Maybe[Any] = NotPassed(),
+        additionalItems: Union[Element, bool] = True,
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
         uniqueItems: bool = False,
     ):
         self.items = items
-        self.additionalItems = additionalItems
         self.default = default
+        self.const = const
+        self.additionalItems = additionalItems
         self.minItems = minItems
         self.maxItems = maxItems
         self.uniqueItems = uniqueItems

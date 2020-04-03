@@ -7,6 +7,7 @@ from statham.dsl.property import _Property
 from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.validation import (
     AdditionalProperties,
+    Const,
     InstanceOf,
     MaxProperties,
     MinProperties,
@@ -59,6 +60,7 @@ class ObjectMeta(type, Element):
     minProperties: Maybe[int]
     maxProperties: Maybe[int]
     propertyNames: Maybe[Element]
+    const: Maybe[Any]
 
     @staticmethod
     def __subclasses__():
@@ -79,12 +81,13 @@ class ObjectMeta(type, Element):
         cls.properties = classdict.properties
         for property_ in cls.properties.values():
             property_.bind_class(cls)
-        cls.default = classdict.default
+        cls.default = classdict.default  # TODO: Make this a class arg.
         cls.additionalProperties = kwargs.get("additionalProperties", True)
         cls.patternProperties = kwargs.get("patternProperties", {})
         cls.minProperties = kwargs.get("minProperties", NotPassed())
         cls.maxProperties = kwargs.get("maxProperties", NotPassed())
         cls.propertyNames = kwargs.get("propertyNames", NotPassed())
+        cls.const = kwargs.get("const", NotPassed())
         return cls
 
     def __hash__(cls):
@@ -116,6 +119,7 @@ class ObjectMeta(type, Element):
             MinProperties.from_element(cls),
             MaxProperties.from_element(cls),
             PropertyNames.from_element(cls),
+            Const.from_element(cls),
         ]
         return [validator for validator in possible_validators if validator]
 
@@ -132,6 +136,8 @@ class ObjectMeta(type, Element):
             cls_args.append(f"additionalProperties={cls.additionalProperties}")
         if not isinstance(cls.propertyNames, NotPassed):
             cls_args.append(f"propertyNames={cls.propertyNames}")
+        if not isinstance(cls.const, NotPassed):
+            cls_args.append(f"const={cls.const}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
         if not cls.properties and isinstance(cls.default, NotPassed):

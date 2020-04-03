@@ -27,8 +27,6 @@ class Element(Generic[T]):
     The generic type is bound by subclasses to indicate their return
     type when called.
     # TODO: enum
-    # TODO: const
-    # TODO: composition?
     """
 
     # This is how many options there are!
@@ -39,6 +37,7 @@ class Element(Generic[T]):
         # Bad name to match JSONSchema keywords.
         # pylint: disable=redefined-builtin
         default: Maybe[Any] = NotPassed(),
+        const: Maybe[Any] = NotPassed(),
         items: Maybe[Union["Element", List["Element"]]] = NotPassed(),
         additionalItems: Union["Element", bool] = True,
         minItems: Maybe[int] = NotPassed(),
@@ -62,6 +61,7 @@ class Element(Generic[T]):
         propertyNames: Maybe["Element"] = NotPassed(),
     ):
         self.default = default
+        self.const = const
         self.items = items
         self.additionalItems = additionalItems
         self.minItems = minItems
