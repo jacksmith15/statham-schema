@@ -17,6 +17,7 @@ Types of changes are:
 * Added support for `not` keyword.
 * Added support for "tuple" definition of `items` keyword.
 * Added support for `additionalItems` keyword.
+* Added support for `patternProperties` keyword.
 
 ### Changed
 * Raised dependency on `json-ref-dict` to version `0.5.1`.

@@ -18,16 +18,12 @@ class String(Element[str]):
         format: Maybe[str] = NotPassed(),
         # pylint: enable=redefined-builtin
         pattern: Maybe[str] = NotPassed(),
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
     ):
         self.default = default
         self.format = format
         self.pattern = pattern
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         self.minLength = minLength
         self.maxLength = maxLength
 

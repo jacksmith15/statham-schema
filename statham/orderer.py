@@ -37,6 +37,9 @@ def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
     additional_properties: Maybe[Union[Element, bool]] = get_keyword(
         "additionalProperties"
     )
+    pattern_properties: Maybe[Dict[str, Element]] = get_keyword(
+        "patternProperties"
+    )
     dependent: Set[ObjectMeta] = set()
     if not isinstance(items, NotPassed):
         dependent = dependent | set(_get_dependent_object_elements(items))
@@ -50,6 +53,12 @@ def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
         dependent = dependent | set(
             _get_dependent_object_elements(additional_properties)
         )
+    if not isinstance(pattern_properties, NotPassed):
+        dependent = dependent | {
+            dep
+            for elem in pattern_properties.values()  # pylint: disable=no-member
+            for dep in _get_dependent_object_elements(elem)
+        }
     return sorted(dependent, key=lambda obj_type: obj_type.__name__)
 
 
@@ -59,6 +68,7 @@ def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
         yield prop.element
     if isinstance(object_type.additionalProperties, Element):
         yield object_type.additionalProperties
+    yield from object_type.patternProperties.values()
 
 
 class Orderer:

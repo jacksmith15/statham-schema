@@ -52,6 +52,7 @@ class ObjectMeta(type, Element):
 
     properties: Dict[str, _Property]
     additionalProperties: Union[Element, bool]
+    patternProperties: Dict[str, Element]
 
     @staticmethod
     def __subclasses__():
@@ -74,6 +75,7 @@ class ObjectMeta(type, Element):
             property_.bind_class(cls)
         cls.default = classdict.default
         cls.additionalProperties = kwargs.get("additionalProperties", True)
+        cls.patternProperties = kwargs.get("patternProperties", {})
         return cls
 
     def __hash__(cls):
@@ -101,15 +103,14 @@ class ObjectMeta(type, Element):
                     if prop.required and not prop.element.default
                 ]
             ),
-            AdditionalProperties(
-                {prop.source for prop in cls.properties.values()},
-                cls.additionalProperties,
-            ),
+            AdditionalProperties(cls.__properties__),
         ]
 
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
+        if cls.patternProperties:
+            cls_args.append(f"patternProperties={cls.patternProperties}")
         if cls.additionalProperties not in (True, Element()):
             cls_args.append(f"additionalProperties={cls.additionalProperties}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):

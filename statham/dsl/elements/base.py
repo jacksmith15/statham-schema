@@ -37,7 +37,7 @@ class Element(Generic[T]):
         self,
         *,
         # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name,redefined-builtin
+        # pylint: disable=redefined-builtin
         default: Maybe[Any] = NotPassed(),
         items: Maybe[Union["Element", List["Element"]]] = NotPassed(),
         additionalItems: Union["Element", bool] = True,
@@ -54,10 +54,9 @@ class Element(Generic[T]):
         maxLength: Maybe[int] = NotPassed(),
         required: Maybe[List[str]] = NotPassed(),
         properties: Maybe[Dict[str, "_Property"]] = NotPassed(),
+        patternProperties: Maybe[Dict[str, "Element"]] = NotPassed(),
         additionalProperties: Union["Element", bool] = True,
     ):
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         self.default = default
         self.items = items
         self.additionalItems = additionalItems
@@ -82,6 +81,7 @@ class Element(Generic[T]):
                     self.required = list(
                         set(cast(List[str], self.required or []) + [name])
                     )
+        self.patternProperties = patternProperties
         self.additionalProperties = additionalProperties
 
     def __repr__(self):
@@ -132,6 +132,7 @@ class Element(Generic[T]):
         return Properties(
             self,
             getattr(self, "properties", NotPassed()),
+            getattr(self, "patternProperties", NotPassed()),
             getattr(self, "additionalProperties", True),
         )
 

@@ -2,7 +2,7 @@ from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
-from statham.dsl.elements import Array, Integer, Object, OneOf, String
+from statham.dsl.elements import Array, Integer, Nothing, Object, OneOf, String
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
@@ -240,3 +240,36 @@ class TestAdditionalPropertiesAsFalse:
     def test_no_extra_values_are_accepted(self, additional_value: Any):
         with pytest.raises(ValidationError):
             _ = self.MyObject({"value": "foo", "other_value": additional_value})
+
+
+class TestPatternProperties:
+    class MyObject(
+        Object,
+        patternProperties={"^foo": String(minLength=3), "^(?!foo)": Nothing()},
+    ):
+        foobar = Property(String())
+
+    @pytest.mark.parametrize(
+        "args",
+        [
+            {},
+            {"foobar": "bar"},
+            {"foobaz": "baz"},
+            {"foobar": "bar", "foobaz": "baz"},
+        ],
+    )
+    def test_that_the_schema_accepts_valid_args(self, args):
+        with no_raise():
+            instance = self.MyObject(args)
+        if "foobar" in args:
+            assert instance.foobar == args["foobar"]
+            assert args == instance._dict
+        else:
+            assert instance._dict == {**args, "foobar": NotPassed()}
+
+    @pytest.mark.parametrize(
+        "args", [{"foobar": "ar"}, {"foobaz": "az"}, {"barfoo": "foo"}]
+    )
+    def test_that_the_schema_fails_on_bad_args(self, args):
+        with pytest.raises((TypeError, ValidationError)):
+            _ = self.MyObject(args)

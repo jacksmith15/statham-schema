@@ -112,6 +112,8 @@ def parse_element(
         schema["properties"] = parse_properties(schema, state)
     if "items" in schema:
         schema["items"] = parse_items(schema, state)
+    if "patternProperties" in schema:
+        schema["patternProperties"] = parse_pattern_properties(schema, state)
     schema["additionalProperties"] = parse_additional_properties(schema, state)
     schema["additionalItems"] = parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
@@ -254,12 +256,10 @@ def parse_object(
     class_dict = ObjectClassDict(default=default)
     for key, value in properties.items():
         class_dict[key] = value
-    object_type = ObjectMeta(
-        title,
-        (Object,),
-        class_dict,
-        additionalProperties=schema["additionalProperties"],
-    )
+    cls_args = dict(additionalProperties=schema["additionalProperties"])
+    if "patternProperties" in schema:
+        cls_args["patternProperties"] = schema["patternProperties"]
+    object_type = ObjectMeta(title, (Object,), class_dict, **cls_args)
     return state.dedupe(object_type)
 
 
@@ -317,6 +317,24 @@ def parse_attribute_name(name: str) -> str:
         if name not in RESERVED_PROPERTIES and name[0] in first_chars
         else f"_{name}"
     )
+
+
+def parse_pattern_properties(
+    schema: Dict[str, Any], state: ParseState = None
+) -> Dict[str, Element]:
+    state = state or ParseState()
+    return {
+        **{
+            key: parse_element(value, state)
+            for key, value in schema["patternProperties"].items()
+            if isinstance(value, (dict, bool))
+        },
+        **{
+            key: value
+            for key, value in schema["patternProperties"].items()
+            if isinstance(value, Element)
+        },
+    }
 
 
 def parse_additional(

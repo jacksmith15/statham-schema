@@ -222,7 +222,17 @@ good-names=i,
            _,
            id,
            T,
-           V
+           V,
+           additionalProperties,
+           patternProperties,
+           minItems,
+           maxItems,
+           minLength,
+           maxLength,
+           additionalItems,
+           exclusiveMinimum,
+           exclusiveMaximum,
+           multipleOf,
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no

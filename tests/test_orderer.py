@@ -105,12 +105,23 @@ def test_orderer_detects_additional_properties_dependencies():
     ]
 
 
+def test_orderer_detects_pattern_properties_dependencies_from_object():
+    class PatternPropertiesParent(Object, patternProperties={"^foo": Child}):
+        pass
+
+    assert list(Orderer(PatternPropertiesParent)) == [
+        Child,
+        PatternPropertiesParent,
+    ]
+
+
 @pytest.mark.parametrize(
     "kwargs",
     [
         dict(additionalProperties=Child),
         dict(properties={"value": Property(Child)}),
         dict(items=Child),
+        dict(patternProperties={"^foo": Child}),
     ],
 )
 def test_orderer_detects_untyped_object_dependencies(kwargs):

@@ -22,8 +22,6 @@ class Array(Element[List[Item]]):
 
     def __init__(
         self,
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         items: Union[Element[Item], List[Element]],
         *,
         additionalItems: Union[Element, bool] = True,
@@ -31,8 +29,6 @@ class Array(Element[List[Item]]):
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
     ):
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         self.items = items
         self.additionalItems = additionalItems
         self.default = default

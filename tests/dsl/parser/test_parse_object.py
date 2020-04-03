@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import pytest
 
-from statham.dsl.elements import Element, Object, String
+from statham.dsl.elements import Element, Nothing, Object, String
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.parser import ParseState, parse_element
@@ -40,6 +40,12 @@ class ObjectWithAdditionalPropTrue(Object, additionalProperties=True):
 
 
 class ObjectWithAdditionalPropFalse(Object, additionalProperties=False):
+    pass
+
+
+class ObjectWithPatternProps(
+    Object, patternProperties={"^foo": Element(), "^(?!foo)": Nothing()}
+):
     pass
 
 
@@ -123,6 +129,15 @@ class ObjectWithAdditionalPropFalse(Object, additionalProperties=False):
             },
             ObjectWithAdditionalPropFalse,
             id="with-additional-properties-false",
+        ),
+        pytest.param(
+            {
+                "type": "object",
+                "title": "ObjectWithPatternProps",
+                "patternProperties": {"^foo": True, "^(?!foo)": False},
+            },
+            ObjectWithPatternProps,
+            id="with-pattern-props",
         ),
     ],
 )

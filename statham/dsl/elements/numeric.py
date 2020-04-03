@@ -22,8 +22,6 @@ class NumericElement(Element[T]):
         default: Maybe[T] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
         maximum: Maybe[Numeric] = NotPassed(),
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
         exclusiveMaximum: Maybe[Numeric] = NotPassed(),
         multipleOf: Maybe[Numeric] = NotPassed(),
@@ -31,8 +29,6 @@ class NumericElement(Element[T]):
         self.default = default
         self.minimum = minimum
         self.maximum = maximum
-        # Bad name to match JSONSchema keywords.
-        # pylint: disable=invalid-name
         self.exclusiveMinimum = exclusiveMinimum
         self.exclusiveMaximum = exclusiveMaximum
         self.multipleOf = multipleOf
