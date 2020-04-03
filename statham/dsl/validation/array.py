@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, cast, Optional
 
 from statham.dsl.exceptions import ValidationError
+from statham.dsl.helpers import remove_duplicates
 from statham.dsl.validation.base import Validator
 
 
@@ -36,4 +37,38 @@ class AdditionalItems(Validator):
             return
         if self.params["additionalItems"]:
             return
+        raise ValidationError
+
+
+class UniqueItems(Validator):
+    types = (list,)
+    keywords = ("uniqueItems",)
+    message = "Must not contain duplicates."
+
+    @classmethod
+    def from_element(cls, element) -> Optional["UniqueItems"]:
+        validator: Optional[UniqueItems] = cast(
+            Optional[UniqueItems], super().from_element(element)
+        )
+        if validator and validator.params["uniqueItems"] is False:
+            return None
+        return validator
+
+    def validate(self, value: Any):
+        if self.params["uniqueItems"] is False:
+            return
+        # Once again, Cpython's 1 in [True] nightmare.
+        true = object()
+        false = object()
+        alias = lambda x: true if x is True else false if x is False else x
+        aliased_value = list(map(alias, value))
+        length = len(aliased_value)
+        try:
+            # Try the hashable approach
+            if len(set(aliased_value)) == length:
+                return
+        except TypeError:
+            # Long version
+            if len(remove_duplicates(aliased_value)) == length:
+                return
         raise ValidationError

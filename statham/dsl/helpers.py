@@ -5,10 +5,8 @@ from typing import (
     Callable,
     Container,
     Dict,
-    Hashable,
     Iterable,
     List,
-    Set,
     Tuple,
     Type,
     TypeVar,
@@ -102,11 +100,11 @@ def expand(function):
     return lambda args: function(*args)
 
 
-SequenceItem = TypeVar("SequenceItem", bound=Hashable)
+SequenceItem = TypeVar("SequenceItem")
 
 
 def remove_duplicates(seq: Iterable[SequenceItem]) -> List[SequenceItem]:
     """Remove duplicates whilst preserving order."""
-    seen: Set[SequenceItem] = set()
-    seen_add = seen.add
+    seen: List[SequenceItem] = []
+    seen_add = seen.append
     return [x for x in seq if not (x in seen or seen_add(x))]
