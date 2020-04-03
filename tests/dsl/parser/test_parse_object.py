@@ -160,7 +160,7 @@ class ObjectWithPropertyNames(Object, propertyNames=String(maxLength=3)):
         pytest.param(
             {
                 "type": "object",
-                "title": "ObjectWithSizeValidation",
+                "title": "ObjectWithPropertyNames",
                 "propertyNames": {"type": "string", "maxLength": 3},
             },
             ObjectWithPropertyNames,
