@@ -178,7 +178,6 @@ class ObjectWithConst(Object, const={"foo": "bar"}):
             },
             ObjectWithConst,
             id="with-const",
-            marks=pytest.mark.foo,
         ),
     ],
 )

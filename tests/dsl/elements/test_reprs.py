@@ -45,6 +45,10 @@ class ObjectWrapper(Object):
             "Array(String(), uniqueItems=True)",
         ),
         (Array(String(), uniqueItems=False), "Array(String())"),
+        (
+            Array(Element(), contains=String()),
+            "Array(Element(), contains=String())",
+        ),
         (Boolean(), "Boolean()"),
         (Boolean(default=True), "Boolean(default=True)"),
         (Integer(), "Integer()"),
@@ -76,6 +80,7 @@ class ObjectWrapper(Object):
             Element(propertyNames=String(maxLength=3)),
             "Element(propertyNames=String(maxLength=3))",
         ),
+        (Element(contains=String()), "Element(contains=String())"),
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
         (

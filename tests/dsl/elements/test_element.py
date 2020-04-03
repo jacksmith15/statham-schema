@@ -163,6 +163,22 @@ CASES = [
         good=["foo", NotPassed()],
         bad=[None, True, 1, 1.2, "bar", {"foo": "bar"}, ["foo", 1]],
     ),
+    Case(
+        element=Element(contains=String()),
+        good=[
+            None,
+            NotPassed(),
+            True,
+            1,
+            1.2,
+            "foo",
+            {"foo": "bar"},
+            ["foo"],
+            ["foo", 1],
+            ["foo", 1, "bar"],
+        ],
+        bad=[[], [1, 2, 3]],
+    ),
 ]
 
 
