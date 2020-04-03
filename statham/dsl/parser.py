@@ -324,8 +324,16 @@ def parse_pattern_properties(
 ) -> Dict[str, Element]:
     state = state or ParseState()
     return {
-        key: parse_element(value, state)
-        for key, value in schema["patternProperties"].items()
+        **{
+            key: parse_element(value, state)
+            for key, value in schema["patternProperties"].items()
+            if isinstance(value, (dict, bool))
+        },
+        **{
+            key: value
+            for key, value in schema["patternProperties"].items()
+            if isinstance(value, Element)
+        },
     }
 
 

@@ -20,9 +20,10 @@ class Properties:
         else:
             self.additional = additional
 
-    def property(self, element):
+    def property(self, element, name):
         prop = Property(element)
         prop.bind_class(self.element)
+        prop.bind_name(name)
         return prop
 
     def __repr__(self):
@@ -36,16 +37,27 @@ class Properties:
         return f"{type(self).__name__}({', '.join(props)})"
 
     def __getitem__(self, key):
-        try:
-            return {prop.source: prop for prop in self.props.values()}[key]
-        except KeyError:
-            pass
-        if key in self.pattern:
-            return self.property(AllOf(*self.pattern.getall(key)))
-        return self.property(self.additional)
+        prop = {prop.source: prop for prop in self.props.values()}.get(
+            key, None
+        )
+        pattern_elems = list(self.pattern.getall(key))
+        if not (prop or pattern_elems):
+            return self.property(self.additional, key)
+        if not prop:
+            return self.property(AllOf(*pattern_elems), key)
+        if not pattern_elems:
+            return prop
+        composite = Property(
+            AllOf(prop.element, *pattern_elems),
+            source=prop.source,
+            required=prop.required,
+        )
+        composite.bind_name(prop.name)
+        composite.bind_class(prop.parent)
+        return composite
 
     def __contains__(self, key):
-        return bool(self[key] != Property(Nothing()))
+        return bool(self[key].element != Nothing())
 
     def __iter__(self):
         return iter(self.props)
