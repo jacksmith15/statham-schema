@@ -9,7 +9,12 @@ from statham.dsl.validation.numeric import (
     ExclusiveMaximum,
     MultipleOf,
 )
-from statham.dsl.validation.object import AdditionalProperties, Required
+from statham.dsl.validation.object import (
+    AdditionalProperties,
+    MaxProperties,
+    MinProperties,
+    Required,
+)
 from statham.dsl.validation.string import MinLength, MaxLength, Format, Pattern
 
 

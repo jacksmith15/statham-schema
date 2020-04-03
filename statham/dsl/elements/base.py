@@ -56,6 +56,8 @@ class Element(Generic[T]):
         properties: Maybe[Dict[str, "_Property"]] = NotPassed(),
         patternProperties: Maybe[Dict[str, "Element"]] = NotPassed(),
         additionalProperties: Union["Element", bool] = True,
+        minProperties: Maybe[int] = NotPassed(),
+        maxProperties: Maybe[int] = NotPassed(),
     ):
         self.default = default
         self.items = items
@@ -83,6 +85,8 @@ class Element(Generic[T]):
                     )
         self.patternProperties = patternProperties
         self.additionalProperties = additionalProperties
+        self.minProperties = minProperties
+        self.maxProperties = maxProperties
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""

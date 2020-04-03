@@ -32,3 +32,23 @@ class AdditionalProperties(Validator):
         }
         if bad_properties:
             raise ValidationError
+
+
+class MinProperties(Validator):
+    types = (dict,)
+    keywords = ("minProperties",)
+    message = "Must contain at least {minProperties} properties."
+
+    def validate(self, value: Any):
+        if len(value) < self.params["minProperties"]:
+            raise ValidationError
+
+
+class MaxProperties(Validator):
+    types = (dict,)
+    keywords = ("maxProperties",)
+    message = "Must contain at most {maxProperties} properties."
+
+    def validate(self, value: Any):
+        if len(value) > self.params["maxProperties"]:
+            raise ValidationError
