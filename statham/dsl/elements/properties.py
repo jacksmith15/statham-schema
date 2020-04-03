@@ -44,6 +44,8 @@ class Properties:
         if not (prop or pattern_elems):
             return self.property(self.additional, key)
         if not prop:
+            if len(pattern_elems) == 1:
+                return self.property(pattern_elems[0], key)
             return self.property(AllOf(*pattern_elems), key)
         if not pattern_elems:
             return prop
