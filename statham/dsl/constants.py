@@ -46,5 +46,4 @@ UNSUPPORTED_SCHEMA_KEYWORDS = {
     "propertyNames",
     "unevaluatedItems",
     "unevaluatedProperties",
-    "uniqueItems",
 }

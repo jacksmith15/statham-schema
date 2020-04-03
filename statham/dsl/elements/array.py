@@ -28,12 +28,14 @@ class Array(Element[List[Item]]):
         default: Maybe[List] = NotPassed(),
         minItems: Maybe[int] = NotPassed(),
         maxItems: Maybe[int] = NotPassed(),
+        uniqueItems: bool = False,
     ):
         self.items = items
         self.additionalItems = additionalItems
         self.default = default
         self.minItems = minItems
         self.maxItems = maxItems
+        self.uniqueItems = uniqueItems
 
     @property
     def annotation(self) -> str:
