@@ -2,7 +2,7 @@ from typing import Any, cast, Optional
 
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.helpers import remove_duplicates
-from statham.dsl.validation.base import Validator
+from statham.dsl.validation.base import Validator, replace_bool
 
 
 class MinItems(Validator):
@@ -56,10 +56,7 @@ class UniqueItems(Validator):
 
     def validate(self, value: Any):
         # Once again, Cpython's 1 in [True] nightmare.
-        true = object()
-        false = object()
-        alias = lambda x: true if x is True else false if x is False else x
-        aliased_value = list(map(alias, value))
+        aliased_value = list(map(replace_bool, value))
         length = len(aliased_value)
         try:
             # Try the hashable approach

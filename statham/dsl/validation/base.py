@@ -4,6 +4,14 @@ from statham.dsl.constants import NotPassed
 from statham.dsl.exceptions import ValidationError
 
 
+_TRUE = object()
+_FALSE = object()
+
+
+def replace_bool(value: Any) -> Any:
+    return _TRUE if value is True else _FALSE if value is False else value
+
+
 def _is_instance(value, type_args):
     """Variant of isinstance to handle booleans correctly.
 
@@ -110,10 +118,18 @@ class Const(Validator):
     message = "Must match constant value: {const}"
 
     def validate(self, value: Any):
-        true = object()
-        false = object()
-        alias = lambda x: true if x is True else false if x is False else x
-        aliased = alias(value)
-        const = alias(self.params["const"])
+        aliased = replace_bool(value)
+        const = replace_bool(self.params["const"])
         if aliased != const:
+            raise ValidationError
+
+
+class Enum(Validator):
+    keywords = ("enum",)
+    message = "Must be one of these values: {enum}"
+
+    def validate(self, value: Any):
+        aliased = replace_bool(value)
+        enum = list(map(replace_bool, self.params["enum"]))
+        if aliased not in enum:
             raise ValidationError

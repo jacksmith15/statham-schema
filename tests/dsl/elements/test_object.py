@@ -353,3 +353,29 @@ class TestConst:
         element = Array(self.MyObject, const=[self.MyObject({"value": "bar"})])
         with no_raise():
             _ = element([{"value": "bar"}])
+
+
+class TestEnum:
+    class MyObject(Object, enum=[{"foo": "bar"}, {"qux": "mux"}]):
+        pass
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, False),
+            ({"foo": "bar"}, True),
+            ({"qux": "mux"}, True),
+            ({"foo": "bar", "qux": "mux"}, False),
+            ({"raz": "maz"}, False),
+        ],
+    )
+    def test_arguments_are_validated(self, data, valid):
+        with no_raise() if valid else pytest.raises(
+            (TypeError, ValidationError)
+        ):
+            _ = self.MyObject(data)
+
+    def test_enum_accepts_instance(self):
+        instance = self.MyObject({"foo": "bar"})
+        with no_raise():
+            _ = self.MyObject(instance)

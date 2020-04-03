@@ -108,7 +108,7 @@ def parse_element(
         raise FeatureNotImplementedError.unsupported_keywords(
             set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
         )
-    for literal_key in ("default", "const"):
+    for literal_key in ("default", "const", "enum"):
         if literal_key in schema:
             schema[literal_key] = parse_literal(schema[literal_key])
     if "properties" in schema:
@@ -281,16 +281,16 @@ def parse_object(
     for key, value in properties.items():
         class_dict[key] = value
     cls_args = dict(additionalProperties=schema["additionalProperties"])
-    if "patternProperties" in schema:
-        cls_args["patternProperties"] = schema["patternProperties"]
-    if "minProperties" in schema:
-        cls_args["minProperties"] = schema["minProperties"]
-    if "maxProperties" in schema:
-        cls_args["maxProperties"] = schema["maxProperties"]
-    if "propertyNames" in schema:
-        cls_args["propertyNames"] = schema["propertyNames"]
-    if "const" in schema:
-        cls_args["const"] = schema["const"]
+    for key in [
+        "patternProperties",
+        "minProperties",
+        "maxProperties",
+        "propertyNames",
+        "const",
+        "enum",
+    ]:
+        if key in schema:
+            cls_args[key] = schema[key]
     object_type = ObjectMeta(title, (Object,), class_dict, **cls_args)
     return state.dedupe(object_type)
 
