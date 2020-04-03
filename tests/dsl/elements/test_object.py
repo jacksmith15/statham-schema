@@ -293,3 +293,24 @@ class TestSizeValidators:
             (TypeError, ValidationError)
         ):
             _ = self.MyObject(data)
+
+
+class TestPropertyNames:
+    class MyObject(Object, propertyNames=String(maxLength=3)):
+        pass
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, True),
+            ({"foo": "bar"}, True),
+            ({"foo": "bar", "qux": "mux"}, True),
+            ({"foobar": "baz"}, False),
+            ({"foobar": "baz", "qux": "mux"}, False),
+        ],
+    )
+    def test_arguments_are_validated(self, data, valid):
+        with no_raise() if valid else pytest.raises(
+            (TypeError, ValidationError)
+        ):
+            _ = self.MyObject(data)

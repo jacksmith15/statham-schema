@@ -59,6 +59,7 @@ class Element(Generic[T]):
         additionalProperties: Union["Element", bool] = True,
         minProperties: Maybe[int] = NotPassed(),
         maxProperties: Maybe[int] = NotPassed(),
+        propertyNames: Maybe["Element"] = NotPassed(),
     ):
         self.default = default
         self.items = items
@@ -89,6 +90,7 @@ class Element(Generic[T]):
         self.additionalProperties = additionalProperties
         self.minProperties = minProperties
         self.maxProperties = maxProperties
+        self.propertyNames = propertyNames
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""

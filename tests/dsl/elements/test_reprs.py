@@ -71,6 +71,10 @@ class ObjectWrapper(Object):
         ),
         (Element(uniqueItems=True), "Element(uniqueItems=True)"),
         (Element(uniqueItems=False), "Element()"),
+        (
+            Element(propertyNames=String(maxLength=3)),
+            "Element(propertyNames=String(maxLength=3))",
+        ),
         (ObjectWrapper, "ObjectWrapper"),
         (StringWrapper, "StringWrapper"),
         (

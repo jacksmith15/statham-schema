@@ -55,8 +55,6 @@ class UniqueItems(Validator):
         return validator
 
     def validate(self, value: Any):
-        if self.params["uniqueItems"] is False:
-            return
         # Once again, Cpython's 1 in [True] nightmare.
         true = object()
         false = object()

@@ -14,6 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
+* Added support for `propertyNames` keyword.
 * Added support for `uniqueItems` keyword.
 * Added support for `minProperties` and `maxProperties` keywords.
 

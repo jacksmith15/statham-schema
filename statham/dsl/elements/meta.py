@@ -10,6 +10,7 @@ from statham.dsl.validation import (
     InstanceOf,
     MaxProperties,
     MinProperties,
+    PropertyNames,
     Required,
     Validator,
 )
@@ -57,6 +58,7 @@ class ObjectMeta(type, Element):
     patternProperties: Dict[str, Element]
     minProperties: Maybe[int]
     maxProperties: Maybe[int]
+    propertyNames: Maybe[Element]
 
     @staticmethod
     def __subclasses__():
@@ -82,6 +84,7 @@ class ObjectMeta(type, Element):
         cls.patternProperties = kwargs.get("patternProperties", {})
         cls.minProperties = kwargs.get("minProperties", NotPassed())
         cls.maxProperties = kwargs.get("maxProperties", NotPassed())
+        cls.propertyNames = kwargs.get("propertyNames", NotPassed())
         return cls
 
     def __hash__(cls):
@@ -112,6 +115,7 @@ class ObjectMeta(type, Element):
             AdditionalProperties(cls.__properties__),
             MinProperties.from_element(cls),
             MaxProperties.from_element(cls),
+            PropertyNames.from_element(cls),
         ]
         return [validator for validator in possible_validators if validator]
 
@@ -126,6 +130,8 @@ class ObjectMeta(type, Element):
             cls_args.append(f"patternProperties={cls.patternProperties}")
         if cls.additionalProperties not in (True, Element()):
             cls_args.append(f"additionalProperties={cls.additionalProperties}")
+        if not isinstance(cls.propertyNames, NotPassed):
+            cls_args.append(f"propertyNames={cls.propertyNames}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
         if not cls.properties and isinstance(cls.default, NotPassed):

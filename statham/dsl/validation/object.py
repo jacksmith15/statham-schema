@@ -52,3 +52,16 @@ class MaxProperties(Validator):
     def validate(self, value: Any):
         if len(value) > self.params["maxProperties"]:
             raise ValidationError
+
+
+class PropertyNames(Validator):
+    types = (dict,)
+    keywords = ("propertyNames",)
+    message = "Property names must match schema {propertyNames}"
+
+    def validate(self, value: Any):
+        for prop_name in value:
+            try:
+                self.params["propertyNames"](prop_name)
+            except (ValidationError, TypeError):
+                raise ValidationError

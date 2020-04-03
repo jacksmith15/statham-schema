@@ -105,7 +105,7 @@ def test_orderer_detects_additional_properties_dependencies():
     ]
 
 
-def test_orderer_detects_pattern_properties_dependencies_from_object():
+def test_orderer_detects_pattern_properties_dependencies():
     class PatternPropertiesParent(Object, patternProperties={"^foo": Child}):
         pass
 
@@ -115,6 +115,14 @@ def test_orderer_detects_pattern_properties_dependencies_from_object():
     ]
 
 
+def test_orderer_detects_property_names_dependencies():
+    # This is nonsensical - but technically JSON Schema supports it.
+    class PropertyNamesParent(Object, propertyNames=Child):
+        pass
+
+    assert list(Orderer(PropertyNamesParent)) == [Child, PropertyNamesParent]
+
+
 @pytest.mark.parametrize(
     "kwargs",
     [
@@ -122,6 +130,7 @@ def test_orderer_detects_pattern_properties_dependencies_from_object():
         dict(properties={"value": Property(Child)}),
         dict(items=Child),
         dict(patternProperties={"^foo": Child}),
+        dict(propertyNames=Child),
     ],
 )
 def test_orderer_detects_untyped_object_dependencies(kwargs):
