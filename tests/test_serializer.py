@@ -4,6 +4,9 @@ import pytest
 
 from statham.dsl.constants import Maybe
 from statham.dsl.elements import Element, Object, String
+
+# False positive: https://github.com/PyCQA/pylint/issues/3202
+from statham.dsl.elements import Nothing  # pylint: disable=unused-import
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
 from statham.serializer import _IMPORT_STATEMENTS, serialize_python
@@ -165,7 +168,7 @@ def test_parse_and_serialize_schema_with_composition_keywords():
     )
 
 
-def test_and_parse_schema_with_bad_name():
+def test_parse_and_serialize_schema_with_bad_name():
     schema = {
         "type": "object",
         "title": "BadName",
@@ -255,5 +258,20 @@ def test_serialize_object_with_untyped_property():
         == """class MyObject(Object):
 
     value: Any = Property(Element(default='foo', items=String(), minItems=3, maxItems=5, minimum=3, maximum=5, minLength=3, maxLength=5, required=['value'], properties={'value': Property(String(), required=True)}, additionalProperties=String()))
+"""
+    )
+
+
+def test_serialize_object_with_pattern_properties():
+    class MyObject(
+        Object, patternProperties={"^foo": Element(), "^(?!foo)": Nothing()}
+    ):
+        pass
+
+    # pylint: disable=line-too-long
+    assert MyObject.python() == (
+        """class MyObject(Object, patternProperties={'^foo': Element(), '^(?!foo)': Nothing()}):
+
+    pass
 """
     )
