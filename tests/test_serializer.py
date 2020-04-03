@@ -299,3 +299,15 @@ def test_serialize_object_with_property_names():
     pass
 """
     )
+
+
+def test_serialize_object_with_const():
+    class MyObject(Object, const={"foo": "bar"}):
+        pass
+
+    assert MyObject.python() == (
+        """class MyObject(Object, const={'foo': 'bar'}):
+
+    pass
+"""
+    )

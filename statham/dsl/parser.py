@@ -108,6 +108,9 @@ def parse_element(
         raise FeatureNotImplementedError.unsupported_keywords(
             set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
         )
+    for literal_key in ("default", "const"):
+        if literal_key in schema:
+            schema[literal_key] = parse_literal(schema[literal_key])
     if "properties" in schema:
         schema["properties"] = parse_properties(schema, state)
     if "items" in schema:
@@ -123,6 +126,23 @@ def parse_element(
     if "type" not in schema:
         return Element(**keyword_filter(Element)(schema))
     return parse_typed(schema["type"], schema, state)
+
+
+def parse_literal(literal: Any) -> Any:
+    """Parse literal values from schema.
+
+    Keywords like `const`, `enum` and `default` refer to non-schema values.
+    Annotations should be removed to prevent side effects.
+    """
+    if not isinstance(literal, (dict, list)):
+        return literal
+    if isinstance(literal, list):
+        return [parse_literal(val) for val in literal]
+    return {
+        key: parse_literal(val)
+        for key, val in literal.items()
+        if key != "_x_autotitle"
+    }
 
 
 def parse_composition(

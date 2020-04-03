@@ -1,4 +1,4 @@
-from typing import TypeVar, Union
+from typing import Any, TypeVar, Union
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -20,6 +20,7 @@ class NumericElement(Element[T]):
         self,
         *,
         default: Maybe[T] = NotPassed(),
+        const: Maybe[Any] = NotPassed(),
         minimum: Maybe[Numeric] = NotPassed(),
         maximum: Maybe[Numeric] = NotPassed(),
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
@@ -27,6 +28,7 @@ class NumericElement(Element[T]):
         multipleOf: Maybe[Numeric] = NotPassed(),
     ):
         self.default = default
+        self.const = const
         self.minimum = minimum
         self.maximum = maximum
         self.exclusiveMinimum = exclusiveMinimum
