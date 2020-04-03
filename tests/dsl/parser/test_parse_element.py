@@ -51,6 +51,9 @@ def test_parse_element_with_arguments():
         "required": ["value"],
         "properties": {"value": {"type": "string"}},
         "additionalProperties": {"type": "string"},
+        "patternProperties": {"^foo": {"type": "string"}},
+        "minProperties": 1,
+        "maxProperties": 3,
         "items": {"type": "string"},
     }
     expected = Element(
@@ -64,6 +67,9 @@ def test_parse_element_with_arguments():
         required=["value"],
         properties={"value": Property(String(), required=True)},
         additionalProperties=String(),
+        patternProperties={"^foo": String()},
+        minProperties=1,
+        maxProperties=3,
         items=String(),
     )
     assert parse_element(schema) == expected

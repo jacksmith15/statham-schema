@@ -118,6 +118,10 @@ class ObjectMeta(type, Element):
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
+        if cls.minProperties:
+            cls_args.append(f"minProperties={cls.minProperties}")
+        if not isinstance(cls.maxProperties, NotPassed):
+            cls_args.append(f"maxProperties={cls.maxProperties}")
         if cls.patternProperties:
             cls_args.append(f"patternProperties={cls.patternProperties}")
         if cls.additionalProperties not in (True, Element()):
