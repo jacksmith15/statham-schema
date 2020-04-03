@@ -27,8 +27,6 @@ class Element(Generic[T]):
     The generic type is bound by subclasses to indicate their return
     type when called.
     # TODO: enum
-    # TODO: const
-    # TODO: composition?
     """
 
     # This is how many options there are!
