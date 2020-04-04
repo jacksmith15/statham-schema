@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.7.0] - 2020-04-04
 ### Added
 * Added support for `dependencies` keyword.
 * Added support for `enum` keyword.
@@ -175,7 +177,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.6.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.7.0..HEAD
+[0.7.0]: http://github.com/jacksmith15/statham-schema/compare/0.6.0..0.7.0
 [0.6.0]: http://github.com/jacksmith15/statham-schema/compare/0.5.0..0.6.0
 [0.5.0]: http://github.com/jacksmith15/statham-schema/compare/0.4.0..0.5.0
 [0.4.0]: http://github.com/jacksmith15/statham-schema/compare/0.3.0..0.4.0
