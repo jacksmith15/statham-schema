@@ -8,6 +8,7 @@ from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.validation import (
     AdditionalProperties,
     Const,
+    Dependencies,
     Enum,
     InstanceOf,
     MaxProperties,
@@ -63,6 +64,7 @@ class ObjectMeta(type, Element):
     propertyNames: Maybe[Element]
     const: Maybe[Any]
     enum: Maybe[List[Any]]
+    dependencies: Maybe[Dict[str, Union[List[str], Element]]]
 
     @staticmethod
     def __subclasses__():
@@ -89,6 +91,7 @@ class ObjectMeta(type, Element):
         cls.minProperties = kwargs.get("minProperties", NotPassed())
         cls.maxProperties = kwargs.get("maxProperties", NotPassed())
         cls.propertyNames = kwargs.get("propertyNames", NotPassed())
+        cls.dependencies = kwargs.get("dependencies", NotPassed())
         cls.const = kwargs.get("const", NotPassed())
         cls.enum = kwargs.get("enum", NotPassed())
         return cls
@@ -124,6 +127,7 @@ class ObjectMeta(type, Element):
             PropertyNames.from_element(cls),
             Const.from_element(cls),
             Enum.from_element(cls),
+            Dependencies.from_element(cls),
         ]
         return [validator for validator in possible_validators if validator]
 
@@ -144,6 +148,8 @@ class ObjectMeta(type, Element):
             cls_args.append(f"additionalProperties={cls.additionalProperties}")
         if not isinstance(cls.propertyNames, NotPassed):
             cls_args.append(f"propertyNames={cls.propertyNames}")
+        if not isinstance(cls.dependencies, NotPassed):
+            cls_args.append(f"dependencies={cls.dependencies}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
         if not cls.properties and isinstance(cls.default, NotPassed):

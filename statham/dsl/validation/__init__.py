@@ -23,6 +23,7 @@ from statham.dsl.validation.numeric import (
 )
 from statham.dsl.validation.object import (
     AdditionalProperties,
+    Dependencies,
     MaxProperties,
     MinProperties,
     PropertyNames,

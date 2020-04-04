@@ -14,6 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 ### Added
+* Added support for `dependencies` keyword.
 * Added support for `enum` keyword.
 * Added support for `contains` keyword.
 * Added support for `const` keyword.

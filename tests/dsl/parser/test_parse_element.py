@@ -60,6 +60,7 @@ def test_parse_element_with_arguments():
         "propertyNames": {"type": "string", "maxLength": 3},
         "contains": {"type": "string"},
         "enum": ["foo", "bar"],
+        "dependencies": {"foo": ["bar"], "qux": {"minProperties": 2}},
     }
     expected = Element(
         default="foo",
@@ -81,6 +82,7 @@ def test_parse_element_with_arguments():
         propertyNames=String(maxLength=3),
         contains=String(),
         enum=["foo", "bar"],
+        dependencies={"foo": ["bar"], "qux": Element(minProperties=2)},
     )
     assert parse_element(schema) == expected
 

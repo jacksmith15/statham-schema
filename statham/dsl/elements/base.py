@@ -60,6 +60,9 @@ class Element(Generic[T]):
         minProperties: Maybe[int] = NotPassed(),
         maxProperties: Maybe[int] = NotPassed(),
         propertyNames: Maybe["Element"] = NotPassed(),
+        dependencies: Maybe[
+            Dict[str, Union[List[str], "Element"]]
+        ] = NotPassed(),
     ):
         self.default = default
         self.const = const
@@ -94,6 +97,7 @@ class Element(Generic[T]):
         self.minProperties = minProperties
         self.maxProperties = maxProperties
         self.propertyNames = propertyNames
+        self.dependencies = dependencies
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
