@@ -13,6 +13,9 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Changed
+* Bump `json-ref-dict` to version `0.5.3`.
+* Improve implementation of official JSON Schema test suite.
 
 ## [0.7.0] - 2020-04-04
 ### Added

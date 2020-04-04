@@ -1,11 +1,13 @@
-from copy import deepcopy
+from io import StringIO
 import json
 import os
 from os import path
 from typing import Any, Dict, Iterator, List, NamedTuple, Optional
 from unittest.mock import patch
+from urllib.request import urlopen
 
 from json_ref_dict import materialize, RefDict
+from json_ref_dict.loader import get_document
 from json_ref_dict.ref_pointer import resolve_uri
 import pytest
 
@@ -15,7 +17,7 @@ from statham.titles import title_labeller
 from tests.helpers import no_raise
 
 
-NOT_IMPLEMENTED = ("optional", "definitions", "defs", "ref", "refRemote")
+NOT_IMPLEMENTED = ("optional", "definitions", "ref", "refRemote")
 
 
 def _add_titles(schema):
@@ -124,20 +126,25 @@ def test_jsonschema_official_test(param: Param):
 
 
 def _load_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """Perform mock pre-processing.
+    """Mock the RefDict loader.
 
     De-references and labels schema.
     """
-    schema_copy = deepcopy(schema)
 
-    def _get_document(_base_uri: str):
-        return deepcopy(schema_copy)
+    def _mock_url_open(uri):
+        if "testuri.json" in uri:
+            conn = StringIO()
+            json.dump(schema, conn)
+            conn.seek(0)
+            conn.url = uri
+            return conn
+        return urlopen(uri)
 
-    with patch("json_ref_dict.ref_pointer.get_document", new=_get_document):
+    with patch("json_ref_dict.loader.urlopen", new=_mock_url_open):
         resolve_uri.cache_clear()
-        return materialize(
-            RefDict.from_uri("testuri"), context_labeller=title_labeller()
-        )
+        get_document.cache_clear()
+        ref_dict = RefDict.from_uri("testuri.json#/")
+        return materialize(ref_dict, context_labeller=title_labeller())
 
 
 def test_load_schema():
