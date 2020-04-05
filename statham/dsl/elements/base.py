@@ -1,5 +1,6 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
+from reprlib import recursive_repr
 from typing import Any, cast, Dict, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
@@ -99,7 +100,8 @@ class Element(Generic[T]):
         self.propertyNames = propertyNames
         self.dependencies = dependencies
 
-    def __repr__(self):
+    @recursive_repr()
+    def __repr__(self) -> str:
         """Dynamically construct the repr to match value instantiation."""
         return custom_repr(self)
 
