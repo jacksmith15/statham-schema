@@ -1,3 +1,4 @@
+import inspect
 import keyword
 from typing import Any, Dict, List, Tuple, Type, Union
 
@@ -52,7 +53,7 @@ class ObjectMeta(type, Element):
 
     properties: Dict[str, _Property]
     additionalProperties: Union[Element, bool]
-    patternProperties: Dict[str, Element]
+    patternProperties: Maybe[Dict[str, Element]]
     minProperties: Maybe[int]
     maxProperties: Maybe[int]
     propertyNames: Maybe[Element]
@@ -72,22 +73,36 @@ class ObjectMeta(type, Element):
     def __prepare__(mcs, _name, _bases, **_kwargs):
         return ObjectClassDict()
 
+    # pylint: disable=too-many-locals
     def __new__(
-        mcs, name: str, bases: Tuple[Type], classdict: ObjectClassDict, **kwargs
+        mcs,
+        name: str,
+        bases: Tuple[Type],
+        classdict: ObjectClassDict,
+        *,
+        default: Maybe[Any] = NotPassed(),
+        const: Maybe[Any] = NotPassed(),
+        enum: Maybe[List[Any]] = NotPassed(),
+        minProperties: Maybe[int] = NotPassed(),
+        maxProperties: Maybe[int] = NotPassed(),
+        patternProperties: Maybe[Dict[str, Element]] = NotPassed(),
+        additionalProperties: Union[Element, bool] = True,
+        propertyNames: Maybe[Element] = NotPassed(),
+        dependencies: Maybe[Dict[str, Union[List[str], Element]]] = NotPassed(),
     ):
         cls: Type[ObjectMeta] = type.__new__(mcs, name, bases, dict(classdict))
         cls.properties = classdict.properties
         for property_ in cls.properties.values():
             property_.bind_class(cls)
-        cls.default = kwargs.get("default", NotPassed())
-        cls.additionalProperties = kwargs.get("additionalProperties", True)
-        cls.patternProperties = kwargs.get("patternProperties", {})
-        cls.minProperties = kwargs.get("minProperties", NotPassed())
-        cls.maxProperties = kwargs.get("maxProperties", NotPassed())
-        cls.propertyNames = kwargs.get("propertyNames", NotPassed())
-        cls.dependencies = kwargs.get("dependencies", NotPassed())
-        cls.const = kwargs.get("const", NotPassed())
-        cls.enum = kwargs.get("enum", NotPassed())
+        cls.default = default
+        cls.const = const
+        cls.enum = enum
+        cls.minProperties = minProperties
+        cls.maxProperties = maxProperties
+        cls.patternProperties = patternProperties
+        cls.additionalProperties = additionalProperties
+        cls.propertyNames = propertyNames
+        cls.dependencies = dependencies
         return cls
 
     def __hash__(cls):
@@ -128,24 +143,16 @@ class ObjectMeta(type, Element):
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
-        if not isinstance(cls.default, NotPassed):
-            cls_args.append(f"default={cls.default}")
-        if not isinstance(cls.const, NotPassed):
-            cls_args.append(f"const={cls.const}")
-        if not isinstance(cls.enum, NotPassed):
-            cls_args.append(f"enum={cls.enum}")
-        if cls.minProperties:
-            cls_args.append(f"minProperties={cls.minProperties}")
-        if not isinstance(cls.maxProperties, NotPassed):
-            cls_args.append(f"maxProperties={cls.maxProperties}")
-        if cls.patternProperties:
-            cls_args.append(f"patternProperties={cls.patternProperties}")
-        if cls.additionalProperties not in (True, Element()):
-            cls_args.append(f"additionalProperties={cls.additionalProperties}")
-        if not isinstance(cls.propertyNames, NotPassed):
-            cls_args.append(f"propertyNames={cls.propertyNames}")
-        if not isinstance(cls.dependencies, NotPassed):
-            cls_args.append(f"dependencies={cls.dependencies}")
+        parameters = list(
+            inspect.signature(type(cls).__new__).parameters.values()
+        )
+        for param in parameters:
+            if param.kind != param.KEYWORD_ONLY:
+                continue
+            value = getattr(cls, param.name, NotPassed())
+            if value == param.default:
+                continue
+            cls_args.append(f"{param.name}={repr(value)}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
         if not cls.properties:

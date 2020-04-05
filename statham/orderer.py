@@ -75,7 +75,8 @@ def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
         yield object_type.additionalProperties
     if isinstance(object_type.propertyNames, Element):
         yield object_type.propertyNames
-    yield from object_type.patternProperties.values()
+    if isinstance(object_type.patternProperties, dict):
+        yield from object_type.patternProperties.values()
 
 
 class Orderer:
