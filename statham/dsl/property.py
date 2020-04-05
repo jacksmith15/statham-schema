@@ -104,15 +104,12 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
     :param source: The source name of this property. Only necessary if it must
         differ from that of the attribute, for example when the property name
         conflicts with a reserved keyword. For example, to express a property
-        called `default`, one could do the following:
+        called `class`, one could do the following:
         ```python
         class MyObject(Object):
 
-            # Default for the whole object
-            default = {"default": "string"}
-
-            # Property called default
-            _default: str = Property(String(), source="default")
+            # Property called class
+            _class: str = Property(String(), source="class")
         ```
     """
     return _Property(element, required=required, source=source)

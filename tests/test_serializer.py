@@ -37,9 +37,7 @@ SCHEMA = {
 
 def test_schema_reserializes_to_expected_python_string():
     assert serialize_python(*parse(SCHEMA)) == _IMPORT_STATEMENTS + (
-        """class Category(Object):
-
-    default = {'value': 'none'}
+        """class Category(Object, default={'value': 'none'}):
 
     value: Maybe[str] = Property(String())
 
@@ -48,7 +46,7 @@ class Parent(Object):
 
     category: Category = Property(Category, required=True)
 
-    _default: Maybe[str] = Property(String(), source='default')
+    default: Maybe[str] = Property(String())
 
 
 class Other(Object):

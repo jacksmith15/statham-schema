@@ -7,8 +7,8 @@ from statham.dsl.parser import parse_attribute_name
     "name,expected",
     [
         ("name", "name"),
-        ("default", "_default"),
-        ("properties", "_properties"),
+        ("default", "default"),
+        ("properties", "properties"),
         ("options", "options"),
         ("additional_properties", "additional_properties"),
         ("_dict", "__dict"),

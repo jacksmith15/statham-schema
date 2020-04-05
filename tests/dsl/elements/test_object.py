@@ -92,9 +92,7 @@ def test_object_instance_reprs(instance, expected):
 
 
 class TestSchemaWithDefault:
-    class DefaultStringWrapper(Object):
-
-        default = dict(value="bar")
+    class DefaultStringWrapper(Object, default=dict(value="bar")):
 
         value: str = Property(String(minLength=3), required=True)
 
@@ -114,8 +112,7 @@ class TestSchemaWithDefault:
 class TestSchemaNestedDefault:
     @staticmethod
     def test_default_object_match():
-        class DefaultStringWrapper(Object):
-            default = dict(value="bar")
+        class DefaultStringWrapper(Object, default=dict(value="bar")):
             value: str = Property(String(), required=True)
 
         class WrapDefaultObject(Object):
@@ -127,8 +124,7 @@ class TestSchemaNestedDefault:
 
     @staticmethod
     def test_default_object_no_match():
-        class DefaultStringWrapper(Object):
-            default = dict(other="bar")
+        class DefaultStringWrapper(Object, default=dict(other="bar")):
             value: str = Property(String(), required=True)
 
         class WrapDefaultObject(Object):
@@ -160,9 +156,9 @@ def test_object_annotation():
 
 
 class TestRenamedProperties:
-    class PropertyRename(Object, additionalProperties=False):
-
-        default = {"default": "string"}
+    class PropertyRename(
+        Object, default={"default": "string"}, additionalProperties=False
+    ):
 
         _default = Property(String(), source="default")
 
@@ -186,7 +182,7 @@ class TestBadPropertyConflictErrors:
         with pytest.raises(SchemaDefinitionError):
 
             class MyObject(Object):
-                default = Property(String())
+                __init__ = Property(String())
 
 
 class TestAdditionalPropertiesAsElement:

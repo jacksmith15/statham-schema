@@ -19,9 +19,7 @@ from statham.dsl.validation import (
 )
 
 
-RESERVED_PROPERTIES = (
-    dir(object) + list(keyword.kwlist) + ["default", "properties", "_dict"]
-)
+RESERVED_PROPERTIES = dir(object) + list(keyword.kwlist) + ["_dict"]
 
 
 class ObjectClassDict(dict):
@@ -30,19 +28,15 @@ class ObjectClassDict(dict):
     Collects schema properties and default value if present.
     """
 
-    default: Any
     properties: Dict[str, _Property]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.properties = {}
-        self.default = self.pop("default", NotPassed())
 
     def __setitem__(self, key, value):
         if key in RESERVED_PROPERTIES and isinstance(value, _Property):
             raise SchemaDefinitionError.reserved_attribute(key)
-        if key == "default":
-            self.default = value
         if isinstance(value, _Property):
             value.bind_name(key)
             return self.properties.__setitem__(key, value)
@@ -85,7 +79,7 @@ class ObjectMeta(type, Element):
         cls.properties = classdict.properties
         for property_ in cls.properties.values():
             property_.bind_class(cls)
-        cls.default = classdict.default  # TODO: Make this a class arg.
+        cls.default = kwargs.get("default", NotPassed())
         cls.additionalProperties = kwargs.get("additionalProperties", True)
         cls.patternProperties = kwargs.get("patternProperties", {})
         cls.minProperties = kwargs.get("minProperties", NotPassed())
@@ -134,6 +128,8 @@ class ObjectMeta(type, Element):
     def python(cls) -> str:
         super_cls = next(iter(cls.mro()[1:]))
         cls_args = [super_cls.__name__]
+        if not isinstance(cls.default, NotPassed):
+            cls_args.append(f"default={cls.default}")
         if not isinstance(cls.const, NotPassed):
             cls_args.append(f"const={cls.const}")
         if not isinstance(cls.enum, NotPassed):
@@ -152,18 +148,11 @@ class ObjectMeta(type, Element):
             cls_args.append(f"dependencies={cls.dependencies}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
-        if not cls.properties and isinstance(cls.default, NotPassed):
+        if not cls.properties:
             class_def = (
                 class_def
                 + """
     pass
-"""
-            )
-        if not isinstance(cls.default, NotPassed):
-            class_def = (
-                class_def
-                + f"""
-    default = {repr(cls.default)}
 """
             )
         for property_ in cls.properties.values():

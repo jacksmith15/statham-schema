@@ -25,10 +25,9 @@ class ObjectWrapper(Object):
     value = Property(StringWrapper, required=True)
 
 
-class ObjectWithDefaultProp(Object):
-    default = {"default": "a string"}
+class ObjectWithDefaultProp(Object, default={"default": "a string"}):
 
-    _default = Property(String(), source="default")
+    value = Property(String())
 
 
 class ObjectWithAdditionalPropElement(Object, additionalProperties=String()):
@@ -120,10 +119,10 @@ class ObjectWithDependencies(
                 "type": "object",
                 "title": "ObjectWithDefaultProp",
                 "default": {"default": "a string"},
-                "properties": {"default": {"type": "string"}},
+                "properties": {"value": {"type": "string"}},
             },
             ObjectWithDefaultProp,
-            id="with-property-named-default",
+            id="with-default-default",
         ),
         pytest.param(
             {
@@ -238,7 +237,7 @@ class TestParseState:
     @pytest.fixture()
     def base_type():
         return ObjectMeta(
-            "Foo", (Object,), ObjectClassDict(default={"foo": "bar"})
+            "Foo", (Object,), ObjectClassDict(), default={"foo": "bar"}
         )
 
     @staticmethod
@@ -251,7 +250,7 @@ class TestParseState:
     @staticmethod
     def test_that_duplicate_type_is_replaced(state, base_type):
         duplicate = ObjectMeta(
-            "Foo", (Object,), ObjectClassDict(default={"foo": "bar"})
+            "Foo", (Object,), ObjectClassDict(), default={"foo": "bar"}
         )
         deduped = state.dedupe(duplicate)
         assert deduped is base_type
@@ -261,7 +260,7 @@ class TestParseState:
     @staticmethod
     def test_that_distinct_type_is_not_replaced(state, base_type):
         distinct = ObjectMeta(
-            "Foo", (Object,), ObjectClassDict(default={"bar": "baz"})
+            "Foo", (Object,), ObjectClassDict(), default={"bar": "baz"}
         )
         deduped = state.dedupe(distinct)
         assert deduped is distinct
