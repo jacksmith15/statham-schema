@@ -14,6 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 ### Changed
+* `default` is now a class argument on subclasses of `ObjectMeta`.
 * Bump `json-ref-dict` to version `0.5.3`.
 * Improve implementation of official JSON Schema test suite.
 
