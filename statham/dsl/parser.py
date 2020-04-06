@@ -272,7 +272,6 @@ def parse_object(
     if not title:
         raise SchemaParseError.missing_title(schema)
     title = _title_format(title)
-    default = schema.get("default", NotPassed())
     properties = schema.get("properties", {})
     properties.update(
         {
@@ -283,7 +282,7 @@ def parse_object(
             if parse_attribute_name(key) not in properties
         }
     )
-    class_dict = ObjectClassDict(default=default)
+    class_dict = ObjectClassDict()
     for key, value in properties.items():
         class_dict[key] = value
     cls_args = dict(additionalProperties=schema["additionalProperties"])
@@ -295,6 +294,7 @@ def parse_object(
         "dependencies",
         "const",
         "enum",
+        "default",
     ]:
         if key in schema:
             cls_args[key] = schema[key]
