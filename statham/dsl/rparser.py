@@ -60,6 +60,18 @@ class ParseState:
     def __init__(self):
         self.seen_ids = {}
 
+    def deduplicate_all(self):
+        objects = defaultdict(list)
+        for ident, element in self.seen_ids.items():
+            if not isinstance(element, ObjectMeta):
+                continue
+            objects[element.__name__].append(element)
+        for name, elements in objects.items():
+            self.deduplicate_name(name, elements)
+
+    def deduplicate_name(self, name, elements):
+        pass
+
 
 def parse_element(
     schema: Union[Dict[str, Any], bool], state: ParseState = None
