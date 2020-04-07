@@ -37,7 +37,7 @@ from statham.dsl.elements.meta import (
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
 from statham.dsl.helpers import expand, reraise, split_dict
 from statham.dsl.property import _Property
-
+from statham.dsl.rparser import parse_element, ParseState
 
 _TYPE_MAPPING = {
     "array": Array,
@@ -49,32 +49,32 @@ _TYPE_MAPPING = {
 }
 
 
-class ParseState:
-    """Recusive state.
+# class ParseState:
+#     """Recusive state.
 
-    Used to de-duplicate models which are traversed multiple times, and to
-    rename distinct models with the same name.
-    """
+#     Used to de-duplicate models which are traversed multiple times, and to
+#     rename distinct models with the same name.
+#     """
 
-    def __init__(self):
-        self.seen: DefaultDict[str, List[ObjectMeta]] = defaultdict(list)
+#     def __init__(self):
+#         self.seen: DefaultDict[str, List[ObjectMeta]] = defaultdict(list)
 
-    def dedupe(self, object_type: ObjectMeta):
-        """Deduplicate a parsed model.
+#     def dedupe(self, object_type: ObjectMeta):
+#         """Deduplicate a parsed model.
 
-        If it has been seen before, then return the existing one. Otherwise
-        ensure the model's name is distinct from other models and keep store
-        it.
-        """
-        name = object_type.__name__
-        for existing in self.seen[name]:
-            if object_type == existing:
-                return existing
-        count = len(self.seen[name])
-        if count:
-            object_type.__name__ = name + f"_{count}"
-        self.seen[name].append(object_type)
-        return object_type
+#         If it has been seen before, then return the existing one. Otherwise
+#         ensure the model's name is distinct from other models and keep store
+#         it.
+#         """
+#         name = object_type.__name__
+#         for existing in self.seen[name]:
+#             if object_type == existing:
+#                 return existing
+#         count = len(self.seen[name])
+#         if count:
+#             object_type.__name__ = name + f"_{count}"
+#         self.seen[name].append(object_type)
+#         return object_type
 
 
 def parse(schema: Dict[str, Any]) -> List[Element]:
@@ -90,44 +90,44 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     ]
 
 
-@reraise(
-    RecursionError,
-    SchemaParseError,
-    "Could not parse cyclical dependencies of this schema.",
-)
-def parse_element(
-    schema: Union[bool, Dict[str, Any]], state: ParseState = None
-) -> Element:
-    """Parse a JSONSchema element to a DSL Element object."""
-    if isinstance(schema, bool):
-        return Element() if schema else Nothing()
-    state = state or ParseState()
-    if isinstance(schema, Element):
-        return schema
-    if set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS:
-        raise FeatureNotImplementedError.unsupported_keywords(
-            set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
-        )
-    for literal_key in ("default", "const", "enum"):
-        if literal_key in schema:
-            schema[literal_key] = parse_literal(schema[literal_key])
-    for keyword, parser in (
-        ("properties", parse_properties),
-        ("items", parse_items),
-        ("patternProperties", parse_pattern_properties),
-        ("propertyNames", parse_property_names),
-        ("contains", parse_contains),
-        ("dependencies", parse_dependencies),
-    ):
-        if keyword in schema:
-            schema[keyword] = parser(schema, state)  # type: ignore
-    schema["additionalProperties"] = parse_additional_properties(schema, state)
-    schema["additionalItems"] = parse_additional_items(schema, state)
-    if set(COMPOSITION_KEYWORDS) & set(schema):
-        return parse_composition(schema, state)
-    if "type" not in schema:
-        return Element(**keyword_filter(Element)(schema))
-    return parse_typed(schema["type"], schema, state)
+# @reraise(
+#     RecursionError,
+#     SchemaParseError,
+#     "Could not parse cyclical dependencies of this schema.",
+# )
+# def parse_element(
+#     schema: Union[bool, Dict[str, Any]], state: ParseState = None
+# ) -> Element:
+#     """Parse a JSONSchema element to a DSL Element object."""
+#     if isinstance(schema, bool):
+#         return Element() if schema else Nothing()
+#     state = state or ParseState()
+#     if isinstance(schema, Element):
+#         return schema
+#     if set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS:
+#         raise FeatureNotImplementedError.unsupported_keywords(
+#             set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS
+#         )
+#     for literal_key in ("default", "const", "enum"):
+#         if literal_key in schema:
+#             schema[literal_key] = parse_literal(schema[literal_key])
+#     for keyword, parser in (
+#         ("properties", parse_properties),
+#         ("items", parse_items),
+#         ("patternProperties", parse_pattern_properties),
+#         ("propertyNames", parse_property_names),
+#         ("contains", parse_contains),
+#         ("dependencies", parse_dependencies),
+#     ):
+#         if keyword in schema:
+#             schema[keyword] = parser(schema, state)  # type: ignore
+#     schema["additionalProperties"] = parse_additional_properties(schema, state)
+#     schema["additionalItems"] = parse_additional_items(schema, state)
+#     if set(COMPOSITION_KEYWORDS) & set(schema):
+#         return parse_composition(schema, state)
+#     if "type" not in schema:
+#         return Element(**keyword_filter(Element)(schema))
+#     return parse_typed(schema["type"], schema, state)
 
 
 def parse_literal(literal: Any) -> Any:

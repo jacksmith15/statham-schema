@@ -49,7 +49,11 @@ def test_object_parser():
     class Foo(Object):
         value = Property(String())
 
-    schema = {"type": "object", "properties": {"value": {"type": "string"}}}
+    schema = {
+        "type": "object",
+        "title": "Foo",
+        "properties": {"value": {"type": "string"}},
+    }
     element = parse_element(schema)
     assert element == Foo
 
@@ -59,6 +63,3 @@ def test_object_recursive_properties():
     schema["properties"]["value"] = schema
     element = parse_element(schema)
     assert element.properties["value"].element is element
-    import ipdb
-
-    ipdb.set_trace()
