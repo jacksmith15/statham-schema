@@ -165,7 +165,7 @@ def set_keyword_attributes(
 
 
 def blank_element(schema: Dict[str, Any]) -> Element:
-    if set(schema) & set(COMPOSITION_KEYWORDS):
+    if is_composition(schema):
         return blank_composition_element(schema)
     if "type" not in schema:
         return Element()
@@ -192,6 +192,18 @@ def blank_element(schema: Dict[str, Any]) -> Element:
         "object": ObjectMeta(formatted_title, (Object,), ObjectClassDict()),
     }
     return mapping[schema_type]
+
+
+def is_composition(schema: Dict[str, Any]) -> bool:
+    composition: Set[str] = {
+        key
+        for key, value in schema.items()
+        if key in set(COMPOSITION_KEYWORDS)
+        and (value or not isinstance(value, list))
+    }
+    if not composition:
+        return False
+    return True
 
 
 def blank_composition_element(schema: Dict[str, Any]) -> Element:
