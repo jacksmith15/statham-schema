@@ -89,13 +89,6 @@ def recursive_equals(
             recursive_equals(left[idx], right[idx], next_stack)
             for idx in range(len(left))
         )
-    if isinstance(left, _Property):
-        return all(
-            recursive_equals(
-                getattr(left, attr), getattr(right, attr), next_stack
-            )
-            for attr in ("element", "required", "source")
-        )
     pub_vars = lambda x: {
         k: v for k, v in vars(x).items() if not k.startswith("_")
     }

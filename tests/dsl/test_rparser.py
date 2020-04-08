@@ -63,3 +63,22 @@ def test_object_recursive_properties():
     schema["properties"]["value"] = schema
     element = parse_element(schema)
     assert element.properties["value"].element is element
+
+
+def test_object_recursive_duplicate_properties():
+    schema = {
+        "type": "object",
+        "title": "Foo",
+        "properties": {
+            "value": {"type": "object", "title": "Foo", "properties": {}}
+        },
+    }
+    schema["properties"]["value"]["properties"]["value"] = schema
+    element = parse_element(schema)
+    assert element.properties["value"].element is not element
+    assert (
+        element.properties["value"].element.properties["value"].element
+        is element
+    )
+    assert element.__name__ == "Foo_1"
+    assert element.properties["value"].element.__name__ == "Foo"
