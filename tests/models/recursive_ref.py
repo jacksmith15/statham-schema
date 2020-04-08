@@ -17,20 +17,16 @@ from statham.dsl.elements import (
 from statham.dsl.property import Property
 
 
-class Category(Object):
+class Other(Object):
 
-    required_name: str = Property(String(), required=True)
+    value: Maybe[str] = Property(String())
 
 
 class Child(Object):
 
-    name: Maybe[str] = Property(String())
-
-    category: Maybe[Category] = Property(Category)
+    parent: Maybe[Parent] = Property(Parent)
 
 
-class Model(Object):
+class Parent(Object):
 
     children: Maybe[List[Child]] = Property(Array(Child))
-
-    category: Maybe[Category] = Property(Category)

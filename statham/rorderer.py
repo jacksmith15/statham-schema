@@ -40,7 +40,7 @@ def orderer(*elements: Element):
         )
         del object_dependencies[name]
 
-    cycles = {name for name in object_dependencies if has_cycle(name)}
+    cycles = sorted(name for name in object_dependencies if has_cycle(name))
     for name in cycles:
         pop_name(name)
 
@@ -90,3 +90,8 @@ def get_children(element: Any, seen: Set[int] = None) -> Iterator[Element]:
         for value in element.dependencies.values():
             if isinstance(value, Element):
                 yield from get_children(value, seen)
+    if isinstance(attr("elements"), list):
+        for value in element.elements:
+            yield from get_children(value, seen)
+    if isinstance(attr("element"), Element):
+        yield from get_children(element.element, seen)

@@ -48,22 +48,6 @@ class TestSimpleOrdering:
         assert ordered_objects[2] == Parent
 
 
-def consume(iterator):
-    """Fastest way to just consume an iterator."""
-    deque(iterator, maxlen=0)
-
-
-def test_cyclical_element_fails_to_be_ordered():
-    class Cycle(Object):
-        pass
-
-    Cycle.properties["other"] = Property(Cycle)
-    Cycle.properties["other"].bind_class(Cycle)
-    Cycle.properties["other"].bind_name("other")
-    with pytest.raises(SchemaParseError):
-        consume(Orderer(Cycle))
-
-
 class Other(Object):
 
     value = Property(Child)
