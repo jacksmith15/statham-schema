@@ -4,6 +4,7 @@ import inspect
 from itertools import chain
 import operator as op
 import re
+from reprlib import recursive_repr
 import string
 from typing import (
     Any,
@@ -14,6 +15,7 @@ from typing import (
     List,
     Optional,
     Set,
+    Tuple,
     Type,
     Union,
 )
@@ -50,6 +52,56 @@ from statham.dsl.helpers import expand, reraise, split_dict
 from statham.dsl.property import _Property
 
 
+def in_(value: Any, iterable: Iterable) -> Tuple[bool, Optional[int]]:
+    for idx, val in enumerate(iterable):
+        if value is val:
+            return True, idx
+    return False, None
+
+
+def recursive_equals(
+    left: Any, right: Any, stack: Tuple[List[Any], List[Any]] = None
+) -> bool:
+    """Check equality of DSL Element structure, avoiding `RecursionError`."""
+    stack = stack or ([], [])
+    if type(left) is not type(right):
+        return False
+    seen_left, idx_left = in_(left, stack[0])
+    seen_right, idx_right = in_(right, stack[0])
+    if seen_left ^ seen_right:
+        return False
+    if seen_left and seen_right:
+        return idx_left == idx_right
+    if not isinstance(left, (list, dict, Element, _Property)):
+        return left == right
+    next_stack = (stack[0] + [left], stack[1] + [right])
+    if isinstance(left, dict):
+        if left.keys() != right.keys():
+            return False
+        return all(
+            recursive_equals(left[key], right[key], next_stack)
+            for key in left.keys()
+        )
+    if isinstance(left, list):
+        if len(left) != len(right):
+            return False
+        return all(
+            recursive_equals(left[idx], right[idx], next_stack)
+            for idx in range(len(left))
+        )
+    if isinstance(left, _Property):
+        return all(
+            recursive_equals(
+                getattr(left, attr), getattr(right, attr), next_stack
+            )
+            for attr in ("element", "required", "source")
+        )
+    pub_vars = lambda x: {
+        k: v for k, v in vars(x).items() if not k.startswith("_")
+    }
+    return recursive_equals(pub_vars(left), pub_vars(right), next_stack)
+
+
 class ParseState:
     """Recusive state.
 
@@ -58,19 +110,40 @@ class ParseState:
     """
 
     def __init__(self):
-        self.seen_ids = {}
+        self.seen_ids: Dict[id, Element] = {}
+        self.seen_names: DefaultDict[str, List[Element]] = defaultdict(list)
+
+    def dedupe_name(self, object_type):
+        for seen in self.seen_names[object_type.__name__]:
+            if recursive_equals(object_type, seen):
+                object_type.__name__ = seen.__name__
+                return
+        num = len(self.seen_names[object_type.__name__])
+        object_type.__name__ = object_type.__name__ + (f"_{num}" if num else "")
+        self.seen_names[object_type.__name__].append(object_type)
+        return
 
     def deduplicate_all(self):
         objects = defaultdict(list)
-        for ident, element in self.seen_ids.items():
+        for element in self.seen_ids.values():
             if not isinstance(element, ObjectMeta):
                 continue
             objects[element.__name__].append(element)
-        for name, elements in objects.items():
-            self.deduplicate_name(name, elements)
+        for elements in objects.values():
+            self.deduplicate_name(elements)
 
-    def deduplicate_name(self, name, elements):
-        pass
+    @staticmethod
+    def deduplicate_name(elements):
+        groups = []
+        for element in elements:
+            for unique_element in enumerate(groups):
+                if recursive_equals(element, unique_element):
+                    changed = True
+                    element.__name__ = unique_element.__name__
+            if not changed:
+                element.__name__ = element.__name__ + f"_{len(groups)}"
+                groups.append(element)
+            changed = False
 
 
 def parse_element(
@@ -174,6 +247,8 @@ def set_keyword_attributes(
                 setattr(element, key, KEYWORD_PARSER[key](schema, state))
             else:
                 setattr(element, key, value)
+    if isinstance(element, ObjectMeta):
+        state.dedupe_name(element)
 
 
 def blank_element(schema: Dict[str, Any]) -> Element:
