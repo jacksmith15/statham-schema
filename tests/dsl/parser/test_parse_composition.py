@@ -274,3 +274,30 @@ def test_parse_anyOf_with_one_empty_element():
     element = parse_element(schema)
     with no_raise():
         _ = element("foo")
+
+
+def test_parse_composition_with_annotations():
+    # TODO: Allow general annotation keywords.
+    schema = {
+        "type": "array",
+        "items": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "_x_autotitle": "ListAnyOfItem0",
+                    "properties": {"string_prop": {"type": "string"}},
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "_x_autotitle": "ListAnyOfItem1",
+                    "properties": {"integer_prop": {"type": "integer"}},
+                },
+                {"type": "string"},
+            ],
+            "_x_autotitle": "ListAnyOfItem",
+        },
+    }
+    element = parse_element(schema)
+    assert isinstance(element.items, AnyOf)

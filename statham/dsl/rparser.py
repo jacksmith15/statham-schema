@@ -225,6 +225,10 @@ def set_keyword_attributes(
                 setattr(element, key, KEYWORD_PARSER[key](schema, state))
             else:
                 setattr(element, key, value)
+    if hasattr(element, "properties") and isinstance(element.properties, dict):
+        for name, prop in element.properties.items():
+            prop.bind_name(name)
+            prop.bind_class(element)
     if isinstance(element, ObjectMeta):
         state.dedupe_name(element)
 
@@ -281,7 +285,10 @@ def blank_composition_element(schema: Dict[str, Any]) -> Element:
     """
     keys: Set[str] = set(schema)
     composition: Set[str] = keys & set(COMPOSITION_KEYWORDS)
-    other: Set[str] = keys - set(COMPOSITION_KEYWORDS) - {"default"}
+    other: Set[str] = keys - set(COMPOSITION_KEYWORDS) - {
+        "default",
+        "_x_autotitle",  # TODO: match inclusively not exclusively.
+    }
     if not composition:
         raise ValueError("No composition keywords in schema.")
     # If there are multiple compositions (including top-level), then they
