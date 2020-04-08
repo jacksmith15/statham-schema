@@ -244,30 +244,30 @@ class TestParseState:
     @pytest.fixture()
     def state(base_type):
         state = ParseState()
-        assert state.dedupe(base_type) is base_type
+        state.dedupe_name(base_type)
+        assert base_type.__name__ == "Foo"
         return state
 
     @staticmethod
-    def test_that_duplicate_type_is_replaced(state, base_type):
+    def test_that_duplicate_type_is_not_renamed(state, base_type):
         duplicate = ObjectMeta(
             "Foo", (Object,), ObjectClassDict(), default={"foo": "bar"}
         )
-        deduped = state.dedupe(duplicate)
-        assert deduped is base_type
-        assert len(state.seen["Foo"]) == 1
-        assert state.seen["Foo"][0] is base_type
+        state.dedupe_name(duplicate)
+        assert duplicate.__name__ == "Foo"
+        assert len(state.seen_names["Foo"]) == 1
+        assert state.seen_names["Foo"][0] is base_type
 
     @staticmethod
-    def test_that_distinct_type_is_not_replaced(state, base_type):
+    def test_that_distinct_type_is_renamed(state, base_type):
         distinct = ObjectMeta(
             "Foo", (Object,), ObjectClassDict(), default={"bar": "baz"}
         )
-        deduped = state.dedupe(distinct)
-        assert deduped is distinct
+        state.dedupe_name(distinct)
         assert distinct.__name__ == "Foo_1"
-        assert len(state.seen["Foo"]) == 2
-        assert state.seen["Foo"][0] is base_type
-        assert state.seen["Foo"][1] is distinct
+        assert len(state.seen_names["Foo"]) == 2
+        assert state.seen_names["Foo"][0] is base_type
+        assert state.seen_names["Foo"][1] is distinct
 
 
 def test_parse_object_with_required_not_properties():

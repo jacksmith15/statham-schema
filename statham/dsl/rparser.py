@@ -119,31 +119,9 @@ class ParseState:
                 object_type.__name__ = seen.__name__
                 return
         num = len(self.seen_names[object_type.__name__])
-        object_type.__name__ = object_type.__name__ + (f"_{num}" if num else "")
         self.seen_names[object_type.__name__].append(object_type)
+        object_type.__name__ = object_type.__name__ + (f"_{num}" if num else "")
         return
-
-    def deduplicate_all(self):
-        objects = defaultdict(list)
-        for element in self.seen_ids.values():
-            if not isinstance(element, ObjectMeta):
-                continue
-            objects[element.__name__].append(element)
-        for elements in objects.values():
-            self.deduplicate_name(elements)
-
-    @staticmethod
-    def deduplicate_name(elements):
-        groups = []
-        for element in elements:
-            for unique_element in enumerate(groups):
-                if recursive_equals(element, unique_element):
-                    changed = True
-                    element.__name__ = unique_element.__name__
-            if not changed:
-                element.__name__ = element.__name__ + f"_{len(groups)}"
-                groups.append(element)
-            changed = False
 
 
 def parse_element(
