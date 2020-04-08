@@ -37,12 +37,12 @@ def test_parse_composition_with_empty_list(keyword):
         ),
         pytest.param(
             {"anyOf": [{"type": "string"}]},
-            String(),
+            AnyOf(String()),
             id="anyOf-with-one-sub-element",
         ),
         pytest.param(
             {"anyOf": [{"type": "string"}], "default": "sample string"},
-            String(default="sample string"),
+            AnyOf(String(), default="sample string"),
             id="anyOf-with-one-sub-element-and-default",
         ),
         pytest.param(
@@ -93,12 +93,12 @@ def test_parse_composition_with_empty_list(keyword):
         ),
         pytest.param(
             {"oneOf": [{"type": "string"}]},
-            String(),
+            OneOf(String()),
             id="oneOf-with-one-sub-element",
         ),
         pytest.param(
             {"oneOf": [{"type": "string"}], "default": "sample string"},
-            String(default="sample string"),
+            OneOf(String(), default="sample string"),
             id="oneOf-with-one-sub-element-and-default",
         ),
         pytest.param(
@@ -134,12 +134,12 @@ def test_parse_composition_with_empty_list(keyword):
         ),
         pytest.param(
             {"allOf": [{"type": "string"}]},
-            String(),
+            AllOf(String()),
             id="allOf-with-one-sub-element",
         ),
         pytest.param(
             {"allOf": [{"type": "string"}], "default": "sample string"},
-            String(default="sample string"),
+            AllOf(String(), default="sample string"),
             id="allOf-with-one-sub-element-and-default",
         ),
         pytest.param(
