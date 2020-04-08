@@ -104,7 +104,7 @@ class ParseState:
 
     def __init__(self):
         self.seen_ids: Dict[id, Element] = {}
-        self.seen_names: DefaultDict[str, List[Element]] = defaultdict(list)
+        self.seen_names: DefaultDict[str, List[ObjectMeta]] = defaultdict(list)
 
     def dedupe_name(self, object_type):
         for seen in self.seen_names[object_type.__name__]:
