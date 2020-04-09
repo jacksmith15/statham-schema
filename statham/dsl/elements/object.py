@@ -1,6 +1,6 @@
-from typing import Any, ClassVar, Dict, Union
+from typing import Any, Dict
 
-from statham.dsl.elements.base import Element, UNBOUND_PROPERTY
+from statham.dsl.elements.base import UNBOUND_PROPERTY
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
@@ -24,10 +24,6 @@ class Object(metaclass=ObjectMeta):
     poll = Poll({"questions": ["What's up?"]})
     ```
     """
-
-    properties: ClassVar[Dict[str, _Property]]
-    default: ClassVar[Any]
-    additionalProperties: ClassVar[Union[Element, bool]]
 
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY
@@ -64,12 +60,12 @@ class Object(metaclass=ObjectMeta):
         if value is self:
             return
         if isinstance(value, NotPassed) and not isinstance(
-            self.default, NotPassed
+            type(self).default, NotPassed
         ):
-            value = self.default
+            value = type(self).default
         self._dict: Dict[str, Any] = {}
         for attr_name, attr_value in type(self).__properties__(value).items():
-            if attr_name in self.properties:
+            if attr_name in type(self).properties:
                 setattr(self, attr_name, attr_value)
             self._dict[attr_name] = attr_value
 

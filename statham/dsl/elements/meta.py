@@ -51,14 +51,15 @@ class ObjectMeta(type, Element):
     and binds information to those properties.
     """
 
-    properties: Dict[str, _Property]
-    additionalProperties: Union[Element, bool]
-    patternProperties: Maybe[Dict[str, Element]]
-    minProperties: Maybe[int]
-    maxProperties: Maybe[int]
-    propertyNames: Maybe[Element]
+    default: Maybe[Any]
     const: Maybe[Any]
     enum: Maybe[List[Any]]
+    properties: Dict[str, _Property]
+    minProperties: Maybe[int]
+    maxProperties: Maybe[int]
+    patternProperties: Maybe[Dict[str, Element]]
+    additionalProperties: Union[Element, bool]
+    propertyNames: Maybe[Element]
     dependencies: Maybe[Dict[str, Union[List[str], Element]]]
 
     @staticmethod

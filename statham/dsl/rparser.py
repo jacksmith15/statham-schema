@@ -140,8 +140,8 @@ def set_keyword_attributes(
     This is done as a post step to allow recursive references to be
     resolved once the instance is available in state.
     """
-    if isinstance(element, (AllOf, AnyOf, Not, OneOf)):
-        element.default = schema.get("default", NotPassed())
+    if isinstance(element, (AllOf, AnyOf, Not, OneOf)) and "default" in schema:
+        element.default = parse_literal("default")(schema, state)
     if isinstance(element, Not):
         element.element = parse_element(schema["not"], state)
     elif isinstance(element, OneOf):

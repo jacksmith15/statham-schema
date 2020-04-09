@@ -11,6 +11,7 @@ from statham.dsl.elements import (
     AnyOf,
     Array,
     Boolean,
+    Element,
     Integer,
     Nothing,
     Null,
