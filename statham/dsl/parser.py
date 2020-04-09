@@ -5,7 +5,17 @@ from itertools import chain
 import operator as op
 import re
 import string
-from typing import Any, Callable, DefaultDict, Dict, Iterable, List, Type, Union
+from typing import (
+    Any,
+    Callable,
+    cast,
+    DefaultDict,
+    Dict,
+    Iterable,
+    List,
+    Type,
+    Union,
+)
 import unicodedata
 
 from statham.dsl.constants import (
@@ -84,7 +94,7 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     """
     state = ParseState()
     return [parse_element(schema, state)] + [
-        parse_element(definition, state)
+        parse_element(cast(Dict[str, Any], definition), state)
         for definition in schema.get("definitions", {}).values()
         if isinstance(definition, (dict, bool, Element))
     ]
@@ -225,7 +235,7 @@ def parse_typed(
 
 def parse_multi_typed(
     type_list: List[str], schema: Dict[str, Any], state: ParseState = None
-) -> CompositionElement:
+) -> Element:
     """Parse a schema with multiple type values.
 
     Converts schema to an equivalent representation using "anyOf". For example:
