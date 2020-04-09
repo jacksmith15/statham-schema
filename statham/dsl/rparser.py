@@ -47,6 +47,7 @@ from statham.dsl.elements.meta import (
     ObjectMeta,
     RESERVED_PROPERTIES,
 )
+from statham.dsl.exceptions import ValidationError
 from statham.dsl.exceptions import FeatureNotImplementedError, SchemaParseError
 from statham.dsl.helpers import expand, reraise, split_dict
 from statham.dsl.property import _Property
@@ -64,7 +65,7 @@ def recursive_equals(
 ) -> bool:
     """Check equality of DSL Element structure, avoiding `RecursionError`."""
     stack = stack or ([], [])
-    if type(left) is not type(right):
+    if type(left) != type(right):
         return False
     seen_left, idx_left = in_(left, stack[0])
     seen_right, idx_right = in_(right, stack[0])
@@ -223,6 +224,14 @@ def set_keyword_attributes(
             prop.bind_name(name)
             prop.bind_class(element)
     if isinstance(element, ObjectMeta):
+        if element.default:
+            default = element.default
+            element.default = NotPassed()
+            try:
+                default = element(default)
+            except (TypeError, ValidationError):
+                pass
+            element.default = default
         state.dedupe_name(element)
 
 

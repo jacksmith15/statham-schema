@@ -104,6 +104,10 @@ class ObjectMeta(type, Element):
         cls.additionalProperties = additionalProperties
         cls.propertyNames = propertyNames
         cls.dependencies = dependencies
+        try:
+            cls.default = cls(default)
+        except:
+            cls.default = default
         return cls
 
     def __hash__(cls):
@@ -153,6 +157,8 @@ class ObjectMeta(type, Element):
             value = getattr(cls, param.name, NotPassed())
             if value == param.default:
                 continue
+            if param.name == "default" and isinstance(value, cls):
+                value = value._dict
             cls_args.append(f"{param.name}={repr(value)}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """

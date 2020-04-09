@@ -63,6 +63,8 @@ class Object(metaclass=ObjectMeta):
             type(self).default, NotPassed
         ):
             value = type(self).default
+        if isinstance(value, type(self)):
+            return
         self._dict: Dict[str, Any] = {}
         for attr_name, attr_value in type(self).__properties__(value).items():
             if attr_name in type(self).properties:
@@ -84,8 +86,10 @@ class Object(metaclass=ObjectMeta):
 
     def __eq__(self, other):
         return (
-            type(self) is type(other)
+            isinstance(type(other), ObjectMeta)
+            # type(self) is type(other)
             # pylint: disable=protected-access
+            # and
             and self._dict == other._dict
         )
 

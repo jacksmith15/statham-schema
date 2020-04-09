@@ -64,11 +64,13 @@ class Properties:
     def __iter__(self):
         return iter(self.props)
 
-    def __call__(self, value):
+    def __call__(self, value, mode="normal"):
         value = {
             **{prop.name: NotPassed() for prop in self.props.values()},
             **value,
         }
+        if mode == "default":
+            return value
         return {
             self[key].name or key: self[key](sub_value)
             for key, sub_value in value.items()

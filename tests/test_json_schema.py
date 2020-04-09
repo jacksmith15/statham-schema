@@ -17,7 +17,7 @@ from statham.titles import title_labeller
 from tests.helpers import no_raise
 
 
-NOT_IMPLEMENTED = ("optional", "definitions", "ref", "refRemote")
+NOT_IMPLEMENTED = ("optional", "ref", "refRemote")
 
 
 def _add_titles(schema):
