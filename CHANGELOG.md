@@ -31,6 +31,9 @@ Types of changes are:
 * Attempting to parse schemas with recursive references now
   raises a `FeatureNotImplementedError`.
 
+### Fixed
+* Fixed missing imports in generated python modules.
+
 ## [0.8.0] - 2020-04-09
 ### Changed
 * `default` is now a class argument on subclasses of `ObjectMeta`.
