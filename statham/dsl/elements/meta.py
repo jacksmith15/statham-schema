@@ -3,7 +3,7 @@ import keyword
 from typing import Any, Dict, List, Tuple, Type, Union
 
 from statham.dsl.constants import Maybe, NotPassed
-from statham.dsl.elements.base import Element
+from statham.dsl.elements.base import Element, _serialize_recursive
 from statham.dsl.property import _Property
 from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.validation import (
@@ -170,3 +170,27 @@ class ObjectMeta(type, Element):
 """
             )
         return class_def
+
+    def serialize(cls) -> Dict[str, Any]:
+        data = {
+            param.name: getattr(cls, param.name, param.default)
+            for param in inspect.signature(
+                type(cls).__new__
+            ).parameters.values()
+            if param.kind == param.KEYWORD_ONLY
+            and getattr(cls, param.name, param.default) != param.default
+        }
+        if cls.properties:
+            properties = {
+                prop.source: prop.serialize()
+                for prop in cls.properties.values()
+            }
+            if properties:
+                data["properties"] = properties
+            required = [
+                prop.source for prop in cls.properties.values() if prop.required
+            ]
+            if required:
+                data["required"] = required
+        data.update({"title": cls.__name__, "type": "object"})
+        return _serialize_recursive(data)

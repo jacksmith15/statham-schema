@@ -1,11 +1,11 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Null
-from tests.dsl.elements.helpers import assert_validation
+from statham.dsl.elements import Element, Null
 from statham.dsl.helpers import Args
+from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise
 
 
@@ -40,3 +40,14 @@ def test_null_default_keyword():
 
 def test_null_type_annotation():
     assert Null().annotation == "None"
+
+
+@pytest.mark.parametrize(
+    "element,expected",
+    [
+        (Null(), {"type": "null"}),
+        (Null(default=None), {"type": "null", "default": None}),
+    ],
+)
+def test_null_serialize(element: Element, expected: Dict[str, Any]):
+    assert element.serialize() == expected

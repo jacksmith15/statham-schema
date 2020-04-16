@@ -47,6 +47,9 @@ class _Property(Generic[PropType]):
     def __repr__(self) -> str:
         ...
 
+    def serialize(self) -> Dict[str, Any]:
+        ...
+
 
 UNBOUND_PROPERTY: _Property
 

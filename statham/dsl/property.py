@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional, TypeVar, TYPE_CHECKING
+from typing import Any, Dict, Generic, Optional, TypeVar, TYPE_CHECKING
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.helpers import custom_repr_args
@@ -87,6 +87,9 @@ class _Property(Generic[PropType]):
             if self.name
             else prop_def
         )
+
+    def serialize(self) -> Dict[str, Any]:
+        return self.element.serialize()
 
 
 # Behaves as a wrapper for the `_Property` class.

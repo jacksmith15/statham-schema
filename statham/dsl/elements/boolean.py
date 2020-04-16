@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -22,3 +22,6 @@ class Boolean(Element[bool]):
     @property
     def type_validator(self):
         return InstanceOf(bool)
+
+    def serialize(self) -> Dict[str, Any]:
+        return {**super().serialize(), "type": "boolean"}

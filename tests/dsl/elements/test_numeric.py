@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Integer, Number
+from statham.dsl.elements import Element, Integer, Number
 from statham.dsl.helpers import Args
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise
@@ -278,3 +278,52 @@ def test_number_default_keyword():
 
 def test_number_type_annotation():
     assert Number().annotation == "float"
+
+
+@pytest.mark.parametrize(
+    "element,expected",
+    [
+        (Integer(), {"type": "integer"}),
+        (
+            Integer(
+                default=4,
+                minimum=2,
+                exclusiveMinimum=2,
+                maximum=7,
+                exclusiveMaximum=7,
+                multipleOf=2,
+            ),
+            {
+                "type": "integer",
+                "default": 4,
+                "minimum": 2,
+                "exclusiveMinimum": 2,
+                "maximum": 7,
+                "exclusiveMaximum": 7,
+                "multipleOf": 2,
+            },
+        ),
+        (Number(), {"type": "number"}),
+        (
+            Number(
+                default=4,
+                minimum=2,
+                exclusiveMinimum=2,
+                maximum=7,
+                exclusiveMaximum=7,
+                multipleOf=2,
+            ),
+            {
+                "type": "number",
+                "default": 4,
+                "minimum": 2,
+                "exclusiveMinimum": 2,
+                "maximum": 7,
+                "exclusiveMaximum": 7,
+                "multipleOf": 2,
+            },
+        ),
+    ],
+)
+def test_numeric_serialize(element: Element, expected: Dict[str, Any]):
+    assert element.serialize() == expected

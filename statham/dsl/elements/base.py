@@ -1,6 +1,8 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
+import inspect
 from typing import Any, cast, Dict, List, Generic, TypeVar, Union
+from typing_extensions import Literal
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.exceptions import ValidationError
@@ -182,6 +184,33 @@ class Element(Generic[T]):
             return value
         return create(value)
 
+    def serialize(self) -> Dict[str, Any]:
+        data = {
+            param.name: getattr(self, param.name, param.default)
+            for param in inspect.signature(
+                type(self).__init__
+            ).parameters.values()
+            if param.kind == param.KEYWORD_ONLY
+            and getattr(self, param.name, param.default) != param.default
+        }
+        if "properties" in data:
+            data["required"] = [
+                prop.source
+                for prop in data["properties"].values()
+                if prop.required
+            ]
+        return _serialize_recursive(data)
+
+
+def _serialize_recursive(data):
+    if isinstance(data, (Element, _Property)):
+        return data.serialize()
+    if not isinstance(data, (list, dict)):
+        return data
+    if isinstance(data, list):
+        return [_serialize_recursive(item) for item in data]
+    return {key: _serialize_recursive(value) for key, value in data.items()}
+
 
 UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
 UNBOUND_PROPERTY.bind_name("<unbound>")
@@ -204,6 +233,9 @@ class Nothing(Element):
     @property
     def validators(self) -> List[Validator]:
         return [NoMatch()]
+
+    def serialize(self) -> Literal[False]:
+        return False
 
 
 # Needs to be imported last to prevent cyclic import.

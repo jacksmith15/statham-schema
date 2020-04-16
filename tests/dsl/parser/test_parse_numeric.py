@@ -57,7 +57,7 @@ from statham.dsl.parser import parse_element
         ),
     ],
 )
-def test_parse_boolean_produces_expected_element(
+def test_parse_numeric_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
     assert parse_element(schema) == expected

@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Boolean
+from statham.dsl.elements import Boolean, Element
 from statham.dsl.helpers import Args
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise
@@ -49,3 +49,14 @@ def test_string_default_keyword():
 
 def test_string_type_annotation():
     assert Boolean().annotation == "bool"
+
+
+@pytest.mark.parametrize(
+    "element,expected",
+    [
+        (Boolean(), {"type": "boolean"}),
+        (Boolean(default=True), {"type": "boolean", "default": True}),
+    ],
+)
+def test_boolean_serialize(element: Element, expected: Dict[str, Any]):
+    assert element.serialize() == expected
