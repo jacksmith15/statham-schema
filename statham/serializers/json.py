@@ -19,9 +19,6 @@ from statham.dsl.property import _Property
 from statham.orderer import get_object_classes
 
 
-# TODO: Could include definitions kwarg:
-#   serialize_json(*element, definitions={"uuid": String(format="uuid")})
-# and reference any elements which match.
 def serialize_json(
     *elements: Element, definitions: Dict[str, Element] = None
 ) -> Dict[str, Any]:
@@ -30,6 +27,7 @@ def serialize_json(
     Object classes are included in definitions. The first element is
     the top-level schema.
 
+    :param elements: DSL Elements to serialize.
     :param definitions: A dictionary of elements which should be members
       of the schema definitions keyword, and referenced everywhere else.
     """

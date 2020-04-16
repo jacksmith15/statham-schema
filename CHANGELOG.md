@@ -28,6 +28,8 @@ Types of changes are:
   to `orderer`. This allows more general use of some of its
   functionality via the `get_children` and `get_object_classes`
   functions in this module.
+* Attempting to parse schemas with recursive references now
+  raises a `FeatureNotImplementedError`.
 
 ## [0.8.0] - 2020-04-09
 ### Changed
