@@ -20,7 +20,7 @@ class Not(Element[T]):
     Element fails to validate if enclosed schema validates.
     """
 
-    def __init__(self, element: Element, default: Any = NotPassed()):
+    def __init__(self, element: Element, *, default: Any = NotPassed()):
         self.element = element
         super().__init__(default=default)
 

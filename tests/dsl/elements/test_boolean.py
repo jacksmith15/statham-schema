@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
 from statham.dsl.constants import NotPassed
-from statham.dsl.elements import Boolean
+from statham.dsl.elements import Boolean, Element
 from statham.dsl.helpers import Args
 from tests.dsl.elements.helpers import assert_validation
 from tests.helpers import no_raise

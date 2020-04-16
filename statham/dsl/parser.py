@@ -92,7 +92,7 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
 
 @reraise(
     RecursionError,
-    SchemaParseError,
+    FeatureNotImplementedError,
     "Could not parse cyclical dependencies of this schema.",
 )
 def parse_element(

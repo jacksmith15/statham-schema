@@ -1,4 +1,4 @@
-from typing import Any, Iterator, List, NamedTuple, Tuple
+from typing import Any, Dict, Iterator, List, NamedTuple, Tuple
 import pytest
 
 from statham.dsl.constants import NotPassed

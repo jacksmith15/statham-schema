@@ -1,11 +1,28 @@
-from typing import Any, List, Union
+from typing import Any, Dict, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Nothing, Object, OneOf, String
+from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
+from tests.dsl.parser.test_parse_object import (
+    EmptyModel,
+    ObjectWithOptionalProperty,
+    ObjectWithRequiredProperty,
+    ObjectWithObjectProperty,
+    ObjectWithDefaultProp,
+    ObjectWithAdditionalPropElement,
+    ObjectWithAdditionalPropTrue,
+    ObjectWithAdditionalPropFalse,
+    ObjectWithPatternProps,
+    ObjectWithSizeValidation,
+    ObjectWithPropertyNames,
+    ObjectWithConst,
+    ObjectWithEnum,
+    ObjectWithDependencies,
+)
 
 
 class StringWrapper(Object):

@@ -9,7 +9,7 @@ from statham.dsl.elements import Element, Object, String
 from statham.dsl.elements import Nothing  # pylint: disable=unused-import
 from statham.dsl.parser import parse
 from statham.dsl.property import Property
-from statham.serializer import _IMPORT_STATEMENTS, serialize_python
+from statham.serializers.python import _IMPORT_STATEMENTS, serialize_python
 
 
 SCHEMA = {
@@ -37,7 +37,12 @@ SCHEMA = {
 
 def test_schema_reserializes_to_expected_python_string():
     assert serialize_python(*parse(SCHEMA)) == _IMPORT_STATEMENTS + (
-        """class Category(Object, default={'value': 'none'}):
+        """class Other(Object):
+
+    value: Maybe[int] = Property(Integer())
+
+
+class Category(Object, default={'value': 'none'}):
 
     value: Maybe[str] = Property(String())
 
@@ -47,11 +52,6 @@ class Parent(Object):
     category: Category = Property(Category, required=True)
 
     default: Maybe[str] = Property(String())
-
-
-class Other(Object):
-
-    value: Maybe[int] = Property(Integer())
 """
     )
 

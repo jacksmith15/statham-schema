@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import Any, Type
 
 import pytest
@@ -9,6 +10,7 @@ from statham.dsl.elements import (
     Array,
     CompositionElement,
     Element,
+    Not,
     Object,
     OneOf,
     String,

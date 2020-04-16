@@ -1,142 +1,142 @@
 from itertools import chain
-from typing import Dict, Iterator, List, Set, Union
+from typing import Any, Dict, Iterator, List, Set
 
-from statham.dsl.constants import Maybe, NotPassed
-from statham.dsl.elements import CompositionElement, Element
+from statham.dsl.elements import Element
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
-from statham.dsl.property import _Property
 
 
-class ClassDef:
-    """Data class for capturing dependencies between Object elements."""
+def orderer(*elements: Element) -> Iterator[ObjectMeta]:
+    """Iterate object classes in declaration order.
 
-    def __init__(self, element: ObjectMeta, depends: Set[str]):
-        self.element: ObjectMeta = element
-        self.depends: Set[str] = depends
+    Inspects the full DAG of elements and orders in such a way that
+    each object class' dependencies are returned before it is.
 
+    Accepts multiple elements, in case there are multiple start points of
+    the DAG.
 
-def _get_dependent_object_elements(element: Maybe[Element]) -> List[ObjectMeta]:
-    """Extract any elements which are required by this element.
-
-    Recurses through the schema tree to extract both explicit and
-    implicit dependencies.
+    Assumes each object class in the tree has a unique name.
     """
-    if isinstance(element, ObjectMeta):
-        return [element]
-    if isinstance(element, CompositionElement):
+    object_classes: List[ObjectMeta] = get_object_classes(*elements)
+    object_dependencies: Dict[str, List[str]] = {
+        object_class.__name__: [
+            dep.__name__
+            for dep in get_children(object_class)
+            if isinstance(dep, ObjectMeta)
+        ]
+        for object_class in object_classes
+    }
+
+    def has_cycle(name):
+        return name in object_dependencies[name]
+
+    def from_name(name: str) -> ObjectMeta:
+        """Get the object class from the name."""
+        return next(filter(lambda oc: oc.__name__ == name, object_classes))
+
+    def pop_name(name: str) -> ObjectMeta:
+        """Remove a object class from each sub-tree, and return it."""
+        object_dependencies.update(
+            {
+                name_: [dep for dep in deps if dep != name]
+                for name_, deps in object_dependencies.items()
+            }
+        )
+        del object_dependencies[name]
+        return from_name(name)
+
+    cycles: List[str] = sorted(
+        name for name in object_dependencies if has_cycle(name)
+    )
+    if cycles:
+        raise SchemaParseError.unresolvable_declaration()
+
+    def _next() -> ObjectMeta:
+        next_name = next(
+            map(
+                lambda _: _[0],
+                filter(lambda _: not _[1], object_dependencies.items()),
+            )
+        )
+        return pop_name(next_name)
+
+    try:
+        while True:
+            yield _next()
+    except StopIteration:
+        assert not object_dependencies.values()
+        return
+
+
+def get_object_classes(*elements: Element) -> List[ObjectMeta]:
+    return [
+        element
+        for element in list(elements)
+        + [child for element in elements for child in get_children(element)]
+        if isinstance(element, ObjectMeta)
+    ]
+
+
+def get_children(element: Any, seen: Set[int] = None) -> Iterator[Element]:
+    """Iterate all child elements of an element."""
+    seen = seen or set()
+    if id(element) in seen:
+        yield element
+        return
+    seen.add(id(element))
+    paths = [  # Possible paths to immediate children.
+        "items",
+        "properties.*.element",
+        "additionalProperties",
+        "patternProperties.*",
+        "propertyNames",
+        "dependencies.*",
+        "elements",
+        "element",
+    ]
+    children = [
+        child
+        for path in paths
+        for child in _get_path(element, path)
+        if isinstance(child, Element)
+    ]
+    for child in children:
+        yield child
+        yield from get_children(child, seen)
+
+
+def _get_path(element, path):
+    """Get items matching a dot-separated path.
+
+    Assumes dictionary lookup, but falls back to attribute access. If an
+    item is a list, chain the remaining results for each item. If a path
+    segment is * then get for all values (dictionary only).
+
+    If there is no match on a path, then return nothing at all.
+    """
+    first, *rest = path.split(".")
+    if first == "*":
+        try:
+            next_item = list(element.values())
+        except AttributeError:
+            return []
+    else:
+        try:
+            next_item = element[first]
+        except (KeyError, TypeError):
+            try:
+                next_item = getattr(element, first)
+            except AttributeError:
+                return []
+    if isinstance(next_item, list):
+        if not rest:
+            return next_item
         return list(
             chain.from_iterable(
-                _get_dependent_object_elements(sub_element)
-                for sub_element in element.elements
+                _get_path(next_subitem, ".".join(rest))
+                for next_subitem in next_item
             )
         )
-    get_keyword = lambda kw: getattr(element, kw, NotPassed())
-    items: Maybe[Element] = get_keyword("items")
-    properties: Maybe[Dict[str, _Property]] = get_keyword("properties")
-    additional_properties: Maybe[Union[Element, bool]] = get_keyword(
-        "additionalProperties"
-    )
-    pattern_properties: Maybe[Dict[str, Element]] = get_keyword(
-        "patternProperties"
-    )
-    property_names: Maybe[Element] = get_keyword("propertyNames")
-    dependent: Set[ObjectMeta] = set()
-    if not isinstance(items, NotPassed):
-        dependent = dependent | set(_get_dependent_object_elements(items))
-    if not isinstance(properties, NotPassed):
-        dependent = dependent | {
-            dep
-            for prop in properties.values()  # pylint: disable=no-member
-            for dep in _get_dependent_object_elements(prop.element)
-        }
-    if not isinstance(additional_properties, (NotPassed, bool)):
-        dependent = dependent | set(
-            _get_dependent_object_elements(additional_properties)
-        )
-    if not isinstance(pattern_properties, NotPassed):
-        dependent = dependent | {
-            dep
-            for elem in pattern_properties.values()  # pylint: disable=no-member
-            for dep in _get_dependent_object_elements(elem)
-        }
-    if not isinstance(property_names, NotPassed):
-        dependent = dependent | set(
-            _get_dependent_object_elements(property_names)
-        )
-    return sorted(dependent, key=lambda obj_type: obj_type.__name__)
-
-
-def _iter_object_deps(object_type: ObjectMeta) -> Iterator[Element]:
-    """Iterate over related elements to an Object subclass."""
-    for prop in object_type.properties.values():
-        yield prop.element
-    if isinstance(object_type.additionalProperties, Element):
-        yield object_type.additionalProperties
-    if isinstance(object_type.propertyNames, Element):
-        yield object_type.propertyNames
-    if isinstance(object_type.patternProperties, dict):
-        yield from object_type.patternProperties.values()
-
-
-class Orderer:
-    """Iterator which returns object elements in declaration order.
-
-    Used by the serializer to generate code in the correct order.
-    """
-
-    def __init__(self, *elements: Element):
-        self._class_defs: Dict[str, ClassDef] = {}
-        try:
-            self._extract_all(*elements)
-        except RecursionError:
-            raise SchemaParseError.unresolvable_declaration()
-
-    def _extract_all(self, *elements: Element):
-        for element in elements:
-            for object_element in _get_dependent_object_elements(element):
-                self._extract_elements(object_element)
-
-    def _extract_elements(self, object_type: ObjectMeta) -> Set[str]:
-        if object_type.__name__ in self._class_defs:
-            return self[object_type.__name__].depends
-        deps = {object_type.__name__}
-        for sub_element in _iter_object_deps(object_type):
-            next_objects = _get_dependent_object_elements(sub_element)
-            deps = deps | set(
-                chain.from_iterable(map(self._extract_elements, next_objects))
-            )
-        self._add(
-            object_type.__name__,
-            ClassDef(
-                element=object_type, depends=deps - {object_type.__name__}
-            ),
-        )
-        return deps
-
-    def _add(self, key: str, class_def: ClassDef):
-        self._class_defs[key] = class_def
-
-    def _next_key(self) -> str:
-        try:
-            return next(
-                key
-                for key, value in self._class_defs.items()
-                if not value.depends
-            )
-        except StopIteration as exc:
-            if not self._class_defs:
-                raise exc
-            raise SchemaParseError.unresolvable_declaration()
-
-    def __getitem__(self, key: str) -> ClassDef:
-        return self._class_defs[key]
-
-    def __iter__(self) -> "Orderer":
-        return self
-
-    def __next__(self) -> ObjectMeta:
-        next_item = self._next_key()
-        for value in self._class_defs.values():
-            value.depends = value.depends - {next_item}
-        return self._class_defs.pop(next_item).element
+    if not rest:
+        return [next_item]
+    return _get_path(next_item, ".".join(rest))

@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from statham.dsl.constants import Maybe
 from statham.dsl.elements.base import Element

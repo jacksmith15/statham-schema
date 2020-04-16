@@ -13,16 +13,16 @@ class EmptyModel(Object):
     pass
 
 
-class OptionalStringWrapper(Object):
+class ObjectWithOptionalProperty(Object):
     value = Property(String())
 
 
-class StringWrapper(Object):
+class ObjectWithRequiredProperty(Object):
     value = Property(String(), required=True)
 
 
-class ObjectWrapper(Object):
-    value = Property(StringWrapper, required=True)
+class ObjectWithObjectProperty(Object):
+    value = Property(ObjectWithRequiredProperty, required=True)
 
 
 class ObjectWithDefaultProp(Object, default={"default": "a string"}):
@@ -70,144 +70,140 @@ class ObjectWithDependencies(
     pass
 
 
-@pytest.mark.parametrize(
-    "schema,expected",
-    [
-        pytest.param(
-            {"type": "object", "title": "EmptyModel"},
-            EmptyModel,
-            id="with-no-keywords",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "OptionalStringWrapper",
-                "properties": {"value": {"type": "string"}},
+PARAMS = [
+    pytest.param(
+        {"type": "object", "title": "EmptyModel"},
+        EmptyModel,
+        id="with-no-keywords",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithOptionalProperty",
+            "properties": {"value": {"type": "string"}},
+        },
+        ObjectWithOptionalProperty,
+        id="with-not-required-property",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithRequiredProperty",
+            "required": ["value"],
+            "properties": {"value": {"type": "string"}},
+        },
+        ObjectWithRequiredProperty,
+        id="with-required-property",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithObjectProperty",
+            "required": ["value"],
+            "properties": {
+                "value": {
+                    "type": "object",
+                    "title": "ObjectWithRequiredProperty",
+                    "required": ["value"],
+                    "properties": {"value": {"type": "string"}},
+                }
             },
-            OptionalStringWrapper,
-            id="with-not-required-property",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "StringWrapper",
-                "required": ["value"],
-                "properties": {"value": {"type": "string"}},
-            },
-            StringWrapper,
-            id="with-required-property",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWrapper",
-                "required": ["value"],
-                "properties": {
-                    "value": {
-                        "type": "object",
-                        "title": "StringWrapper",
-                        "required": ["value"],
-                        "properties": {"value": {"type": "string"}},
-                    }
-                },
-            },
-            ObjectWrapper,
-            id="with-object-property",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithDefaultProp",
-                "default": {"default": "a string"},
-                "properties": {"value": {"type": "string"}},
-            },
-            ObjectWithDefaultProp,
-            id="with-default-default",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithAdditionalPropElement",
-                "additionalProperties": {"type": "string"},
-            },
-            ObjectWithAdditionalPropElement,
-            id="with-additional-properties-schema",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithAdditionalPropTrue",
-                "additionalProperties": True,
-            },
-            ObjectWithAdditionalPropTrue,
-            id="with-additional-properties-true",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithAdditionalPropFalse",
-                "additionalProperties": False,
-            },
-            ObjectWithAdditionalPropFalse,
-            id="with-additional-properties-false",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithPatternProps",
-                "patternProperties": {"^foo": True, "^(?!foo)": False},
-            },
-            ObjectWithPatternProps,
-            id="with-pattern-props",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithSizeValidation",
-                "minProperties": 1,
-                "maxProperties": 2,
-            },
-            ObjectWithSizeValidation,
-            id="with-size-validation",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithPropertyNames",
-                "propertyNames": {"type": "string", "maxLength": 3},
-            },
-            ObjectWithPropertyNames,
-            id="with-property-names",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithConst",
-                "const": {"foo": "bar"},
-            },
-            ObjectWithConst,
-            id="with-const",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithEnum",
-                "enum": [{"foo": "bar"}, {"qux": "mux"}],
-            },
-            ObjectWithEnum,
-            id="with-enum",
-        ),
-        pytest.param(
-            {
-                "type": "object",
-                "title": "ObjectWithDependencies",
-                "dependencies": {"foo": ["bar"], "qux": {"minProperties": 2}},
-            },
-            ObjectWithDependencies,
-            id="with-dependencies",
-        ),
-    ],
-)
+        },
+        ObjectWithObjectProperty,
+        id="with-object-property",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithDefaultProp",
+            "default": {"default": "a string"},
+            "properties": {"value": {"type": "string"}},
+        },
+        ObjectWithDefaultProp,
+        id="with-default-default",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithAdditionalPropElement",
+            "additionalProperties": {"type": "string"},
+        },
+        ObjectWithAdditionalPropElement,
+        id="with-additional-properties-schema",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithAdditionalPropTrue",
+            "additionalProperties": True,
+        },
+        ObjectWithAdditionalPropTrue,
+        id="with-additional-properties-true",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithAdditionalPropFalse",
+            "additionalProperties": False,
+        },
+        ObjectWithAdditionalPropFalse,
+        id="with-additional-properties-false",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithPatternProps",
+            "patternProperties": {"^foo": True, "^(?!foo)": False},
+        },
+        ObjectWithPatternProps,
+        id="with-pattern-props",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithSizeValidation",
+            "minProperties": 1,
+            "maxProperties": 2,
+        },
+        ObjectWithSizeValidation,
+        id="with-size-validation",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithPropertyNames",
+            "propertyNames": {"type": "string", "maxLength": 3},
+        },
+        ObjectWithPropertyNames,
+        id="with-property-names",
+    ),
+    pytest.param(
+        {"type": "object", "title": "ObjectWithConst", "const": {"foo": "bar"}},
+        ObjectWithConst,
+        id="with-const",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithEnum",
+            "enum": [{"foo": "bar"}, {"qux": "mux"}],
+        },
+        ObjectWithEnum,
+        id="with-enum",
+    ),
+    pytest.param(
+        {
+            "type": "object",
+            "title": "ObjectWithDependencies",
+            "dependencies": {"foo": ["bar"], "qux": {"minProperties": 2}},
+        },
+        ObjectWithDependencies,
+        id="with-dependencies",
+    ),
+]
+
+
+@pytest.mark.parametrize("schema,expected", PARAMS)
 def test_parse_object_produces_expected_element(
     schema: Dict[str, Any], expected: Element
 ):
