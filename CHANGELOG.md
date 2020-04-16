@@ -13,6 +13,21 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added functions for converting DSL defined schemas to JSON Schema
+  dictionaries.
+  - `serialize_json` supports serialization of schemas with
+    definitions and references.
+  - `serialize_element` supports simple inline serialization
+    of elements.
+
+### Changed
+* Moved `serialize_python` to from `statham.serializer` to
+  `statham.serializers`.
+* Rewrote `statham.orderer.Orderer` in functional style, renamed
+  to `orderer`. This allows more general use of some of its
+  functionality via the `get_children` and `get_object_classes`
+  functions in this module.
 
 ## [0.8.0] - 2020-04-09
 ### Changed
