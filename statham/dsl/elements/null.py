@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, List
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -26,6 +26,3 @@ class Null(Element[None]):
     @property
     def type_validator(self):
         return InstanceOf(type(None))
-
-    def _serialize(self) -> Dict[str, Any]:
-        return {**super()._serialize(), "type": "null"}

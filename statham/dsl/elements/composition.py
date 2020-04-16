@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, NamedTuple, Optional, TypeVar
+from typing import Any, List, NamedTuple, Optional, TypeVar
 from typing_extensions import Literal
 
 from statham.dsl.constants import NotPassed
@@ -33,9 +33,6 @@ class Not(Element[T]):
             property_, value, f"Must not match {self.element}."
         )
 
-    def _serialize(self) -> Dict[str, Any]:
-        return {**super()._serialize(), "not": self.element}
-
 
 class CompositionElement(Element):
     """Composition Base Element.
@@ -68,12 +65,6 @@ class CompositionElement(Element):
         if not getattr(self, "mode", None):
             raise NotImplementedError
         return _attempt_schemas(self.elements, value, property_, mode=self.mode)
-
-    def _serialize(self) -> Dict[str, Any]:
-        return {
-            **super()._serialize(),
-            self.mode: [elem for elem in self.elements],
-        }
 
 
 class AnyOf(CompositionElement):

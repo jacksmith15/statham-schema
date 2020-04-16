@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, TypeVar, Union
+from typing import Any, List, TypeVar, Union
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements.base import Element
@@ -67,6 +67,3 @@ class Array(Element[List[Item]]):
     @property
     def type_validator(self):
         return InstanceOf(list)
-
-    def _serialize(self) -> Dict[str, Any]:
-        return {**super()._serialize(), "type": "array", "items": self.items}

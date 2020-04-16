@@ -8,7 +8,7 @@ from sys import argv, stdout
 from json_ref_dict import materialize, RefDict
 
 from statham.dsl.parser import parse
-from statham.serializer import serialize_python
+from statham.serializers import serialize_python
 from statham.titles import title_labeller
 
 

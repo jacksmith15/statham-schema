@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, Optional, TypeVar, TYPE_CHECKING
+from typing import Any, Generic, Optional, TypeVar, TYPE_CHECKING
 
 from statham.dsl.constants import NotPassed
 from statham.dsl.helpers import custom_repr_args

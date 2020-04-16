@@ -40,14 +40,3 @@ def test_null_default_keyword():
 
 def test_null_type_annotation():
     assert Null().annotation == "None"
-
-
-@pytest.mark.parametrize(
-    "element,expected",
-    [
-        (Null(), {"type": "null"}),
-        (Null(default=None), {"type": "null", "default": None}),
-    ],
-)
-def test_null_serialize(element: Element, expected: Dict[str, Any]):
-    assert element.serialize() == expected

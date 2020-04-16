@@ -1,5 +1,8 @@
+import pytest
+
 from statham.dsl.elements import Element, Object
-from statham.dsl.parser import parse
+from statham.dsl.exceptions import FeatureNotImplementedError
+from statham.dsl.parser import parse, parse_element
 
 
 def test_parser_detects_definitions():
@@ -61,3 +64,10 @@ def test_parser_does_not_create_duplicates():
     parsed = parse(schema)
     assert len(parsed) == 3
     assert parsed[1] is parsed[2]
+
+
+def test_parser_detects_cyclical_references():
+    schema = {"type": "object", "properties": {}}
+    schema["properties"]["value"] = schema
+    with pytest.raises(FeatureNotImplementedError):
+        _ = parse_element(schema)

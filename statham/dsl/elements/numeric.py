@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, TypeVar, Union
+from typing import Any, List, TypeVar, Union
 
 from statham.dsl.elements.base import Element
 from statham.dsl.constants import Maybe, NotPassed
@@ -49,9 +49,6 @@ class Integer(NumericElement[int]):
     def type_validator(self):
         return InstanceOf(int)
 
-    def _serialize(self) -> Dict[str, Any]:
-        return {**super()._serialize(), "type": "integer"}
-
 
 class Number(NumericElement[float]):
     """JSONSchema number element.
@@ -65,6 +62,3 @@ class Number(NumericElement[float]):
     @property
     def type_validator(self):
         return InstanceOf(float, int)
-
-    def _serialize(self) -> Dict[str, Any]:
-        return {**super()._serialize(), "type": "number"}

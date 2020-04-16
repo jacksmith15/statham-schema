@@ -131,30 +131,3 @@ def test_string_default_keyword():
 
 def test_string_type_annotation():
     assert String().annotation == "str"
-
-
-@pytest.mark.parametrize(
-    "element,expected",
-    [
-        (String(), {"type": "string"}),
-        (
-            String(
-                default="sample",
-                format="my_format",
-                pattern=".*",
-                minLength=1,
-                maxLength=3,
-            ),
-            {
-                "type": "string",
-                "default": "sample",
-                "format": "my_format",
-                "pattern": ".*",
-                "minLength": 1,
-                "maxLength": 3,
-            },
-        ),
-    ],
-)
-def test_string_serialize(element: Element, expected: Dict[str, Any]):
-    assert element.serialize() == expected
