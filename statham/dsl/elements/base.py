@@ -185,7 +185,7 @@ class Element(Generic[T]):
         return create(value)
 
     def serialize(self) -> Dict[str, Any]:
-        data = {
+        schema = {
             param.name: getattr(self, param.name, param.default)
             for param in inspect.signature(
                 type(self).__init__
@@ -193,13 +193,13 @@ class Element(Generic[T]):
             if param.kind == param.KEYWORD_ONLY
             and getattr(self, param.name, param.default) != param.default
         }
-        if "properties" in data:
-            data["required"] = [
+        if "properties" in schema:
+            schema["required"] = [
                 prop.source
-                for prop in data["properties"].values()
+                for prop in schema["properties"].values()
                 if prop.required
             ]
-        return _serialize_recursive(data)
+        return _serialize_recursive(schema)
 
 
 def _serialize_recursive(data):
