@@ -7,7 +7,7 @@ from statham.dsl.elements import Array, Element, Object, String
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import Property
-from statham.orderer import Orderer
+from statham.orderer import orderer
 
 
 class Child(Object):
@@ -27,7 +27,7 @@ class TestSimpleOrdering:
     @staticmethod
     @pytest.fixture(scope="class")
     def ordered_objects() -> List[ObjectMeta]:
-        return [elem for elem in Orderer(Parent)]
+        return [elem for elem in orderer(Parent)]
 
     @staticmethod
     def test_correct_number_of_object_elements_produced(
@@ -61,7 +61,7 @@ def test_cyclical_element_fails_to_be_ordered():
     Cycle.properties["other"].bind_class(Cycle)
     Cycle.properties["other"].bind_name("other")
     with pytest.raises(SchemaParseError):
-        consume(Orderer(Cycle))
+        consume(orderer(Cycle))
 
 
 class Other(Object):
@@ -73,7 +73,7 @@ class TestMultipleEntryPointOrdering:
     @staticmethod
     @pytest.fixture(scope="class")
     def ordered_objects() -> List[ObjectMeta]:
-        return [elem for elem in Orderer(Parent, Other, Child)]
+        return [elem for elem in orderer(Parent, Other, Child)]
 
     @staticmethod
     def test_that_there_are_the_correct_number_of_items(
@@ -99,7 +99,7 @@ def test_orderer_detects_additional_properties_dependencies():
     class AdditionalPropertiesParent(Object, additionalProperties=Child):
         pass
 
-    assert list(Orderer(AdditionalPropertiesParent)) == [
+    assert list(orderer(AdditionalPropertiesParent)) == [
         Child,
         AdditionalPropertiesParent,
     ]
@@ -109,7 +109,7 @@ def test_orderer_detects_pattern_properties_dependencies():
     class PatternPropertiesParent(Object, patternProperties={"^foo": Child}):
         pass
 
-    assert list(Orderer(PatternPropertiesParent)) == [
+    assert list(orderer(PatternPropertiesParent)) == [
         Child,
         PatternPropertiesParent,
     ]
@@ -120,7 +120,7 @@ def test_orderer_detects_property_names_dependencies():
     class PropertyNamesParent(Object, propertyNames=Child):
         pass
 
-    assert list(Orderer(PropertyNamesParent)) == [Child, PropertyNamesParent]
+    assert list(orderer(PropertyNamesParent)) == [Child, PropertyNamesParent]
 
 
 @pytest.mark.parametrize(
@@ -137,4 +137,4 @@ def test_orderer_detects_untyped_object_dependencies(kwargs):
     class UntypedParent(Object):
         value = Property(Element(**kwargs))
 
-    assert list(Orderer(UntypedParent)) == [Child, UntypedParent]
+    assert list(orderer(UntypedParent)) == [Child, UntypedParent]
