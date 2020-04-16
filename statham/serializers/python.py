@@ -5,31 +5,6 @@ from statham.dsl.elements.meta import ObjectMeta
 from statham.orderer import orderer, get_children
 
 
-# TODO: Identify which of these to exclude when performing generation.
-_IMPORT_STATEMENTS = """from typing import List, Union
-
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
-    AllOf,
-    AnyOf,
-    Array,
-    Boolean,
-    Element,
-    Integer,
-    Not,
-    Nothing,
-    Null,
-    Number,
-    OneOf,
-    Object,
-    String,
-)
-from statham.dsl.property import Property
-
-
-"""
-
-
 def serialize_python(*elements: Element) -> str:
     """Output python declaration code.
 

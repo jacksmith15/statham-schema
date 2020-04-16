@@ -1,21 +1,7 @@
-from typing import List, Union
+from typing import Any, List, Union
 
 from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
-    AllOf,
-    AnyOf,
-    Array,
-    Boolean,
-    Element,
-    Integer,
-    Not,
-    Nothing,
-    Null,
-    Number,
-    OneOf,
-    Object,
-    String,
-)
+from statham.dsl.elements import AnyOf, Array, Integer, Object, String
 from statham.dsl.property import Property
 
 
