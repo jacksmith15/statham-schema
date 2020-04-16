@@ -92,7 +92,7 @@ _TYPE_MAPPING = {
 def _serialize_recursive(data: Any, use_refs: bool = False) -> Any:
     """Recursively serialize DSL elements."""
     if isinstance(data, ObjectMeta) and use_refs:
-        return f"#/definitions/{data.__name__}"
+        return {"$ref": f"#/definitions/{data.__name__}"}
     if isinstance(data, _Property):
         return _serialize_recursive(data.element, use_refs=use_refs)
     if isinstance(data, Element):

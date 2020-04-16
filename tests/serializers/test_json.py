@@ -393,15 +393,15 @@ def test_serialize_element(element: Element, expected: Dict[str, Any]):
                 "properties": {
                     "children": {
                         "type": "array",
-                        "items": "#/definitions/Child",
+                        "items": {"$ref": "#/definitions/Child"},
                     },
-                    "category": "#/definitions/Category",
+                    "category": {"$ref": "#/definitions/Category"},
                 },
                 "definitions": {
                     "Child": {
                         "properties": {
                             "name": {"type": "string"},
-                            "category": "#/definitions/Category",
+                            "category": {"$ref": "#/definitions/Category"},
                         },
                         "title": "Child",
                         "type": "object",
