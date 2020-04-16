@@ -24,6 +24,8 @@ Types of changes are:
 ### Changed
 * Moved `serialize_python` to from `statham.serializer` to
   `statham.serializers`.
+* `serialize_python` now dynamically infers which imports
+  to include based on the supplied elements.
 * Rewrote `statham.orderer.Orderer` in functional style, renamed
   to `orderer`. This allows more general use of some of its
   functionality via the `get_children` and `get_object_classes`
