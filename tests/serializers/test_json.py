@@ -434,3 +434,42 @@ def test_serialize_element(element: Element, expected: Dict[str, Any]):
 )
 def test_serialize_json(elements, expected):
     assert serialize_json(*elements) == expected
+
+
+@pytest.mark.parametrize(
+    "elements,definitions,expected",
+    [
+        (
+            [
+                Element(
+                    properties={
+                        "id": _Property(String(format="uuid")),
+                        "age": _Property(Integer(minimum=0)),
+                        "other": _Property(AnyOf(String(), Null())),
+                    }
+                )
+            ],
+            {
+                "uuid": String(format="uuid"),
+                "positive_integer": Integer(minimum=0),
+                "nullable_string": AnyOf(String(), Null()),
+            },
+            {
+                "properties": {
+                    "id": {"$ref": "#/definitions/uuid"},
+                    "age": {"$ref": "#/definitions/positive_integer"},
+                    "other": {"$ref": "#/definitions/nullable_string"},
+                },
+                "definitions": {
+                    "uuid": {"type": "string", "format": "uuid"},
+                    "positive_integer": {"type": "integer", "minimum": 0},
+                    "nullable_string": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
+                },
+            },
+        )
+    ],
+)
+def test_serialize_json_with_definitions(elements, definitions, expected):
+    assert serialize_json(*elements, definitions=definitions) == expected

@@ -1,5 +1,6 @@
 import inspect
-from typing import Any, Dict
+from functools import partial
+from typing import Any, Dict, Optional
 
 from statham.dsl.elements import (
     Array,
@@ -21,30 +22,44 @@ from statham.orderer import get_object_classes
 # TODO: Could include definitions kwarg:
 #   serialize_json(*element, definitions={"uuid": String(format="uuid")})
 # and reference any elements which match.
-def serialize_json(*elements: Element) -> Dict[str, Any]:
+def serialize_json(
+    *elements: Element, definitions: Dict[str, Element] = None
+) -> Dict[str, Any]:
     """Serialize elements to a JSON Schema dictionary.
 
     Object classes are included in definitions. The first element is
     the top-level schema.
+
+    :param definitions: A dictionary of elements which should be members
+      of the schema definitions keyword, and referenced everywhere else.
     """
     primary = elements[0]
     object_classes = get_object_classes(*elements)
-    schema = {
-        **serialize_element(primary, use_refs=True),
+    serialize = partial(
+        serialize_element, object_refs=True, definitions=definitions
+    )
+    schema: Dict[str, Any] = {
+        **serialize(primary),
         "definitions": {
-            object_class.__name__: serialize_element(
-                object_class, use_refs=True
-            )
+            object_class.__name__: serialize(object_class)
             for object_class in object_classes
             if object_class is not primary
         },
     }
+    if definitions:
+        schema["definitions"].update(
+            {key: serialize(element) for key, element in definitions.items()}
+        )
     if not schema["definitions"]:
         del schema["definitions"]
     return schema
 
 
-def serialize_element(element: Element, use_refs: bool = False):
+def serialize_element(
+    element: Element,
+    object_refs: bool = False,
+    definitions: Dict[str, Any] = None,
+):
     """Convert a DSL to a JSON Schema dictionary.
 
     This does the heavy lifting behind `serialize_json`.
@@ -75,7 +90,9 @@ def serialize_element(element: Element, use_refs: bool = False):
         schema["type"] = _TYPE_MAPPING[type(element)]
     if isinstance(element, ObjectMeta):
         schema["title"] = element.__name__
-    return _serialize_recursive(schema, use_refs=use_refs)
+    return _serialize_recursive(
+        schema, object_refs=object_refs, definitions=definitions
+    )
 
 
 _TYPE_MAPPING = {
@@ -89,19 +106,45 @@ _TYPE_MAPPING = {
 }
 
 
-def _serialize_recursive(data: Any, use_refs: bool = False) -> Any:
+def _serialize_recursive(
+    data: Any, object_refs: bool = False, definitions: Dict[str, Element] = None
+) -> Any:
     """Recursively serialize DSL elements."""
-    if isinstance(data, ObjectMeta) and use_refs:
-        return {"$ref": f"#/definitions/{data.__name__}"}
+    recur = partial(
+        _serialize_recursive, object_refs=object_refs, definitions=definitions
+    )
     if isinstance(data, _Property):
-        return _serialize_recursive(data.element, use_refs=use_refs)
+        data = data.element
+    if isinstance(data, ObjectMeta) and object_refs:
+        return {"$ref": f"#/definitions/{data.__name__}"}
     if isinstance(data, Element):
-        return serialize_element(data, use_refs=use_refs)
+        return from_definitions(
+            definitions,
+            data,
+            serialize_element(
+                data, object_refs=object_refs, definitions=definitions
+            ),
+        )
     if not isinstance(data, (list, dict)):
         return data
     if isinstance(data, list):
-        return [_serialize_recursive(item, use_refs=use_refs) for item in data]
-    return {
-        key: _serialize_recursive(value, use_refs=use_refs)
-        for key, value in data.items()
-    }
+        return [recur(item) for item in data]
+    return {key: recur(value) for key, value in data.items()}
+
+
+def from_definitions(
+    definitions: Optional[Dict[str, Element]],
+    element: Element,
+    default: Any = None,
+):
+    """Check if this element is present in definitions."""
+    if not definitions:
+        return default
+    return next(
+        (
+            {"$ref": f"#/definitions/{key}"}
+            for key, definition in definitions.items()
+            if definition == element
+        ),
+        default,
+    )
