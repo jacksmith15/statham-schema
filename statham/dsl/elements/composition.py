@@ -33,8 +33,8 @@ class Not(Element[T]):
             property_, value, f"Must not match {self.element}."
         )
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "not": self.element.serialize()}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "not": self.element}
 
 
 class CompositionElement(Element):
@@ -69,10 +69,10 @@ class CompositionElement(Element):
             raise NotImplementedError
         return _attempt_schemas(self.elements, value, property_, mode=self.mode)
 
-    def serialize(self) -> Dict[str, Any]:
+    def _serialize(self) -> Dict[str, Any]:
         return {
-            **super().serialize(),
-            self.mode: [elem.serialize() for elem in self.elements],
+            **super()._serialize(),
+            self.mode: [elem for elem in self.elements],
         }
 
 

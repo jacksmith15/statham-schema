@@ -88,9 +88,6 @@ class _Property(Generic[PropType]):
             else prop_def
         )
 
-    def serialize(self) -> Dict[str, Any]:
-        return self.element.serialize()
-
 
 # Behaves as a wrapper for the `_Property` class.
 # pylint: disable=invalid-name

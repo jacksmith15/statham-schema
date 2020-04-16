@@ -171,7 +171,7 @@ class ObjectMeta(type, Element):
             )
         return class_def
 
-    def serialize(cls) -> Dict[str, Any]:
+    def serialize(cls, reference: bool = False) -> Dict[str, Any]:
         data = {
             param.name: getattr(cls, param.name, param.default)
             for param in inspect.signature(
@@ -181,10 +181,7 @@ class ObjectMeta(type, Element):
             and getattr(cls, param.name, param.default) != param.default
         }
         if cls.properties:
-            properties = {
-                prop.source: prop.serialize()
-                for prop in cls.properties.values()
-            }
+            properties = {prop.source: prop for prop in cls.properties.values()}
             if properties:
                 data["properties"] = properties
             required = [
@@ -193,4 +190,4 @@ class ObjectMeta(type, Element):
             if required:
                 data["required"] = required
         data.update({"title": cls.__name__, "type": "object"})
-        return _serialize_recursive(data)
+        return _serialize_recursive(data, reference=reference)

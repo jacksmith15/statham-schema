@@ -27,5 +27,5 @@ class Null(Element[None]):
     def type_validator(self):
         return InstanceOf(type(None))
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "type": "null"}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "null"}

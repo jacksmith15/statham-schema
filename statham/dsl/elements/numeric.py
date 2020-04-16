@@ -49,8 +49,8 @@ class Integer(NumericElement[int]):
     def type_validator(self):
         return InstanceOf(int)
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "type": "integer"}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "integer"}
 
 
 class Number(NumericElement[float]):
@@ -66,5 +66,5 @@ class Number(NumericElement[float]):
     def type_validator(self):
         return InstanceOf(float, int)
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "type": "number"}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "number"}

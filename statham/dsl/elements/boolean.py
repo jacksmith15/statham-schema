@@ -23,5 +23,5 @@ class Boolean(Element[bool]):
     def type_validator(self):
         return InstanceOf(bool)
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "type": "boolean"}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "boolean"}

@@ -184,7 +184,8 @@ class Element(Generic[T]):
             return value
         return create(value)
 
-    def serialize(self) -> Dict[str, Any]:
+    def _serialize(self) -> Dict[str, Any]:
+        """Serialize the DSL Element, without recursion into child elements."""
         schema = {
             param.name: getattr(self, param.name, param.default)
             for param in inspect.signature(
@@ -199,17 +200,35 @@ class Element(Generic[T]):
                 for prop in schema["properties"].values()
                 if prop.required
             ]
-        return _serialize_recursive(schema)
+        return schema
+
+    def serialize(self, reference: bool = False) -> Dict[str, Any]:
+        """Serialize the DSL Element.
+
+        :param reference: If True, replace related object schemas
+          with JSON references.
+        """
+        return _serialize_recursive(self._serialize(), reference=reference)
 
 
-def _serialize_recursive(data):
-    if isinstance(data, (Element, _Property)):
-        return data.serialize()
+def _serialize_recursive(data: Any, reference: bool = False) -> Any:
+    """Recursively serialize DSL elements."""
+    if isinstance(data, Element) and isinstance(data, type) and reference:
+        return f"#/definitions/{data.__name__}"
+    if isinstance(data, _Property):
+        return _serialize_recursive(data.element, reference=reference)
+    if isinstance(data, Element):
+        return data.serialize(reference=reference)
     if not isinstance(data, (list, dict)):
         return data
     if isinstance(data, list):
-        return [_serialize_recursive(item) for item in data]
-    return {key: _serialize_recursive(value) for key, value in data.items()}
+        return [
+            _serialize_recursive(item, reference=reference) for item in data
+        ]
+    return {
+        key: _serialize_recursive(value, reference=reference)
+        for key, value in data.items()
+    }
 
 
 UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
@@ -234,8 +253,13 @@ class Nothing(Element):
     def validators(self) -> List[Validator]:
         return [NoMatch()]
 
-    def serialize(self) -> Literal[False]:
-        return False
+    def _serialize(self) -> Dict[str, Any]:
+        """Serialize the schema element.
+
+        This uses a long form to keep a uniform interface between
+        elements.
+        """
+        return {"not": True}
 
 
 # Needs to be imported last to prevent cyclic import.

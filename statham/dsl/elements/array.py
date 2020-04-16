@@ -68,10 +68,5 @@ class Array(Element[List[Item]]):
     def type_validator(self):
         return InstanceOf(list)
 
-    def serialize(self) -> Dict[str, Any]:
-        items = (
-            [item.serialize() for item in self.items]
-            if isinstance(self.items, list)
-            else self.items.serialize()
-        )
-        return {**super().serialize(), "type": "array", "items": items}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "array", "items": self.items}

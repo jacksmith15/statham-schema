@@ -17,12 +17,7 @@ def orderer(*elements: Element) -> Iterator[ObjectMeta]:
 
     Assumes each object class in the tree has a unique name.
     """
-    object_classes: List[ObjectMeta] = [
-        element
-        for element in list(elements)
-        + [child for element in elements for child in get_children(element)]
-        if isinstance(element, ObjectMeta)
-    ]
+    object_classes: List[ObjectMeta] = get_object_classes(*elements)
     object_dependencies: Dict[str, List[str]] = {
         object_class.__name__: [
             dep.__name__
@@ -73,6 +68,43 @@ def orderer(*elements: Element) -> Iterator[ObjectMeta]:
         return
 
 
+def get_object_classes(*elements: Element) -> List[ObjectMeta]:
+    return [
+        element
+        for element in list(elements)
+        + [child for element in elements for child in get_children(element)]
+        if isinstance(element, ObjectMeta)
+    ]
+
+
+def get_children(element: Any, seen: Set[int] = None) -> Iterator[Element]:
+    """Iterate all child elements of an element."""
+    seen = seen or set()
+    if id(element) in seen:
+        yield element
+        return
+    seen.add(id(element))
+    paths = [  # Possible paths to immediate children.
+        "items",
+        "properties.*.element",
+        "additionalProperties",
+        "patternProperties.*",
+        "propertyNames",
+        "dependencies.*",
+        "elements",
+        "element",
+    ]
+    children = [
+        child
+        for path in paths
+        for child in _get_path(element, path)
+        if isinstance(child, Element)
+    ]
+    for child in children:
+        yield child
+        yield from get_children(child, seen)
+
+
 def _get_path(element, path):
     """Get items matching a dot-separated path.
 
@@ -108,31 +140,3 @@ def _get_path(element, path):
     if not rest:
         return [next_item]
     return _get_path(next_item, ".".join(rest))
-
-
-def get_children(element: Any, seen: Set[int] = None) -> Iterator[Element]:
-    """Iterate all child elements of an element."""
-    seen = seen or set()
-    if id(element) in seen:
-        yield element
-        return
-    seen.add(id(element))
-    paths = [  # Possible paths to immediate children.
-        "items",
-        "properties.*.element",
-        "additionalProperties",
-        "patternProperties.*",
-        "propertyNames",
-        "dependencies.*",
-        "elements",
-        "element",
-    ]
-    children = [
-        child
-        for path in paths
-        for child in _get_path(element, path)
-        if isinstance(child, Element)
-    ]
-    for child in children:
-        yield child
-        yield from get_children(child, seen)

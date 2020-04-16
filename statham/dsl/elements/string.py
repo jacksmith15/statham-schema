@@ -37,5 +37,5 @@ class String(Element[str]):
     def type_validator(self):
         return InstanceOf(str)
 
-    def serialize(self) -> Dict[str, Any]:
-        return {**super().serialize(), "type": "string"}
+    def _serialize(self) -> Dict[str, Any]:
+        return {**super()._serialize(), "type": "string"}
