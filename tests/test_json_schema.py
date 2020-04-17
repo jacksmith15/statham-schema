@@ -17,7 +17,15 @@ from statham.titles import title_labeller
 from tests.helpers import no_raise
 
 
-NOT_IMPLEMENTED = ("optional", "definitions", "ref", "refRemote")
+NOT_IMPLEMENTED = (
+    "optional",
+    "definitions",
+    "refRemote",
+    "Location-independent identifier",
+    "Location-independent identifier with absolute URI",
+    "Location-independent identifier with base URI change in subschema",
+    "Recursive references between schemas",
+)
 
 
 def _add_titles(schema):
