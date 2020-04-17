@@ -1,7 +1,7 @@
 .PHONY: build
 
 RUN_CLEAN_TEST:=bash run_test.sh -c
-CHECK_VIRTUALENV:=python -c "import sys;sys.real_prefix"
+CHECK_VIRTUALENV:=python -c "import sys;assert sys.prefix != sys.base_prefix"
 
 
 help: ## Prints this help/overview message
