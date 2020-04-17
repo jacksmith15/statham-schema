@@ -78,28 +78,17 @@ def _check_my_format(value: str) -> bool:
 ```
 
 # Supported JSONSchema features
-- [x] Basic types (primitves, array, object)
-- [x] Composite primitive types
-- [x] Type validation on generated classes
-- [x] Validation of `required`
-- [x] Local references
-- [x] Type-specific validation (pattern, format, minimum, maximum etc)
-- [x] Custom string format validation
-- [x] Remote references
-- [x] `anyOf`, `oneOf`, `allOf`, `not`
-- [x] `additionalProperties`
-- [x] Tuple validation of arrays
-- [x] `additionalItems` keyword
-- [x] `minProperties`, `maxProperties` keywords
-- [x] `patternProperties` keyword
-- [x] `uniqueItems` keyword
-- [x] `propertyNames` keyword
-- [x] `const` keyword
-- [x] `contains` keyword
-- [x] `enum` keyword
-- [x] `dependencies` keyword
-- [ ] Built-in string format validation #6
-- [ ] `if`, `then`, `else` keywords
+This library is tested to support [JSON Schema Draft 6](https://json-schema.org/specification-links.html#draft-6), with the following notable exceptions:
+- Recursive references are not supported.
+- Location-independent references are not supported.
+- Changes of base URI via the `$id` keyword are not detected.
+
+Priority order for remaining features is roughly as follows:
+1. Support for features of more recent drafts.
+2. Support for the exceptions listed above.
+3. Support for features of less recent drafts.
+
+However, contributions in any of these areas are welcome.
 
 # Development
 1. Clone the repository: `git clone git@github.com:jacksmith15/statham-schema.git && cd statham-schema`
@@ -112,6 +101,7 @@ This project uses the following QA tools:
 - [PyLint](https://www.pylint.org/) - for enforcing code style.
 - [MyPy](http://mypy-lang.org/) - for static type checking.
 - [Travis CI](https://travis-ci.org/) - for continuous integration.
+- [Black](https://black.readthedocs.io/en/stable/) - for uniform code formatting.
 
 # License
 This project is distributed under the MIT license.
