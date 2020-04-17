@@ -21,7 +21,7 @@ class Mux(Object):
 
 
 class Qux(Object):
-    value = Property(String(), source="_value")
+    value = Property(String(), source="value_")
 
 
 class Raz(Object, additionalProperties=False):
