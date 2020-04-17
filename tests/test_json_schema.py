@@ -19,7 +19,6 @@ from tests.helpers import no_raise
 
 NOT_IMPLEMENTED = (
     "optional",
-    "definitions",
     # "refRemote",
     # The following are not yet supported.
     "Location-independent identifier",
@@ -31,6 +30,8 @@ NOT_IMPLEMENTED = (
     "base URI change",
     # The following is not supported.
     "Recursive references between schemas",
+    # The following is indirectly not supported.
+    "definitions",
     # The following have $ref into themselves - which creates a cycle unless
     #  a $ref does not override other members (which it should
     #  according to the spec!)
