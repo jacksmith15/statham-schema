@@ -109,7 +109,7 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
         class MyObject(Object):
 
             # Property called class
-            _class: str = Property(String(), source="class")
+            class_: str = Property(String(), source="class")
         ```
     """
     return _Property(element, required=required, source=source)

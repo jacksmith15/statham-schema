@@ -351,11 +351,11 @@ def parse_attribute_name(name: str) -> str:
     if not name:
         return "blank"
     first_chars = set(string.ascii_letters) | {"_"}
-    return (
-        name
-        if name not in RESERVED_PROPERTIES and name[0] in first_chars
-        else f"_{name}"
-    )
+    if name[0] not in first_chars:
+        name = f"_{name}"
+    if name in RESERVED_PROPERTIES:
+        name = f"{name}_"
+    return name
 
 
 def parse_pattern_properties(

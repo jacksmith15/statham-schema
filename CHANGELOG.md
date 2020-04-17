@@ -34,6 +34,8 @@ Types of changes are:
   raises a `FeatureNotImplementedError`.
 * Raised version of `json-ref-dict` to `0.6.0` - now supports
   references with URL-encoded characters.
+* Property names which conflict with reserved names now have an
+  underscore appended by the parser (previously prepended).
 
 ### Fixed
 * Fixed missing imports in generated python modules.

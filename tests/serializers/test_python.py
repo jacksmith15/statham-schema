@@ -204,7 +204,7 @@ class MyObject(Object):
 
     one: Maybe[Any] = Property(OneOf(String(), Element(minLength=3)))
 
-    _not: Maybe[Any] = Property(Not(String()), source='not')
+    not_: Maybe[Any] = Property(Not(String()), source='not')
 """
     )
 
