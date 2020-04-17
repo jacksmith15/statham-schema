@@ -7,7 +7,6 @@ from statham.dsl.helpers import remove_duplicates
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
 
-# TODO: if, then, else
 
 # This is a type annotation.
 Mode = Literal["anyOf", "oneOf", "allOf"]  # pylint: disable=invalid-name
