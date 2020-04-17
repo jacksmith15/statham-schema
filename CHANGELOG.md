@@ -32,6 +32,8 @@ Types of changes are:
   functions in this module.
 * Attempting to parse schemas with recursive references now
   raises a `FeatureNotImplementedError`.
+* Raised version of `json-ref-dict` to `0.6.0` - now supports
+  references with URL-encoded characters.
 
 ### Fixed
 * Fixed missing imports in generated python modules.
