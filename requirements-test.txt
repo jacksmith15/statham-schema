@@ -9,3 +9,5 @@ ipdb
 pre-commit
 safety
 black
+Sphinx==3.0.1
+recommonmark==0.6.0
