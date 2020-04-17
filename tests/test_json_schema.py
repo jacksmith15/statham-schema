@@ -20,11 +20,15 @@ from tests.helpers import no_raise
 NOT_IMPLEMENTED = (
     "optional",
     "definitions",
-    "refRemote",
+    # "refRemote",
     # The following are not yet supported.
     "Location-independent identifier",
     "Location-independent identifier with absolute URI",
     "Location-independent identifier with base URI change in subschema",
+    "root ref in remote ref",
+    "base URI change - change folder in subschema",
+    "base URI change - change folder",
+    "base URI change",
     # The following is not supported.
     "Recursive references between schemas",
     # The following have $ref into themselves - which creates a cycle unless
@@ -154,6 +158,10 @@ def _load_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
             conn.seek(0)
             conn.url = uri
             return conn
+        base_uri = "file://" + path.join(
+            os.getcwd(), "tests/JSON-Schema-Test-Suite/remotes"
+        )
+        uri = uri.replace("http://localhost:1234", base_uri)
         return urlopen(uri)
 
     with patch("json_ref_dict.loader.urlopen", new=_mock_url_open):
