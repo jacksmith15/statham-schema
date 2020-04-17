@@ -21,10 +21,18 @@ NOT_IMPLEMENTED = (
     "optional",
     "definitions",
     "refRemote",
+    # The following are not yet supported.
     "Location-independent identifier",
     "Location-independent identifier with absolute URI",
     "Location-independent identifier with base URI change in subschema",
+    # The following is not supported.
     "Recursive references between schemas",
+    # The following have $ref into themselves - which creates a cycle unless
+    #  a $ref does not override other members (which it should
+    #  according to the spec!)
+    "$ref to boolean schema true",
+    "$ref to boolean schema false",
+    "nested refs",
 )
 
 
