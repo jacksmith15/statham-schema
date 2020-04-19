@@ -1,6 +1,6 @@
 # False positive. The cycle exists but is avoided by importing last.
 # pylint: disable=cyclic-import
-from typing import Any, cast, Dict, List, Generic, Optional, TypeVar, Union
+from typing import Any, cast, Dict, List, Generic, TypeVar, Union
 
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.exceptions import ValidationError

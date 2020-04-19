@@ -87,6 +87,7 @@ class Dependencies(Validator):
             if key not in value:
                 continue
             if isinstance(dep, list):
+                # pylint: disable=protected-access
                 Required(dep)._validate(value)
             else:
                 self.validate_schema_dependency(dep, value)

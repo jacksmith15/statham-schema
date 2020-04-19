@@ -19,6 +19,7 @@ class Not(Element[T]):
     Element fails to validate if enclosed schema validates.
 
     :param element: The enclosed :class:`~statham.dsl.elements.Element`.
+    :param default: Inherited from :class:`~statham.dsl.elements.Element`.
     """
 
     def __init__(self, element: Element, *, default: Any = NotPassed()):
@@ -42,6 +43,7 @@ class CompositionElement(Element):
 
     :param elements: The composed :class:`~statham.dsl.elements.Element`
         objects.
+    :param default: Inherited from :class:`~statham.dsl.elements.Element`.
     """
 
     mode: Mode
@@ -78,6 +80,7 @@ class AnyOf(CompositionElement):
 
     :param elements: The composed :class:`~statham.dsl.elements.Element`
         objects.
+    :param default: Inherited from :class:`~statham.dsl.elements.Element`.
     """
 
     mode: Mode = "anyOf"
@@ -90,6 +93,7 @@ class OneOf(CompositionElement):
 
     :param elements: The composed :class:`~statham.dsl.elements.Element`
         objects.
+    :param default: Inherited from :class:`~statham.dsl.elements.Element`.
     """
 
     mode: Mode = "oneOf"
@@ -102,6 +106,7 @@ class AllOf(CompositionElement):
 
     :param elements: The composed :class:`~statham.dsl.elements.Element`
         objects.
+    :param default: Inherited from :class:`~statham.dsl.elements.Element`.
     """
 
     mode: Mode = "allOf"

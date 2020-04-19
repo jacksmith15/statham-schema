@@ -10,6 +10,8 @@ Welcome to Statham Schema's documentation!
   :maxdepth: 2
   :caption: Contents:
 
+  quickstart
+  dsl
   api
 
 
