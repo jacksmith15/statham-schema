@@ -14,9 +14,11 @@ T = TypeVar("T")
 
 
 class Not(Element[T]):
-    """JSONSchema "not" element.
+    """JSON Schema ``"not"`` element.
 
     Element fails to validate if enclosed schema validates.
+
+    :param element: The enclosed :class:`~statham.dsl.elements.Element`.
     """
 
     def __init__(self, element: Element, *, default: Any = NotPassed()):
@@ -37,6 +39,9 @@ class CompositionElement(Element):
     """Composition Base Element.
 
     The "oneOf", "anyOf" and "allOf" elements share the same interface.
+
+    :param elements: The composed :class:`~statham.dsl.elements.Element`
+        objects.
     """
 
     mode: Mode
@@ -67,19 +72,37 @@ class CompositionElement(Element):
 
 
 class AnyOf(CompositionElement):
-    """Must match at least one of the provided schemas."""
+    """JSON Schema ``"anyOf"`` element.
+
+    Must match at least one of the provided schemas.
+
+    :param elements: The composed :class:`~statham.dsl.elements.Element`
+        objects.
+    """
 
     mode: Mode = "anyOf"
 
 
 class OneOf(CompositionElement):
-    """Must match exactly one of the provided schemas.."""
+    """JSON Schema ``"oneOf"`` element.
+
+    Must match exactly one of the provided schemas.
+
+    :param elements: The composed :class:`~statham.dsl.elements.Element`
+        objects.
+    """
 
     mode: Mode = "oneOf"
 
 
 class AllOf(CompositionElement):
-    """Must match all provided schemas."""
+    """JSON Schema ``"allOf"`` element.
+
+    Must match all provided schemas.
+
+    :param elements: The composed :class:`~statham.dsl.elements.Element`
+        objects.
+    """
 
     mode: Mode = "allOf"
 

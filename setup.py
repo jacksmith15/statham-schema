@@ -30,7 +30,7 @@ setup(
     name="statham-schema",
     version=statham.__version__,
     description=(
-        "Tools for generating Python models from JSONSchema definitions."
+        "Tools for generating Python models from JSON Schema documents."
     ),
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

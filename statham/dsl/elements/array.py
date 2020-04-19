@@ -10,11 +10,12 @@ Item = TypeVar("Item")
 
 
 # pylint: disable=too-many-instance-attributes
-class Array(Element[List[Item]]):
-    """JSONSchema array element.
+class Array(Element[List[Item]]):  # pylint: disable=missing-param-doc
+    """JSON Schema ``"array"`` element.
 
-    Requires schema element for "items" keyword as first positional
-    argument. Supported validation keywords provided via keyword arguments.
+    :param items:
+        As in :class:`statham.dsl.elements.Element`, but as a required
+        positional argument.
     """
 
     items: Union[Element[Item], List[Element]]

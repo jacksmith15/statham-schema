@@ -4,11 +4,11 @@ from statham.dsl.constants import JSONElement
 
 
 class StathamError(Exception):
-    """Base exception"""
+    """Base exception for errors relating to :mod:`statham`."""
 
 
 class SchemaDefinitionError(StathamError):
-    """Failure when declaring schemas using DSL."""
+    """Raised when invalid schemas are declared in the DSL."""
 
     @classmethod
     def reserved_attribute(cls, attribute_name: str) -> "SchemaDefinitionError":
@@ -21,7 +21,7 @@ class SchemaDefinitionError(StathamError):
 
 
 class ValidationError(StathamError):
-    """Validation failure in generated models."""
+    """Raised when JSON Schema validation fails for input data."""
 
     @classmethod
     def from_validator(cls, property_, value, message) -> "ValidationError":
@@ -51,7 +51,7 @@ class ValidationError(StathamError):
 
 
 class SchemaParseError(StathamError):
-    """Failure during parsing of provided JSON Schema input."""
+    """Raised when parsing JSON Schema documents to DSL objects."""
 
     @classmethod
     def missing_title(
@@ -75,8 +75,9 @@ class SchemaParseError(StathamError):
         return cls(f"Got invalid type keyword: {value}.")
 
 
+# pylint: disable=line-too-long
 class FeatureNotImplementedError(SchemaParseError):
-    """Functionality not yet implemented."""
+    """Raised when parsing valid JSON Schema features currently unsupported by the DSL."""
 
     @classmethod
     def unsupported_keywords(cls, keywords) -> "FeatureNotImplementedError":

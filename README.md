@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)
 # Statham Schema
-A tool for generating Python objects from [JSONSchema](https://json-schema.org/) documents.
+A tool for generating Python objects from [JSON Schema](https://json-schema.org/) documents.
 
 This project aims to simplify the experience of integrating with external sources, by providing:
 1. **External validation**: Ensure that incoming data matches what you expect.

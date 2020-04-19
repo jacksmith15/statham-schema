@@ -2,14 +2,18 @@ from typing import Set, Type, Union
 
 from statham.dsl.elements import Element, Object
 from statham.dsl.elements.meta import ObjectMeta
-from statham.orderer import orderer, get_children
+from statham.serializers.orderer import orderer, get_children
 
 
 def serialize_python(*elements: Element) -> str:
-    """Output python declaration code.
+    """Serialize DSL elements to python declaration string.
 
     Captures declaration of the first Object elements, and any subsequent
-    elements this depends on.
+    elements this depends on. Module imports and declaration order are
+    dynamically inferred.
+
+    :param elements: The :class:`~statham.dsl.elements.Element` objects
+        to serialize.
     """
     declarations = "\n\n".join(
         [object_model.python() for object_model in orderer(*elements)]

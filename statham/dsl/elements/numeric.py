@@ -12,10 +12,7 @@ Numeric = Union[int, float]
 
 # pylint: disable=too-many-instance-attributes
 class NumericElement(Element[T]):
-    """JSONSchema base numeric element.
-
-    Provides supported validation settings via keyword arguments.
-    """
+    """JSON Schema base numeric element."""
 
     def __init__(
         self,
@@ -40,9 +37,9 @@ class NumericElement(Element[T]):
 
 
 class Integer(NumericElement[int]):
-    """JSONSchema integer element.
+    """JSON Schema ``"integer"`` element.
 
-    Provides supported validation settings via keyword arguments.
+    Accepts only python `int`.
     """
 
     @property
@@ -51,9 +48,9 @@ class Integer(NumericElement[int]):
 
 
 class Number(NumericElement[float]):
-    """JSONSchema number element.
+    """JSON Schema ``"number"`` element.
 
-    Provides supported validation settings via keyword arguments.
+    Accepts python ``int`` or ``float``.
     """
 
     def construct(self, value, _property):  # pylint: disable=no-self-use

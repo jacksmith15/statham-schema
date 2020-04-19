@@ -5,7 +5,7 @@ import pytest
 from statham.dsl.elements import Element, Nothing, Object, String
 from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
-from statham.dsl.parser import ParseState, parse_element
+from statham.dsl.parser import _ParseState, parse_element
 from statham.dsl.property import Property
 
 
@@ -239,7 +239,7 @@ class TestParseState:
     @staticmethod
     @pytest.fixture()
     def state(base_type):
-        state = ParseState()
+        state = _ParseState()
         assert state.dedupe(base_type) is base_type
         return state
 

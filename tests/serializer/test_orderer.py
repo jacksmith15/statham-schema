@@ -7,7 +7,7 @@ from statham.dsl.elements import Array, Element, Object, String
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
 from statham.dsl.property import Property
-from statham.orderer import orderer
+from statham.serializers.orderer import orderer
 
 
 class Child(Object):
