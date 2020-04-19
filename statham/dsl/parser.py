@@ -176,7 +176,9 @@ def _parse_literal(literal: Any) -> Any:
     }
 
 
-def _parse_contains(schema: Dict[str, Any], state: _ParseState = None) -> Element:
+def _parse_contains(
+    schema: Dict[str, Any], state: _ParseState = None
+) -> Element:
     """Parse schema contains keyword."""
     state = state or _ParseState()
     return parse_element(schema["contains"], state)

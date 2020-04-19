@@ -31,19 +31,19 @@ class TestSimpleOrdering:
 
     @staticmethod
     def test_correct_number_of_object_elements_produced(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         assert len(ordered_objects) == 3
 
     @staticmethod
     def test_independent_object_elements_are_declared_first(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         assert set(ordered_objects[:2]) == {Child, Related}
 
     @staticmethod
     def test_dependent_object_element_is_declared_next(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         assert ordered_objects[2] == Parent
 
@@ -77,19 +77,19 @@ class TestMultipleEntryPointOrdering:
 
     @staticmethod
     def test_that_there_are_the_correct_number_of_items(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         assert len(ordered_objects) == 4
 
     @staticmethod
     def test_that_the_most_depended_upon_item_comes_first(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         assert ordered_objects[0] is Child
 
     @staticmethod
     def test_that_parent_is_declared_after_related(
-        ordered_objects: List[ObjectMeta]
+        ordered_objects: List[ObjectMeta],
     ):
         ordered = {elem: idx for idx, elem in enumerate(ordered_objects)}
         assert ordered[Parent] > ordered[Related]

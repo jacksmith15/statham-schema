@@ -37,12 +37,10 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx_paramlinks",
-    "sphinx_rtd_theme"
+    "sphinx_rtd_theme",
 ]
 
-autodoc_default_options = {
-    "member-order": "bysource"
-}
+autodoc_default_options = {"member-order": "bysource"}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -67,7 +65,4 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 
-html_theme_options = {
-    "collapse_navigation": False,
-    "display_version": True,
-}
+html_theme_options = {"collapse_navigation": False, "display_version": True}

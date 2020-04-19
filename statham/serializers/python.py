@@ -80,7 +80,7 @@ def _get_element_imports(*elements: Element) -> str:
 
 
 def _get_single_element_imports(
-    element: Element
+    element: Element,
 ) -> Set[Union[Type[Element], ObjectMeta]]:
     """Extract the set of element types used by a given element."""
     get_type = (

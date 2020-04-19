@@ -81,7 +81,7 @@ T = TypeVar("T")
 
 
 def split_dict(
-    keys: Container[T]
+    keys: Container[T],
 ) -> Callable[[Dict[T, Any]], Tuple[Dict[T, Any], Dict[T, Any]]]:
     """Split a dictionary on matching and non-matching keys."""
 
