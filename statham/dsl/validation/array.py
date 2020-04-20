@@ -6,31 +6,40 @@ from statham.dsl.validation.base import Validator, replace_bool
 
 
 class MinItems(Validator):
+    """Validate that arrays have a minimum number of items."""
+
     types = (list,)
     keywords = ("minItems",)
     message = "Must contain at least {minItems} items."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if len(value) < self.params["minItems"]:
             raise ValidationError
 
 
 class MaxItems(Validator):
+    """Validate that arrays have a maximum number of items."""
+
     types = (list,)
     keywords = ("maxItems",)
     message = "Must contain fewer than {maxItems} items."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if len(value) > self.params["maxItems"]:
             raise ValidationError
 
 
 class AdditionalItems(Validator):
+    """Validate array items not covered by the ``"items"`` keyword.
+
+    Only relevant when using "tuple" style ``"items"``.
+    """
+
     types = (list,)
     keywords = ("items", "additionalItems")
     message = "Must not contain additional items. Accepts: {items}"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if not isinstance(self.params["items"], list):
             return
         if len(value) <= len(self.params["items"]):
@@ -41,6 +50,8 @@ class AdditionalItems(Validator):
 
 
 class UniqueItems(Validator):
+    """Validate that array items are unique."""
+
     types = (list,)
     keywords = ("uniqueItems",)
     message = "Must not contain duplicates."
@@ -54,7 +65,7 @@ class UniqueItems(Validator):
             return None
         return validator
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         # Once again, Cpython's 1 in [True] nightmare.
         aliased_value = list(map(replace_bool, value))
         length = len(aliased_value)
@@ -70,11 +81,13 @@ class UniqueItems(Validator):
 
 
 class Contains(Validator):
+    """Validate that at least one array item matches a schema."""
+
     types = (list,)
     keywords = ("contains",)
     message = "Must contain one element matching {contains}."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         for sub_value in value:
             try:
                 _ = self.params["contains"](sub_value)

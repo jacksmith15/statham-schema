@@ -21,7 +21,6 @@ test_data/
 *.pyc
 .pytest_cache/
 *.sql
-docs/
 
 *.egg-info
 build*

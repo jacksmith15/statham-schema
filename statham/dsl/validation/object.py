@@ -5,16 +5,20 @@ from statham.dsl.validation.base import Validator
 
 
 class Required(Validator):
+    """Validate that object values contain all required properties."""
+
     types = (dict,)
     keywords = ("required",)
     message = "Must contain all required fields: {required}"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if set(self.params["required"]) - set(value):
             raise ValidationError
 
 
 class AdditionalProperties(Validator):
+    """Validate that prohibited properties are not included."""
+
     types = (dict,)
     keywords = ("__properties__",)
     message = "Must not contain unspecified properties. Accepts: {properties}"
@@ -24,7 +28,7 @@ class AdditionalProperties(Validator):
             properties=set(self.params["__properties__"])
         )
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if self.params["__properties__"].additional:
             return
         bad_properties = {
@@ -35,31 +39,37 @@ class AdditionalProperties(Validator):
 
 
 class MinProperties(Validator):
+    """Validate that object values contain a minimum number of properties."""
+
     types = (dict,)
     keywords = ("minProperties",)
     message = "Must contain at least {minProperties} properties."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if len(value) < self.params["minProperties"]:
             raise ValidationError
 
 
 class MaxProperties(Validator):
+    """Validate that object values contain a maximum number of properties."""
+
     types = (dict,)
     keywords = ("maxProperties",)
     message = "Must contain at most {maxProperties} properties."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if len(value) > self.params["maxProperties"]:
             raise ValidationError
 
 
 class PropertyNames(Validator):
+    """Validate that property names conform to a schema."""
+
     types = (dict,)
     keywords = ("propertyNames",)
     message = "Property names must match schema {propertyNames}"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         for prop_name in value:
             try:
                 self.params["propertyNames"](prop_name)
@@ -72,12 +82,13 @@ class Dependencies(Validator):
     keywords = ("dependencies",)
     message = "Must match defined dependencies: {dependencies}."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         for key, dep in self.params["dependencies"].items():
             if key not in value:
                 continue
             if isinstance(dep, list):
-                Required(dep).validate(value)
+                # pylint: disable=protected-access
+                Required(dep)._validate(value)
             else:
                 self.validate_schema_dependency(dep, value)
 

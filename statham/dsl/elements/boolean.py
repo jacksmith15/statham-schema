@@ -6,7 +6,7 @@ from statham.dsl.validation import InstanceOf
 
 
 class Boolean(Element[bool]):
-    """JSONSchema boolean element."""
+    """JSON Schema ``"boolean"`` element."""
 
     def __init__(
         self,

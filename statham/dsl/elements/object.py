@@ -8,22 +8,29 @@ from statham.dsl.constants import NotPassed
 
 
 class Object(metaclass=ObjectMeta):
-    """Base model for JSONSchema objects.
+    """Base model for JSON Schema ``"object"`` elements.
 
-    New object schemas are defined by implementing subclasses of Object.
+    ``"object"`` schemas are defined by declaring subclasses of
+    :class:`Object`. Properties are declared as class attributes, and
+    other keywords are set as class arguments.
 
     For example:
-    ```python
-    from statham.dsl.elements import Object, String
-    from statham.dsl.property import Property
 
-    class Poll(Object):
+    .. code:: python
 
-        questions: List[str] = Property(String(), required=True)
+        from statham.dsl.elements import Object, String
+        from statham.dsl.property import Property
 
-    poll = Poll({"questions": ["What's up?"]})
-    ```
+        class Poll(Object, additionalProperties=False):
+
+            questions: List[str] = Property(String(), required=True)
+
+        poll = Poll({"questions": ["What's up?"]})
+
     """
+
+    # TODO: Add an inline constructor
+    # Object.inline("MyObject", properties={}, ...)
 
     properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]

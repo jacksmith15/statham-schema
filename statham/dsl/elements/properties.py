@@ -8,6 +8,11 @@ from statham.dsl.property import _Property as Property
 
 
 class Properties:
+    """Interface for retrieving relevant schemas given a property name.
+
+    Used internally by :class:`~statham.dsl.elements.Element`.
+    """
+
     def __init__(self, element, props, pattern=None, additional=True):
         self.element = element
         self.props = props or {}

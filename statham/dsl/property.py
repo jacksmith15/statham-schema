@@ -94,22 +94,23 @@ class _Property(Generic[PropType]):
 def Property(element: "Element", *, required: bool = False, source: str = None):
     """Descriptor for adding a property when declaring an object schema model.
 
-    Return value is typed to inform instance-level interface. See type stubs of
-    this module for more detail.
+    Return value is typed to inform instance-level interface (see type stubs).
 
-    :param element: The JSONSchema Element object accepted by this property.
+    :param element: The JSON Schema Element object accepted by this property.
     :param required: Whether this property is required. If false, then this
         field may be omitted when data is passed to the outer object's
         constructor.
     :param source: The source name of this property. Only necessary if it must
-        differ from that of the attribute, for example when the property name
-        conflicts with a reserved keyword. For example, to express a property
-        called `class`, one could do the following:
-        ```python
-        class MyObject(Object):
+        differ from that of the attribute.
 
+    To hand property name conflicts, use the :paramref:`Property.source`
+    option. For example, to express a property called `class`, one could
+    do the following:
+
+    .. code:: python
+
+        class MyObject(Object):
             # Property called class
             class_: str = Property(String(), source="class")
-        ```
     """
     return _Property(element, required=required, source=source)

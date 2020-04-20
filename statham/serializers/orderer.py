@@ -1,9 +1,13 @@
+"""Iteration tools for DSL Element trees."""
 from itertools import chain
 from typing import Any, Dict, Iterator, List, Set
 
 from statham.dsl.elements import Element
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.exceptions import SchemaParseError
+
+
+# TODO: Generate non-object elements.
 
 
 def orderer(*elements: Element) -> Iterator[ObjectMeta]:
@@ -86,6 +90,8 @@ def get_children(element: Any, seen: Set[int] = None) -> Iterator[Element]:
     seen.add(id(element))
     paths = [  # Possible paths to immediate children.
         "items",
+        "additionalItems",
+        "contains",
         "properties.*.element",
         "additionalProperties",
         "patternProperties.*",

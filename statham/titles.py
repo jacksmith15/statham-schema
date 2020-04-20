@@ -6,7 +6,7 @@ from statham.dsl.constants import COMPOSITION_KEYWORDS
 
 
 def _get_title_from_reference(reference: str) -> str:
-    """Convert JSONSchema references to title fields.
+    """Convert JSON Schema references to title fields.
 
     If the reference has a pointer, use the final segment, otherwise
     use the final segment of the base uri stripping any content type

@@ -17,7 +17,7 @@ LOGGER.setLevel(INFO)
 
 
 def parse_input_arg(input_arg: str) -> str:
-    """Parse input URI as a valid JSONSchema ref.
+    """Parse input URI as a valid JSON Schema ref.
 
     This tool accepts bare base URIs, without the JSON Pointer,
     so these should be converted to a root pointer.
@@ -32,7 +32,7 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
     """Parse arguments, abstracting IO in a context manager."""
 
     parser = ArgumentParser(
-        description="Generate statham DSL models from JSONSchema files.",
+        description="Generate statham DSL models from JSON Schema files.",
         formatter_class=RawTextHelpFormatter,
         add_help=False,
     )
@@ -44,7 +44,7 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
         help="""Specify the path to the JSON Schema to be generated.
 
 If the target schema is not at the root of a document, specify the
-JSON Pointer in the same format as a JSONSchema `$ref`, e.g.
+JSON Pointer in the same format as a JSON Schema `$ref`, e.g.
 `--input path/to/document.json#/definitions/schema`
 
 """,
@@ -84,15 +84,10 @@ stdout.
 
 
 def main(input_uri: str) -> str:
-    """Get the schema, and then return the generated python module.
+    """Get a schema from a URI, and then return the generated python module.
 
-    Example:
-    ```
-    main("https://json-schema.org/draft-04/schema#/")
-    ```
-
-    :param input_uri: This must follow the conventions of a JSONSchema
-        '$ref' attribute.
+    :param input_uri: URI of the target schema. This must follow the conventions
+        of a JSON Schema ``"$ref"`` attribute.
     :return: Python module contents for generated models, as a string.
     """
     schema = materialize(

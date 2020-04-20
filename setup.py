@@ -30,7 +30,7 @@ setup(
     name="statham-schema",
     version=statham.__version__,
     description=(
-        "Tools for generating Python models from JSONSchema definitions."
+        "Tools for generating Python models from JSON Schema documents."
     ),
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
@@ -42,6 +42,7 @@ setup(
         "Programming Language :: Python :: 3.6",
     ],
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    package_data={"statham": ["py.typed"]},
     install_requires=REQUIREMENTS_FILE,
     dependency_links=[],
     entry_points={"console_scripts": ["statham=statham.__main__:entry_point"]},

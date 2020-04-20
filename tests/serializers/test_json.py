@@ -19,7 +19,7 @@ from statham.dsl.elements import (
     String,
 )
 from statham.dsl.property import Property, _Property
-from statham.serializers.json import serialize_element, serialize_json
+from statham.serializers.json import _serialize_element, serialize_json
 from tests.dsl.parser.test_parse_object import (
     EmptyModel,
     ObjectWithOptionalProperty,
@@ -379,7 +379,7 @@ STRING_PARAMS: ParamSet = [
     ids=lambda element: repr(element) if isinstance(element, Element) else None,
 )
 def test_serialize_element(element: Element, expected: Dict[str, Any]):
-    assert serialize_element(element) == expected
+    assert _serialize_element(element) == expected
 
 
 @pytest.mark.parametrize(

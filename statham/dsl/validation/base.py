@@ -27,12 +27,29 @@ def _is_instance(value, type_args):
 class Validator:
     """Base validator type.
 
-    Logic for given validation keywords may be implemented as subclasses.
+    Logic for given validation keywords is implemented in subclasses by
+    overriding class variables and implementing the ``_validate()``
+    method.
     """
 
     types: ClassVar[Optional[Tuple[Type, ...]]] = None
+    """Types on which this validator applies.
+
+    If ``None``, apply to all values.
+    """
+
     message: ClassVar[str] = ""
+    """The error message to display on validation failure.
+
+    Can be tamplated on :attr:`Validator.keywords`.
+    """
+
     keywords: Tuple[str, ...] = tuple()
+    """Keywords which configure this validator.
+
+    These are used to configure the validator based on the
+    :class:`statham.dsl.elements.Element`.
+    """
 
     def __init__(self, *args):
         """Accepts the parameters specified by the `keywords` class variable."""
@@ -58,7 +75,7 @@ class Validator:
         return cls(*params)
 
     # pylint: disable=no-self-use
-    def validate(self, _value: Any):
+    def _validate(self, _value: Any):
         """Validate a value.
 
         Validation logic should be added by base classes, and raise a
@@ -77,11 +94,17 @@ class Validator:
 
         Checks that `value` has correct type for this validator, runs
         validation logic and constructs the error message on failure.
+
+        :param value: The value to validate.
+        :param property_: The enclosing property if present - used for
+            error reporting.
+        :raises: :class:`~statham.dsl.exceptions.ValidationError` if
+            :paramref:`~Validator.__call__.value` fails validation.
         """
         if self.types and not _is_instance(value, self.types):
             return
         try:
-            self.validate(value)
+            self._validate(value)
         except ValidationError:
             raise ValidationError.from_validator(
                 property_, value, self.error_message()
@@ -89,6 +112,8 @@ class Validator:
 
 
 class InstanceOf(Validator):
+    """Validate the type of a value."""
+
     message = "Must be of type {type_names}."
 
     def __init__(self, *args):
@@ -97,7 +122,7 @@ class InstanceOf(Validator):
         names = (type_.__name__ for type_ in self.params["types"])
         self.params["type_names"] = f"({','.join(names)})"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if value == NotPassed() or not self.params["types"]:
             return
         if not _is_instance(value, self.params["types"]):
@@ -105,19 +130,26 @@ class InstanceOf(Validator):
 
 
 class NoMatch(Validator):
+    """Don't accept any passed value.
+
+    Used exclusively by :class:`~statham.dsl.elements.base.Nothing`.
+    """
+
     message = "Schema does not accept any values."
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         if value is NotPassed():
             return
         raise ValidationError
 
 
 class Const(Validator):
+    """Validate that passed values match a constant value."""
+
     keywords = ("const",)
     message = "Must match constant value: {const}"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         aliased = replace_bool(value)
         const = replace_bool(self.params["const"])
         if aliased != const:
@@ -125,10 +157,12 @@ class Const(Validator):
 
 
 class Enum(Validator):
+    """Validate that passed values are members of an enumeration."""
+
     keywords = ("enum",)
     message = "Must be one of these values: {enum}"
 
-    def validate(self, value: Any):
+    def _validate(self, value: Any):
         aliased = replace_bool(value)
         enum = list(map(replace_bool, self.params["enum"]))
         if aliased not in enum:

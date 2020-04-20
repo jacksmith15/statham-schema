@@ -6,10 +6,7 @@ from statham.dsl.validation import InstanceOf
 
 
 class String(Element[str]):
-    """JSONSchema string element.
-
-    Provides supported validation settings via keyword arguments.
-    """
+    """JSON Schema ``"string"`` element."""
 
     def __init__(
         self,
@@ -17,7 +14,7 @@ class String(Element[str]):
         default: Maybe[str] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
         enum: Maybe[List[Any]] = NotPassed(),
-        # Bad name to match JSONSchema keywords.
+        # Bad name to match JSON Schema keywords.
         # pylint: disable=redefined-builtin
         format: Maybe[str] = NotPassed(),
         # pylint: enable=redefined-builtin

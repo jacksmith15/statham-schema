@@ -16,25 +16,26 @@ from statham.dsl.elements import (
 )
 from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.property import _Property
-from statham.orderer import get_object_classes
+from statham.serializers.orderer import get_object_classes
 
 
 def serialize_json(
     *elements: Element, definitions: Dict[str, Element] = None
 ) -> Dict[str, Any]:
-    """Serialize elements to a JSON Schema dictionary.
+    """Serialize DSL elements to a JSON Schema dictionary.
 
     Object classes are included in definitions. The first element is
     the top-level schema.
 
-    :param elements: DSL Elements to serialize.
+    :param elements: The :class:`~statham.dsl.elements.Element` objects
+        to serialize.
     :param definitions: A dictionary of elements which should be members
       of the schema definitions keyword, and referenced everywhere else.
     """
     primary = elements[0]
     object_classes = get_object_classes(*elements)
     serialize = partial(
-        serialize_element, object_refs=True, definitions=definitions
+        _serialize_element, object_refs=True, definitions=definitions
     )
     schema: Dict[str, Any] = {
         **serialize(primary),
@@ -53,7 +54,7 @@ def serialize_json(
     return schema
 
 
-def serialize_element(
+def _serialize_element(
     element: Element,
     object_refs: bool = False,
     definitions: Dict[str, Any] = None,
@@ -116,10 +117,10 @@ def _serialize_recursive(
     if isinstance(data, ObjectMeta) and object_refs:
         return {"$ref": f"#/definitions/{data.__name__}"}
     if isinstance(data, Element):
-        return from_definitions(
+        return _from_definitions(
             definitions,
             data,
-            serialize_element(
+            _serialize_element(
                 data, object_refs=object_refs, definitions=definitions
             ),
         )
@@ -130,7 +131,7 @@ def _serialize_recursive(
     return {key: recur(value) for key, value in data.items()}
 
 
-def from_definitions(
+def _from_definitions(
     definitions: Optional[Dict[str, Element]],
     element: Element,
     default: Any = None,

@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.parser import parse_attribute_name
+from statham.dsl.parser import _parse_attribute_name
 
 
 @pytest.mark.parametrize(
@@ -26,4 +26,4 @@ from statham.dsl.parser import parse_attribute_name
     ],
 )
 def test_parse_attribute_name(name: str, expected: str):
-    assert parse_attribute_name(name) == expected
+    assert _parse_attribute_name(name) == expected

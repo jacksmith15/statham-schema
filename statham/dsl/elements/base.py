@@ -19,21 +19,113 @@ T = TypeVar("T")
 Numeric = Union[int, float]
 
 
-# This emulates the options available to a general JSONSchema object.
+# This emulates the options available to a general JSON Schema object.
 # pylint: disable=too-many-instance-attributes
 class Element(Generic[T]):
-    """Schema element for composing instantiation logic.
+    # pylint: disable=line-too-long
+    """An un-typed schema element.
 
-    The generic type is bound by subclasses to indicate their return
-    type when called.
+    Accepts JSON Schema keywords as arguments.
+
+    :param default:
+        The default value this element should return when not provided.
+    :param const:
+        Restrict this element to a constant value.
+    :param enum:
+        Restrict this element to an enumeration of provided values.
+    :param items:
+        The :class:`Element` with which to validate list items. If
+        :paramref:`~Element.items` is a list of :class:`Element`, then
+        each :class:`Element` validates the corresponding index of the
+        value. Subsequent values are validated by
+        :paramref:`~Element.additionalItems`.
+    :param additionalItems:
+        The :class:`Element` with which to validate additional items in a
+        list, when :paramref:`items` is a list and shorter than the
+        passed list.
+    :param minItems:
+        The minimum number of items to allow in list values.
+    :param maxItems:
+        The maximum number of items to allow in list values.
+    :param uniqueItems:
+        If :const:`True`, validate that list values contain unique
+        elements.
+    :param contains:
+        Validate that list values contain at least one element
+        matching this :class:`Element`.
+    :param minimum:
+        Validate that numeric values are greater than or equal
+        to this value.
+    :param maximum:
+        Validate that numeric values are less than or equal
+        to this value.
+    :param exclusiveMinimum:
+        Validate that numeric values are strictly greater than
+        this value.
+    :param exclusiveMaximum:
+        Validate that numeric values are strictly less than
+        this value.
+    :param multipleOf:
+        Validate that numeric values are are multiple of this
+        value.
+    :param format:
+        Validate that string values conform to the specified
+        format. See :func:`~statham.dsl.validation.format.format_checker`
+        to learn about included formats and how to add your own.
+    :param pattern:
+        Validate that string values match this value as a regular
+        expression.
+    :param minLength:
+        Validate that string values are at least as long as this
+        value.
+    :param maxLength:
+        Validate that string values are at most as long as this
+        value.
+    :param required:
+        Validate that dictionary values contain each of these
+        keys.
+    :param properties:
+        Validate that dictionary values match these properties.
+        See :class:`statham.dsl.property.Property` for more information.
+    :param patternProperties:
+        Validate that keys of dictionaries matching these
+        patterns conform to the provided :class:`Element`. Keys may match
+        on multiple :paramref:`~Element.patternProperties` and
+        :paramref:`~Element.properties` at the same time.
+    :param additionalProperties:
+        Validate properties not matched by either
+        :paramref:`~Element.properties` or
+        :paramref:`~Element.patternProperties` against this element. If
+        :const:`True`, any value is allowed. If :const:`False`, no
+        additional properties are allowed.
+    :param minProperties:
+        Validate that dictionary values contain at least this
+        many members.
+    :param maxProperties:
+        Validate that dictionary values contain at most this
+        many members.
+    :param propertyNames:
+        Validate that keys of dictionary values match are accepted
+        by this :class:`Element`. Any :class:`Element` is allowed here,
+        but it is not useful to use any other than
+        :class:`statham.dsl.elements.String`.
+    :param dependencies:
+        Define JSON Schema dependencies. There are two types of
+        dependencies. If the dict value is a list, then the each property
+        name in that list must be present when the property name of the
+        key is present. If the value is an :class:`Element`, then it's
+        validation applies whenever the property name of the key is present. See
+        `Object Dependencies <https://json-schema.org/understanding-json-schema/reference/object.html#dependencies>`_
+        for more detail.
     """
+    # pylint: enable=line-too-long
 
     # This is how many options there are!
     # pylint: disable=too-many-locals
     def __init__(
         self,
         *,
-        # Bad name to match JSONSchema keywords.
+        # Bad name to match JSON Schema keywords.
         # pylint: disable=redefined-builtin
         default: Maybe[Any] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
@@ -158,11 +250,16 @@ class Element(Generic[T]):
             getattr(self, "additionalItems", True),
         )
 
-    def __call__(self, value, property_=None) -> Maybe[T]:
-        """Validate and convert input data against the element.
+    def __call__(self, value: Any, property_=None) -> Maybe[T]:
+        """Validate and convert input data against this :class:`Element`.
 
-        Runs validators defined on the `validators` property, and calls
-        `construct` on the input.
+        Dictionary (object) values which pass validation are returned as
+        a subclass of :const:`dict` allowing attribute access.
+
+        :param value: The input data.
+        :param property_: Optionally specify the outer property scope
+            enclosing this :class:`Element`. Used automatically by object
+            validation to produce more useful error messages.
         """
         property_ = property_ or UNBOUND_PROPERTY
 
@@ -189,7 +286,7 @@ UNBOUND_PROPERTY.bind_class(Element())
 
 
 class Nothing(Element):
-    """Element which matches nothing. Equivalent to False."""
+    """Element which matches nothing. Equivalent to :const:`False`."""
 
     def __init__(self):
         super().__init__()  # Don't allow args to Nothing.

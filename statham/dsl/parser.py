@@ -1,3 +1,12 @@
+# pylint: disable=too-many-lines
+"""Parsing tools to convert JSON Schema dictionaries to DSL Element instances.
+
+Some JSON Schema documents will be converted to an equivalent but structurally
+differing representation. In particular, those that combine composition
+keywords or use multiple types will be recomposed using ``"allOf"`` and
+``"anyOf"`` respectively. See :mod:`statham.dsl.elements.composition` for more
+details.
+"""
 from collections import defaultdict
 from functools import partial
 import inspect
@@ -49,7 +58,7 @@ _TYPE_MAPPING = {
 }
 
 
-class ParseState:
+class _ParseState:
     """Recusive state.
 
     Used to de-duplicate models which are traversed multiple times, and to
@@ -78,11 +87,18 @@ class ParseState:
 
 
 def parse(schema: Dict[str, Any]) -> List[Element]:
-    """Parse a JSONSchema document to DSL Element format.
+    """Parse a JSON Schema document to DSL Element format.
 
-    Checks the top-level and definitions keyword to collect elements.
+    Assumes references are already resolved, and that any ``"object"`` schemas
+    or sub-schemas contain either a ``"title"`` annotation or an
+    ``"_x_autotitle"`` annotation. See
+    `json-ref-dict <https://pypi.org/project/json-ref-dict/0.6.0/>`_ for
+    reference resolution and annotation tools.
+
+    :return: A list of DSL elements, starting with the top level element,
+        followed by each element in the top-level schema ``"definitions"``.
     """
-    state = ParseState()
+    state = _ParseState()
     return [parse_element(schema, state)] + [
         parse_element(definition, state)
         for definition in schema.get("definitions", {}).values()
@@ -96,12 +112,25 @@ def parse(schema: Dict[str, Any]) -> List[Element]:
     "Could not parse cyclical dependencies of this schema.",
 )
 def parse_element(
-    schema: Union[bool, Dict[str, Any]], state: ParseState = None
+    schema: Union[bool, Dict[str, Any]], state: _ParseState = None
 ) -> Element:
-    """Parse a JSONSchema element to a DSL Element object."""
+    """Parse a single JSON Schema element to a DSL Element object.
+
+    Called by :func:`parse` when parsing entire documents.
+
+    >>> parse_element({"type": "string", "minLength": 3})
+    String(minLength=3)
+
+    :raises: :exc:`~statham.dsl.exceptions.FeatureNotImplementedError` if
+        recursive cycles are detected.
+    :raises: :exc:`statham.dsl.exceptions.SchemaParseError` if problems are
+        found in the provided schema.
+    :return: A single :class:`~statham.dsl.elements.Element` object equivalent
+        to the schema described by :paramref:`parse_element.schema`.
+    """
     if isinstance(schema, bool):
         return Element() if schema else Nothing()
-    state = state or ParseState()
+    state = state or _ParseState()
     if isinstance(schema, Element):
         return schema
     if set(schema) & UNSUPPORTED_SCHEMA_KEYWORDS:
@@ -110,27 +139,27 @@ def parse_element(
         )
     for literal_key in ("default", "const", "enum"):
         if literal_key in schema:
-            schema[literal_key] = parse_literal(schema[literal_key])
+            schema[literal_key] = _parse_literal(schema[literal_key])
     for keyword, parser in (
-        ("properties", parse_properties),
-        ("items", parse_items),
-        ("patternProperties", parse_pattern_properties),
-        ("propertyNames", parse_property_names),
-        ("contains", parse_contains),
-        ("dependencies", parse_dependencies),
+        ("properties", _parse_properties),
+        ("items", _parse_items),
+        ("patternProperties", _parse_pattern_properties),
+        ("propertyNames", _parse_property_names),
+        ("contains", _parse_contains),
+        ("dependencies", _parse_dependencies),
     ):
         if keyword in schema:
             schema[keyword] = parser(schema, state)  # type: ignore
-    schema["additionalProperties"] = parse_additional_properties(schema, state)
-    schema["additionalItems"] = parse_additional_items(schema, state)
+    schema["additionalProperties"] = _parse_additional_properties(schema, state)
+    schema["additionalItems"] = _parse_additional_items(schema, state)
     if set(COMPOSITION_KEYWORDS) & set(schema):
-        return parse_composition(schema, state)
+        return _parse_composition(schema, state)
     if "type" not in schema:
-        return Element(**keyword_filter(Element)(schema))
-    return parse_typed(schema["type"], schema, state)
+        return Element(**_keyword_filter(Element)(schema))
+    return _parse_typed(schema["type"], schema, state)
 
 
-def parse_literal(literal: Any) -> Any:
+def _parse_literal(literal: Any) -> Any:
     """Parse literal values from schema.
 
     Keywords like `const`, `enum` and `default` refer to non-schema values.
@@ -139,22 +168,24 @@ def parse_literal(literal: Any) -> Any:
     if not isinstance(literal, (dict, list)):
         return literal
     if isinstance(literal, list):
-        return [parse_literal(val) for val in literal]
+        return [_parse_literal(val) for val in literal]
     return {
-        key: parse_literal(val)
+        key: _parse_literal(val)
         for key, val in literal.items()
         if key != "_x_autotitle"
     }
 
 
-def parse_contains(schema: Dict[str, Any], state: ParseState = None) -> Element:
+def _parse_contains(
+    schema: Dict[str, Any], state: _ParseState = None
+) -> Element:
     """Parse schema contains keyword."""
-    state = state or ParseState()
+    state = state or _ParseState()
     return parse_element(schema["contains"], state)
 
 
-def parse_composition(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_composition(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Element:
     """Parse a schema with composition keywords.
 
@@ -169,14 +200,14 @@ def parse_composition(
         "oneOf": [{"minimum": 3}, {"maximum": 5}],
         "anyOf": [{"multipleOf": 2}, {"multipleOf": 3}],
     }
-    parse_composition(schema) == AllOf(
+    _parse_composition(schema) == AllOf(
         Integer(),
         OneOf(Element(minimum=3), Element(maximum=5)),
         AnyOf(Element(multipleOf=2), Element(multipleOf=3)),
     )
     ```
     """
-    state = state or ParseState()
+    state = state or _ParseState()
     composition, other = split_dict(set(COMPOSITION_KEYWORDS) | {"default"})(
         schema
     )
@@ -201,30 +232,26 @@ def parse_composition(
     return element
 
 
-def parse_typed(
-    type_value: Any, schema: Dict[str, Any], state: ParseState = None
+def _parse_typed(
+    type_value: Any, schema: Dict[str, Any], state: _ParseState = None
 ) -> Element:
-    """Parse a typed schema with no composition keywords.
-
-    :raises KeyError: if no "type" key is present.
-    :raises SchemaParseError: if value at "type" is not a `str` or `list`.
-    """
-    state = state or ParseState()
+    """Parse a typed schema with no composition keywords."""
+    state = state or _ParseState()
     if not isinstance(type_value, (str, list)):
         raise SchemaParseError.invalid_type(type_value)
     if isinstance(type_value, list):
-        return parse_multi_typed(type_value, schema, state)
+        return _parse_multi_typed(type_value, schema, state)
     if schema["type"] == "object":
-        return parse_object(schema, state)
+        return _parse_object(schema, state)
     if schema["type"] == "array":
-        return parse_array(schema, state)
+        return _parse_array(schema, state)
     element_type = _TYPE_MAPPING[type_value]
-    sub_schema = keyword_filter(element_type)(schema)
+    sub_schema = _keyword_filter(element_type)(schema)
     return element_type(**sub_schema)
 
 
-def parse_multi_typed(
-    type_list: List[str], schema: Dict[str, Any], state: ParseState = None
+def _parse_multi_typed(
+    type_list: List[str], schema: Dict[str, Any], state: _ParseState = None
 ) -> CompositionElement:
     """Parse a schema with multiple type values.
 
@@ -237,7 +264,7 @@ def parse_multi_typed(
     {"anyOf": [{"type": "string"}, {"type": "integer"}]}
     ```
     """
-    state = state or ParseState()
+    state = state or _ParseState()
     default = schema.get("default", NotPassed())
     schema = {key: val for key, val in schema.items() if key != "default"}
     if len(type_list) == 1:
@@ -251,8 +278,8 @@ def parse_multi_typed(
     )
 
 
-def parse_object(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_object(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> ObjectMeta:
     """Parse an object schema element to an `Object` subclass.
 
@@ -267,7 +294,7 @@ def parse_object(
     :raises SchemaParseError: if keys exist from which to derive the class
         title.
     """
-    state = state or ParseState()
+    state = state or _ParseState()
     title = schema.get("title", schema.get("_x_autotitle"))
     if not title:
         raise SchemaParseError.missing_title(schema)
@@ -275,11 +302,11 @@ def parse_object(
     properties = schema.get("properties", {})
     properties.update(
         {
-            parse_attribute_name(key): _Property(
+            _parse_attribute_name(key): _Property(
                 Element(), required=True, source=key
             )
             for key in schema.get("required", [])
-            if parse_attribute_name(key) not in properties
+            if _parse_attribute_name(key) not in properties
         }
     )
     class_dict = ObjectClassDict()
@@ -302,16 +329,16 @@ def parse_object(
     return state.dedupe(object_type)
 
 
-def parse_properties(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_properties(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Dict[str, _Property]:
     """Parse properties from a schema element."""
-    state = state or ParseState()
+    state = state or _ParseState()
     required = set(schema.get("required", []))
     properties = schema.get("properties", {})
     return {
         **{
-            parse_attribute_name(key): _Property(
+            _parse_attribute_name(key): _Property(
                 parse_element(value, state),
                 required=key in required,
                 source=key,
@@ -321,14 +348,14 @@ def parse_properties(
             if isinstance(value, (dict, bool))
         },
         **{
-            parse_attribute_name(key): prop
+            _parse_attribute_name(key): prop
             for key, prop in properties.items()
             if isinstance(prop, _Property)
         },
     }
 
 
-def parse_attribute_name(name: str) -> str:
+def _parse_attribute_name(name: str) -> str:
     """Convert attibute name to valid python attribute.
 
     Attempts to replace special characters with their unicode names.
@@ -358,11 +385,11 @@ def parse_attribute_name(name: str) -> str:
     return name
 
 
-def parse_pattern_properties(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_pattern_properties(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Dict[str, Element]:
     """Parse schema patternProperties keyword."""
-    state = state or ParseState()
+    state = state or _ParseState()
     return {
         **{
             key: parse_element(value, state)
@@ -377,75 +404,75 @@ def parse_pattern_properties(
     }
 
 
-def parse_property_names(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_property_names(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Element:
     """Parse schema propertyNames keyword."""
-    state = state or ParseState()
+    state = state or _ParseState()
     return parse_element(schema["propertyNames"], state)
 
 
-def parse_additional(
-    key: str, schema: Dict[str, Any], state: ParseState = None
+def _parse_additional(
+    key: str, schema: Dict[str, Any], state: _ParseState = None
 ) -> Union[Element, bool]:
     """Parse additional items or properties.
 
     Booleans are retained for these values, as they are more semantically
     meaningful than in general schemas.
     """
-    state = state or ParseState()
+    state = state or _ParseState()
     additional = schema.get(key, True)
     if isinstance(additional, bool):
         return additional
     return parse_element(additional, state)
 
 
-def parse_additional_properties(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_additional_properties(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Union[Element, bool]:
     """Parse additionalProperties from a schema element.
 
     If key is not present, defaults to `True`.
     """
-    return parse_additional("additionalProperties", schema, state)
+    return _parse_additional("additionalProperties", schema, state)
 
 
-def parse_additional_items(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_additional_items(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Union[Element, bool]:
     """Parse additionalProperties from a schema element.
 
     If key is not present, defaults to `True`.
     """
-    return parse_additional("additionalItems", schema, state)
+    return _parse_additional("additionalItems", schema, state)
 
 
-def parse_array(schema: Dict[str, Any], state: ParseState = None) -> Array:
+def _parse_array(schema: Dict[str, Any], state: _ParseState = None) -> Array:
     """Parse an array schema element."""
-    state = state or ParseState()
+    state = state or _ParseState()
     items = schema.get("items", Element())
-    return Array(**{**keyword_filter(Array)(schema), "items": items})
+    return Array(**{**_keyword_filter(Array)(schema), "items": items})
 
 
-def parse_items(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_items(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Union[Element, List[Element]]:
     """Parse array items keyword to DSL Element.
 
     If not present, defaults to `Element()`.
     """
-    state = state or ParseState()
+    state = state or _ParseState()
     items = schema.get("items", {})
     if isinstance(items, list):
         return [parse_element(item, state) for item in items]
     return parse_element(items, state)
 
 
-def parse_dependencies(
-    schema: Dict[str, Any], state: ParseState = None
+def _parse_dependencies(
+    schema: Dict[str, Any], state: _ParseState = None
 ) -> Dict[str, Union[List[str], Element]]:
     """Parse dependencies keyword from schema."""
-    state = state or ParseState()
+    state = state or _ParseState()
     return {
         **{
             key: value
@@ -476,7 +503,7 @@ def _compose_elements(
     return element_type(*elements)
 
 
-def keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+def _keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
     """Create a filter to pull out only relevant keywords for a given type."""
     params = inspect.signature(type_.__init__).parameters.values()
     args = {param.name for param in params}

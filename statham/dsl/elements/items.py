@@ -3,6 +3,11 @@ from statham.dsl.elements.base import Element, Nothing
 
 
 class Items:
+    """Interface for retrieving relevant schemas given an array index.
+
+    Used internally by :class:`~statham.dsl.elements.Element`.
+    """
+
     def __init__(self, items, additional=True):
         self.items = Element() if isinstance(items, NotPassed) else items
         if isinstance(additional, bool):

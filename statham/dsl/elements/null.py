@@ -6,7 +6,7 @@ from statham.dsl.validation import InstanceOf
 
 
 class Null(Element[None]):
-    """JSONSchema null element."""
+    """JSON Schema ``"null"`` element."""
 
     def __init__(
         self,

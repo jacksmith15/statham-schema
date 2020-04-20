@@ -1,3 +1,22 @@
+"""This module contains implementation of JSON Schema validation keywords.
+
+Each keyword is implemented as a subclass of
+:class:`~statham.dsl.validation.base.Validator`, and is instantiated with
+the relevant keywords. :class:`~statham.dsl.validation.base.Validator`
+instances may then be called to validate values.
+
+:class:`~statham.dsl.elements.Element` automatically detects and instantiates
+its relevant validators, but validators may be used directly:
+
+.. code:: python
+
+    from statham.dsl.validation import Minimum
+
+    validator = Minimum(minimum=3)
+    validator(5, None)  # OK
+    validator(2, None)  # ValidationError
+
+"""
 from typing import Iterator, Type
 
 from statham.dsl.validation.array import (
@@ -14,6 +33,7 @@ from statham.dsl.validation.base import (
     NoMatch,
     Validator,
 )
+from statham.dsl.validation.format import format_checker
 from statham.dsl.validation.numeric import (
     Minimum,
     Maximum,

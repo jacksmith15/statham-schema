@@ -43,6 +43,17 @@ def is_{format_string.replace('-', '_')}(value) -> bool:
 
 
 format_checker: _FormatString = _FormatString("format_checker")
+"""Extensible implementation of the ``"format"`` keyword.
+
+Validators for new formats may be registered as follows:
+
+.. code:: python
+
+    @format_checker.register("my_format")
+    def _validate_my_format(value: str) -> bool:
+        # Return True if `value` matches `my_format`.
+        ...
+"""
 
 
 @format_checker.register("uuid")
