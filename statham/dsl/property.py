@@ -94,7 +94,7 @@ class _Property(Generic[PropType]):
 def Property(element: "Element", *, required: bool = False, source: str = None):
     """Descriptor for adding a property when declaring an object schema model.
 
-    Return value is typed to inform instance-level interface (see ype stubs).
+    Return value is typed to inform instance-level interface (see type stubs).
 
     :param element: The JSON Schema Element object accepted by this property.
     :param required: Whether this property is required. If false, then this
