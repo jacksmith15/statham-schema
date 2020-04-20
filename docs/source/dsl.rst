@@ -196,19 +196,20 @@ String(maxLength=20)
 
 If your schema contains multiple definitions, and you'd like to parse all of them, then use :func:`~statham.dsl.parser.parse`. This will return a list of elements, starting with the top-level schema, followed by schemas found in definitions. Be aware that leaving the top-level empty will be parsed (correctly) as a blank schema, or ``Element()``.
 
-**Note**: These parsing tools make the following assumptions:
+.. note::
+    These parsing tools make the following assumptions:
 
-1. The schema has already been dereferenced
-2. Any ``"object"`` schemas have a ``"title"`` annotation
+    1. The schema has already been dereferenced
+    2. Any ``"object"`` schemas have a ``"title"`` annotation
 
-``statham`` uses another library to do this automatically when performing code generation, you can do it yourself like so:
+    ``statham`` uses another library to do this automatically when performing code generation, you can do it yourself like so:
 
->>> from json_ref_dict import materialize, RefDict
->>> from statham.titles import title_labeller
->>>
->>> schema = materialize(
-...     RefDict.from_uri(<uri>), context_labeller=title_labeller()
->>> )
->>> # You can now parse this schema!
+    >>> from json_ref_dict import materialize, RefDict
+    >>> from statham.titles import title_labeller
+    >>>
+    >>> schema = materialize(
+    ...     RefDict.from_uri(<uri>), context_labeller=title_labeller()
+    >>> )
+    >>> # You can now parse this schema!
 
-For more information about what this is doing, look at `json-ref-dict <https://pypi.org/project/json-ref-dict/0.6.0/>`_.
+    For more information about what this is doing, look at `json-ref-dict <https://pypi.org/project/json-ref-dict/0.6.0/>`_.

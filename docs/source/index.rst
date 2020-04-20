@@ -3,26 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Statham Schema's documentation!
+Welcome to Statham's documentation!
 ==========================================
-
-.. toctree::
-  :maxdepth: 2
-  :caption: Contents:
-
-  quickstart
-  advanced
-  dsl
-  api
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 
 ``statham`` is a tool for generating Python models from `JSON Schema`_ documents.
@@ -68,18 +50,18 @@ Installation
 
 This project may be installed using `pip`_:
 
-::
+.. code-block:: bash
 
-   pip install statham-schema
+   $ pip install statham-schema
 
 Generating python classes
 =========================
 
 Class definitions may be generated with the following command:
 
-::
+.. code-block:: bash
 
-   statham --input /path/to/schema.json
+   $ statham --input /path/to/schema.json
 
 This will write generated python classes to stdout. Optionally specify
 an ``--output`` path to write to file.
@@ -107,7 +89,26 @@ Command-line arguments
      -h, --help       Display this help message and exit.
 
 
+.. toctree::
+  :maxdepth: 2
+
+  quickstart
+  advanced
+  dsl
+  api
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
 .. _JSON Schema: https://json-schema.org/
 .. _mypy: http://mypy-lang.org/
 .. _pip: https://pip.pypa.io/en/stable/
 .. _here: https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.2.3
+

@@ -20,13 +20,13 @@ from statham import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = "Statham Schema"
+project = "Statham"
 copyright = "2020, Jack Smith"
 author = "Jack Smith"
 
 # The full version, including alpha/beta/rc tags
-release = __version__
-
+version = __version__
+release = version
 
 # -- General configuration ---------------------------------------------------
 
@@ -53,11 +53,16 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
+pygments_style = "solarized-light"
+pygments_style = "monokai"
+# pygments_style = 'inkpot'
+
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = "alabaster"
-html_theme = "sphinx_rtd_theme"
+html_theme = "alabaster"
+# html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -65,4 +70,17 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 
-html_theme_options = {"collapse_navigation": False, "display_version": True}
+html_theme_options = {
+    # "collapse_navigation": False,
+    "description": "Python DSL for JSON Schema.",
+    # "display_version": True,
+    "github_repo": "statham-schema",
+    "github_user": "jacksmith15",
+    "github_button": False,
+    "page_width": "80vw",
+    "fixed_sidebar": True,
+    "gray_2": "dimgray",
+    # "code_font_size": "14px",
+    "code_font_size": "0.8em",
+    "note_bg": "ghostwhite",
+}

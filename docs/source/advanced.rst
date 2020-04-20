@@ -13,7 +13,8 @@ In the :doc:`quickstart` we looked at how to integrate an external data source u
 
 Let's suppose there is a new version of the Polls API, containing a breaking change. We access their new schema and take a look:
 
-.. code:: json
+.. code-block:: json
+    :emphasize-lines: 13
 
     {
         "type": "object",
@@ -55,11 +56,14 @@ Note that there is a breaking change, ``"choice_text"`` has been renamed to ``"t
 
 Let's re-run ``statham`` to generate the new models:
 
->>> statham --input schemas/v2/poll.json --output app/poll.py
+.. code-block:: bash
+
+  $ statham --input schemas/v2/poll.json --output app/poll.py
 
 We've now overwritten our models, and they should look something like this:
 
-.. code:: python
+.. code-block:: python
+    :emphasize-lines: 8
 
     from typing import List
 
@@ -84,7 +88,9 @@ Found 1 error in 1 file (checked 3 source files)
 
 We now have an immediate progress bar on our work to integrate with the new API.
 
-**Note**: If you are planning on extending the generated models, as shown in :doc:`quickstart`, then it's a good idea to extend the generated models in sub-classes. This will ease the task of model generation.
+.. note::
+
+  If you are planning on extending the generated models, as shown in :doc:`quickstart`, then it's a good idea to extend the generated models in sub-classes. This will ease the task of model generation.
 
 
 Converting DSL Elements to JSON Schema

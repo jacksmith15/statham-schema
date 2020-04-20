@@ -7,21 +7,26 @@ This tutorial guides you through how you can use ``statham`` to improve your use
 
 Suppose we are using an external Polls API which adheres to the following JSON Schema:
 
-.. code:: json
+.. code-block:: json
 
     {
         "type": "object",
         "required": ["question", "choices"],
         "properties": {
             "question": {"type": "string"},
-            "choices": {"type": "array", "items": {"$ref": "#/definitions/choice"}}
+            "choices": {
+                "type": "array",
+                "items": {"$ref": "#/definitions/choice"}
+            }
         },
         "definitions": {
             "choice": {
                 "type": "object",
                 "required": ["choice_text"],
                 "properties": {
-                    "choice_text": {"type": "string", "maxLength": 200},
+                    "choice_text": {
+                        "type": "string", "maxLength": 200
+                    },
                     "votes": {"type": "integer", "default": 0}
                 }
             }
@@ -66,7 +71,9 @@ Generating models
 
 On the command-line, run
 
->>> statham --input schemas/poll.json --output app/poll.py
+.. code-block:: bash
+
+    $ statham --input schemas/poll.json --output app/poll.py
 
 Then open up the ``app/poll.py``. You should see something like this:
 
@@ -121,7 +128,7 @@ With the models added, our app now looks like this:
         display_poll(sys.argv[1])
 
 
-This looks pretty similar, but we get the following improvements:
+This looks similar, but we get the following improvements:
 
 1. We will raise early with a specific validation error if we get bad data from the external source.
 2. We no longer need to handle the default value for ``votes``.
