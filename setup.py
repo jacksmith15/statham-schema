@@ -42,6 +42,7 @@ setup(
         "Programming Language :: Python :: 3.6",
     ],
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    package_data={"statham": ["py.typed"]},
     install_requires=REQUIREMENTS_FILE,
     dependency_links=[],
     entry_points={"console_scripts": ["statham=statham.__main__:entry_point"]},
