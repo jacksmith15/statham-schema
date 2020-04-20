@@ -1,3 +1,4 @@
+-r requirements.txt
 pylint==2.3.0
 # This is pinned due to a bug in 2.3.0
 astroid==2.2.5
@@ -9,7 +10,3 @@ ipdb
 pre-commit
 safety
 black
-Sphinx==3.0.1
-sphinx-autodoc-typehints==1.10.3
-sphinx-rtd-theme==0.4.3
-sphinx-paramlinks==0.4.1
