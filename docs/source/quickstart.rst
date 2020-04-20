@@ -1,9 +1,9 @@
-.. quickstart::
+.. _quickstart:
 
 Quickstart Tutorial
 ===================
 
-This tutorial guides you through how you can improve use of external data sources, via an example app which gets and displays winners of a poll from an external API.
+This tutorial guides you through how you can use ``statham`` to improve your use of external data sources, via an example app which gets and displays winners of a poll from an external API.
 
 Suppose we are using an external Polls API which adheres to the following JSON Schema:
 
@@ -43,7 +43,7 @@ Our example app simply retrieves a Poll resource by ID and prints out the questi
         response = requests.get(f"http://api/poll/{id}")
         return response.json()
 
-    def get_top_choice(poll: Dict[str, Any]) -> Dict:
+    def get_top_choice(poll: Dict) -> Dict:
         return sorted(
             poll["choices"],
             key=lambda choice: -choice.get("votes", 0),
@@ -84,7 +84,7 @@ Then open up the ``app/poll.py``. You should see something like this:
 
 
     class Poll(Object):
-        question: str = Property(String(maxLength=200), required=True)
+        question: str = Property(String(), required=True)
         choices: List[Choice] = Property(Array(Choice), required=True)
 
 
@@ -131,6 +131,8 @@ This looks pretty similar, but we get the following improvements:
 Extending the models
 ~~~~~~~~~~~~~~~~~~~~
 
+.. _extending:
+
 Now that we have models for the external data, we realise that some of our logic belongs there! The models can be easily extended with properties and methods.
 
 .. code:: python
@@ -154,7 +156,7 @@ Now that we have models for the external data, we realise that some of our logic
 
         @classmethod
         def get(cls, id: str) -> "Poll":
-            return cls(requests.get(f"http://api/poll/{id}"))
+            return cls(requests.get(f"http://api/poll/{id}").json())
 
         @property
         def top_choice(self) -> Choice:
@@ -169,6 +171,8 @@ Now that we have models for the external data, we realise that some of our logic
 Now our app logic becomes as simple as this:
 
 .. code:: python
+
+    import sys
 
     from app.poll import Poll
 

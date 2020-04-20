@@ -62,48 +62,7 @@ Typed schemas are declared using the following subclasses of :class:`statham.dsl
 Composition Elements
 ~~~~~~~~~~~~~~~~~~~~
 
-Composition keywords (e.g. ``"not"``, ``"anyOf"``, ``"oneOf"``, ``"allOf"``) break from the standard JSON Schema structure. The DSL does not allow outer keywords when a composition keyword is present, with the exception of the ``"default"`` keyword. This reduces the number of possible ways to write the same schema, without making any schema impossible.
-
-For example, consider the following schema with allows any object, provided its property names are not UUIDs:
-
-.. code:: json
-
-    {
-        "type": "object",
-        "not": {"propertyNames": {"format": "uuid"}}
-    }
-
-In the DSL the equivalent form may be achieved using :class:`~statham.dsl.elements.AllOf`:
-
-.. code:: python
-
-    from statham.dsl.elements import (
-        AllOf,
-        Element,
-        Not,
-        Object,
-        String,
-    )
-
-    element = AllOf(Object(), Not(Element(propertyNames=String(format="uuid"))))
-
-
-Similarly, schemas with multiple types may be achieved via :class:`~statham.dsl.elements.AnyOf`:
-
-.. code:: json
-
-    {
-        "type": ["string", "integer"]
-    }
-
-may be expressed as
-
-.. code:: python
-
-    from statham.dsl.elements import AnyOf, Integer, String
-
-    element = AnyOf(String(), Integer())
-
+Four composition elements are available. Each accepts the composed element(s) as positional arguments, and :paramref:`statham.dsl.elements.Element.default` as an optional keyword argument.
 
 
 .. autoclass:: statham.dsl.elements.Not
