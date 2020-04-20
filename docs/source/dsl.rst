@@ -73,11 +73,11 @@ When items schemas are declared in this way, subsequent elements are validated b
 >>> array([1, "a string", 23.0])  # Accepts any additional items
 [1, "a string", 23.0]
 
->>> array = Array([Integer(), String()], additionalItems=False) # Doesn't accept additional items
+>>> array = Array([Integer(), String()], additionalItems=False)
 >>> array([1, "a string", 23.0])
 ValidationError: Failed validating `[1, 'string', 23.0]`. Must not contain additional items. Accepts: [Integer(), String()]
 
->>> array = Array([Integer(), String()], additionalItems=Number())  # Additional items must be numbers
+>>> array = Array([Integer(), String()], additionalItems=Number())
 >>> array([1, "a string", 23.0])
 [1, "a string", 23.0]
 >>> array([1, "a string", "an unexpected string"])
@@ -210,6 +210,5 @@ If your schema contains multiple definitions, and you'd like to parse all of the
     >>> schema = materialize(
     ...     RefDict.from_uri(<uri>), context_labeller=title_labeller()
     >>> )
-    >>> # You can now parse this schema!
 
     For more information about what this is doing, look at `json-ref-dict <https://pypi.org/project/json-ref-dict/0.6.0/>`_.
