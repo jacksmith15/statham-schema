@@ -56,7 +56,7 @@ Array
 >>> array(["a", "string"])
 ["a", "string"]
 >>> array([1, 2])
-ValidationError
+ValidationError: Failed validating `1`. Must be of type (str).
 
 
 :class:`~statham.dsl.elements.Array` will also accept a list of elements as its ``"items"``. In this case, each list item will be validated against the :class:`~statham.dsl.elements.Element` at the corresponding index:
@@ -66,7 +66,7 @@ ValidationError
 >>> array([1, "a string"])
 [1, "a string"]
 >>> array(["two", "strings"])
-ValidationError
+ValidationError: Failed validating `'two'`. Must be of type (int).
 
 When items schemas are declared in this way, subsequent elements are validated by the :paramref:`~statham.dsl.elements.Element.additionalItems` option, which by default allows anything.
 
@@ -75,13 +75,13 @@ When items schemas are declared in this way, subsequent elements are validated b
 
 >>> array = Array([Integer(), String()], additionalItems=False) # Doesn't accept additional items
 >>> array([1, "a string", 23.0])
-ValidationError
+ValidationError: Failed validating `[1, 'string', 23.0]`. Must not contain additional items. Accepts: [Integer(), String()]
 
 >>> array = Array([Integer(), String()], additionalItems=Number())  # Additional items must be numbers
 >>> array([1, "a string", 23.0])
 [1, "a string", 23.0]
 >>> array([1, "a string", "an unexpected string"])
-ValidationError
+ValidationError: Failed validating `'an unexpected string'`. Must be of type (float,int).
 
 
 
@@ -116,7 +116,7 @@ Additional keywords may be set on the schema via class arguments:
 ...     value: str = Property(String())
 >>>
 >>> StringWrapper({"other": "a string"})
-ValidationError
+ValidationError: Failed validating `{'other': 'a string'}`. Must not contain unspecified properties. Accepts: {'value'}
 
 Properties which are accepted via ``additionalProperties`` or ``patternProperties`` are accessible via :func:`__getitem__`:
 

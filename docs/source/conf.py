@@ -71,16 +71,13 @@ html_static_path = ["_static"]
 
 
 html_theme_options = {
-    # "collapse_navigation": False,
     "description": "Python DSL for JSON Schema.",
-    # "display_version": True,
     "github_repo": "statham-schema",
     "github_user": "jacksmith15",
     "github_button": False,
     "page_width": "80vw",
     "fixed_sidebar": True,
     "gray_2": "dimgray",
-    # "code_font_size": "14px",
     "code_font_size": "0.8em",
     "note_bg": "ghostwhite",
 }

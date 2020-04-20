@@ -20,6 +20,7 @@ Types of changes are:
     definitions and references.
   - `serialize_element` supports simple inline serialization
     of elements.
+* Documentation including a tutorial and API reference.
 
 ### Changed
 * Moved `serialize_python` to from `statham.serializer` to
@@ -36,9 +37,11 @@ Types of changes are:
   references with URL-encoded characters.
 * Property names which conflict with reserved names now have an
   underscore appended by the parser (previously prepended).
+* Better validation error messages on unbound elements.
 
 ### Fixed
 * Fixed missing imports in generated python modules.
+* Type hints are now correctly detected when installed.
 
 ## [0.8.0] - 2020-04-09
 ### Changed
