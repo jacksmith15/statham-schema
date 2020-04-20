@@ -97,8 +97,8 @@ clean() {
 
 lint() {
     header "Linting" "$blue"
-    PYLINT_CMD="pylint --output-format=colorized" 
-    $PYLINT_CMD --rcfile statham/.pylintrc statham || EXIT_CODE=1 
+    PYLINT_CMD="pylint --output-format=colorized"
+    $PYLINT_CMD --rcfile statham/.pylintrc statham || EXIT_CODE=1
     $PYLINT_CMD --rcfile tests/.pylintrc tests || EXIT_CODE=1
 }
 

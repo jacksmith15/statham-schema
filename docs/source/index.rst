@@ -7,7 +7,7 @@ Welcome to Statham's documentation!
 ==========================================
 
 
-``statham`` is a tool for generating Python models from `JSON Schema`_ documents.
+FOO ``statham`` is a tool for generating Python models from `JSON Schema`_ documents.
 
 This project aims to simplify the experience of integrating with external sources, by providing:
 

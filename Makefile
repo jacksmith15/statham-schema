@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build clean install test lint unit type integration docs publish
 
 RUN_CLEAN_TEST:=bash run_test.sh -c
 CHECK_VIRTUALENV:=python -c "import sys;assert sys.prefix != sys.base_prefix"
@@ -9,6 +9,7 @@ help: ## Prints this help/overview message
 
 clean: ## Cleans all testing metadata and .pyc files.
 	$(RUN_CLEAN_TEST)
+	make -C docs clean
 
 install: ## Installs all dependencies
 	$(CHECK_VIRTUALENV) || (echo "Not inside a virtualenv, aborting."; exit 1)
@@ -26,15 +27,15 @@ unit: install ## Runs all unit tests with coverage test.
 type: install ## Runs type checker. Does not update requirements or rules.
 	$(RUN_CLEAN_TEST) -t
 
-integration:
+integration: ## Runs some long running tests against external JSON Schemas.
 	INTEGRATION=true pytest -v -s tests/test_schema_store.py
 
 build: test ## Creates a new build for publishing. Deletes previous builds.
 	pip install -U setuptools wheel
 	python setup.py sdist bdist_wheel
 
-docs:
-	cd docs && make html
+docs: clean ## Builds the documentation.
+	make -C docs html
 
 publish: test ## Tags release, builds and publishes to pypi
 	python release.py
