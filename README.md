@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)
+[![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)  [![Documentation Status](https://readthedocs.org/projects/statham-schema/badge/?version=latest)](https://statham-schema.readthedocs.io/en/latest/?badge=latest)
+
 # Statham Schema
-A tool for generating Python objects from [JSON Schema](https://json-schema.org/) documents.
+A tool for generating Python objects from [JSON Schema](https://json-schema.org/) documents. See the [Documentation](https://statham-schema.readthedocs.io/en/stable/).
 
 This project aims to simplify the experience of integrating with external sources, by providing:
 1. **External validation**: Ensure that incoming data matches what you expect.
