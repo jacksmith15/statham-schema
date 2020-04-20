@@ -29,6 +29,9 @@ class Object(metaclass=ObjectMeta):
 
     """
 
+    # TODO: Add an inline constructor
+    # Object.inline("MyObject", properties={}, ...)
+
     properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]
     additionalProperties: ClassVar[Union[Element, bool]]
