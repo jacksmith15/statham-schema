@@ -7,6 +7,9 @@ from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 
 
+# TODO: Test and support Object inheritance.
+
+
 class Object(metaclass=ObjectMeta):
     """Base model for JSON Schema ``"object"`` elements.
 

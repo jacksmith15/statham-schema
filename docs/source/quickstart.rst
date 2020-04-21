@@ -188,6 +188,10 @@ Now our app logic becomes as simple as this:
         print(str(Poll.get(sys.argv[1])))
 
 
+.. note::
+
+    When working with external schemas, it may be beneficial to preserve the generated models and extend them in sub-classes. This will help if you ever need to regenerate your models due to upsteam changes.
+
 This concludes the quickstart tutorial, please see the rest of the documentation for more detailed information.
 
 .. _mypy: http://mypy-lang.org/
