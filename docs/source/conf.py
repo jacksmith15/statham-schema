@@ -79,7 +79,7 @@ html_theme_options = {
     "github_button": False,
     "page_width": "80vw",
     "fixed_sidebar": True,
-    "gray_2": "dimgray",
+    "gray_2": "#606060",
     "code_font_size": "0.8em",
     "note_bg": "ghostwhite",
 }
