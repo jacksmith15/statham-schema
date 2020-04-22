@@ -84,8 +84,8 @@ Contents
   quickstart
   advanced
   dsl
-  api
   compatibility
+  api
 
 
 Indices and tables

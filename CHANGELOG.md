@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Changed
+* Expanded documentation to include source links, among other things.
 
 ## [0.9.0] - 2020-04-20
 ### Added
