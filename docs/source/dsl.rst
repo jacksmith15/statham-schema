@@ -72,7 +72,7 @@ Containers
 Elements accepting ``list`` and ``dict`` values include schemas for validating their contained items. When called, these elements will recursively validate both the container and its contained items.
 
 Array
-`````
+-----
 
 :class:`~statham.dsl.elements.Array` accepts an :class:`~statham.dsl.elements.Element` as its only positional argument. This corresponds to the ``"items"`` JSON Schema keyword.
 
@@ -111,7 +111,7 @@ ValidationError: Failed validating `'an unexpected string'`. Must be of type (fl
 
 
 Object
-``````
+------
 
 :class:`~statham.dsl.elements.Object` is a special case, and key to leveraging type-checking with the DSL. Object-typed schemas are declared as sub-classes of :class:`~statham.dsl.elements.Object`.
 

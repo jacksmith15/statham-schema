@@ -36,6 +36,7 @@ release = version
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_paramlinks",
 ]
@@ -77,4 +78,5 @@ html_theme_options = {
     "gray_2": "#606060",
     "code_font_size": "0.8em",
     "note_bg": "ghostwhite",
+    "viewcode_target_bg": "#606060",
 }
