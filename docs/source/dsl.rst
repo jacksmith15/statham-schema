@@ -40,6 +40,31 @@ The following primitive elements are available:
 * :class:`~statham.dsl.elements.String` - accepts ``str``
 
 
+String Format Validation
+------------------------
+
+:class:`~statham.dsl.elements.Element` and :class:`~statham.dsl.elements.String` both support the ``"format"`` validation keyword. ``statham`` validates two formats out-of-the-box: ``"date-time"`` and ``"uuid"``.
+
+Custom string formats may may be added, by registering them. The following example shows how to register format validation for an RFC 3986 URI, as well as a completely custom format:
+
+.. code-block:: python
+
+    from rfc3986_validator import validate_rfc3986
+    from statham.dsl.validation import format_checker
+
+    format_checker.register("uri")(validate_rfc3986)
+
+    @format_checker.register("no_bad_words")
+    def _validate_custom_format(value: str) -> bool:
+        """Make sure there are no bad words in the string."""
+        for bad_word in ("bad", "words"):
+            if bad_word in value:
+                return False
+        return True
+
+
+``statham`` will not fail validation if it finds an unknown format, but it will raise a warning.
+
 
 Containers
 ~~~~~~~~~~
@@ -47,7 +72,7 @@ Containers
 Elements accepting ``list`` and ``dict`` values include schemas for validating their contained items. When called, these elements will recursively validate both the container and its contained items.
 
 Array
-`````
+-----
 
 :class:`~statham.dsl.elements.Array` accepts an :class:`~statham.dsl.elements.Element` as its only positional argument. This corresponds to the ``"items"`` JSON Schema keyword.
 
@@ -86,7 +111,7 @@ ValidationError: Failed validating `'an unexpected string'`. Must be of type (fl
 
 
 Object
-``````
+------
 
 :class:`~statham.dsl.elements.Object` is a special case, and key to leveraging type-checking with the DSL. Object-typed schemas are declared as sub-classes of :class:`~statham.dsl.elements.Object`.
 
@@ -126,6 +151,19 @@ Properties which are accepted via ``additionalProperties`` or ``patternPropertie
 >>> value = StringWrapper({"value": "a string", "other": "another string"})
 >>> value["other"]
 "another string"
+
+.. note::
+
+    It is possible to pass ``"object"`` values to :class:`~statham.dsl.elements.Element`. Assuming all validation passes, the return value will be a instance of a ``dict`` subclass allowing attribute access to its keys. This allows a consistent interface with :class:`~statham.dsl.elements.Object` instances.
+
+    >>> element = Element()
+    >>> instance = element({"value": "foo")
+    >>> instance.value
+    'bar'
+    >>> instance.value == instance["value"]
+    True
+    >>> instance
+    {'value': 'foo'}
 
 
 Composition

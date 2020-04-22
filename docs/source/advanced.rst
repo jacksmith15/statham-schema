@@ -82,9 +82,12 @@ We've now overwritten our models, and they should look something like this:
 
 Now all we need to do is run mypy_ to find where that breaks our code:
 
->>> mypy app
-app/__main__.py:8: error: "Choice" has no attribute "choice_text"
-Found 1 error in 1 file (checked 3 source files)
+
+.. code-block:: bash
+
+  $ mypy app
+  app/__main__.py:8: error: "Choice" has no attribute "choice_text"
+  Found 1 error in 1 file (checked 3 source files)
 
 We now have an immediate progress bar on our work to integrate with the new API.
 

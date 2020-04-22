@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, os.path.abspath("../.."))
 
 import sphinx_autodoc_typehints
-import sphinx_rtd_theme
 import sphinx_paramlinks
 from statham import __version__
 
@@ -37,9 +36,9 @@ release = version
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_paramlinks",
-    "sphinx_rtd_theme",
 ]
 
 autodoc_default_options = {"member-order": "bysource"}
@@ -55,16 +54,13 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
-pygments_style = "solarized-light"
 pygments_style = "monokai"
-# pygments_style = 'inkpot'
 
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = "alabaster"
-# html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -79,7 +75,8 @@ html_theme_options = {
     "github_button": False,
     "page_width": "80vw",
     "fixed_sidebar": True,
-    "gray_2": "dimgray",
+    "gray_2": "#606060",
     "code_font_size": "0.8em",
     "note_bg": "ghostwhite",
+    "viewcode_target_bg": "#606060",
 }

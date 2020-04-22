@@ -23,6 +23,9 @@ from statham.dsl.validation import (
 RESERVED_PROPERTIES = dir(object) + list(keyword.kwlist) + ["_dict"]
 
 
+# TODO: Manually set properties should be automatically bound.
+
+
 class ObjectClassDict(dict):
     """Overriden class dictionary for the metaclass of Object.
 

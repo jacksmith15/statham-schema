@@ -7,6 +7,11 @@ from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
 
 
+# TODO: Test and support Object inheritance.
+# TODO: Test and support limited recursive models.
+# TODO: Test and support validation of setting model attributes.
+
+
 class Object(metaclass=ObjectMeta):
     """Base model for JSON Schema ``"object"`` elements.
 
