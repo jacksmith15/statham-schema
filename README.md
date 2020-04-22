@@ -2,7 +2,7 @@
 
 # Statham Schema
 
-`statham` is a Python DSL for [JSON Schema].
+`statham` is a Python DSL for [JSON Schema]. Read the [documentation](https://statham-schema.readthedocs.io/en/latest/).
 
 This project includes tools for writing and generating extensible Python classes based on [JSON Schema] documents.
 
