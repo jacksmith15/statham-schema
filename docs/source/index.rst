@@ -68,6 +68,11 @@ Command-line arguments
      -h, --help       Display this help message and exit.
 
 
+License
+~~~~~~~
+
+This project is distributed under the MIT license.
+
 
 Contents
 ========
