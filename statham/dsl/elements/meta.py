@@ -124,8 +124,6 @@ class ObjectMeta(type, Element):
         )
         cls.properties = classdict.properties
         cls.properties.parent = cls
-        # for property_ in cls.properties.values():
-        #     property_.bind_class(cls)
         cls.default = default
         cls.const = const
         cls.enum = enum
