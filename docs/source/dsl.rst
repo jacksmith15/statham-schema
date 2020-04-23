@@ -157,7 +157,7 @@ Properties which are accepted via ``additionalProperties`` or ``patternPropertie
     It is possible to pass ``"object"`` values to :class:`~statham.dsl.elements.Element`. Assuming all validation passes, the return value will be a instance of a ``dict`` subclass allowing attribute access to its keys. This allows a consistent interface with :class:`~statham.dsl.elements.Object` instances.
 
     >>> element = Element()
-    >>> instance = element({"value": "foo")
+    >>> instance = element({"value": "foo"})
     >>> instance.value
     'bar'
     >>> instance.value == instance["value"]

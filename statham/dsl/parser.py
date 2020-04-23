@@ -4,7 +4,7 @@
 Some JSON Schema documents will be converted to an equivalent but structurally
 differing representation. In particular, those that combine composition
 keywords or use multiple types will be recomposed using ``"allOf"`` and
-``"anyOf"`` respectively. See :mod:`statham.dsl.elements.composition` for more
+``"anyOf"`` respectively. See full docs for more
 details.
 """
 from collections import defaultdict
