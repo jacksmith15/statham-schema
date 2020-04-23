@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.10.0] - 2020-04-23
 ### Changed
 * Expanded documentation to include source links, among other things.
 
@@ -216,7 +218,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.9.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.10.0..HEAD
+[0.10.0]: http://github.com/jacksmith15/statham-schema/compare/0.9.0..0.10.0
 [0.9.0]: http://github.com/jacksmith15/statham-schema/compare/0.8.0..0.9.0
 [0.8.0]: http://github.com/jacksmith15/statham-schema/compare/0.7.0..0.8.0
 [0.7.0]: http://github.com/jacksmith15/statham-schema/compare/0.6.0..0.7.0
