@@ -178,8 +178,7 @@ class Element(Generic[T]):
         self.properties = properties
         if isinstance(self.properties, dict):
             for name, prop in (self.properties or {}).items():
-                prop.bind_class(type(self))
-                prop.bind_name(name)
+                prop.bind(name=name, parent=self)
                 if prop.required:
                     self.required = list(
                         set(cast(List[str], self.required or []) + [name])
@@ -260,6 +259,7 @@ class Element(Generic[T]):
         :param property_: Optionally specify the outer property scope
             enclosing this :class:`Element`. Used automatically by object
             validation to produce more useful error messages.
+        :return: The parsed value.
         """
         property_ = property_ or UNBOUND_PROPERTY
 
@@ -281,8 +281,7 @@ class Element(Generic[T]):
 
 
 UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
-UNBOUND_PROPERTY.bind_name("<unbound>")
-UNBOUND_PROPERTY.bind_class(Element())
+UNBOUND_PROPERTY.bind(parent=Element(), name="<unbound>")
 
 
 class Nothing(Element):

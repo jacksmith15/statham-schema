@@ -1,6 +1,6 @@
 import inspect
 import keyword
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, cast, Dict, List, Tuple, Type, Union
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements.base import Element
@@ -26,23 +26,49 @@ RESERVED_PROPERTIES = dir(object) + list(keyword.kwlist) + ["_dict"]
 # TODO: Manually set properties should be automatically bound.
 
 
+class _PropertyDict(Dict[str, _Property]):
+
+    _parent: Element
+
+    def __init__(self, *args, **kwargs):
+        self._parent = None
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, _Property):
+            raise SchemaDefinitionError(
+                f"{key} must be a `Property`, got {value}"
+            )
+        super().__setitem__(key, value)  # pylint: disable=no-member
+        value.bind(name=key, parent=self.parent)
+
+    @property
+    def parent(self) -> Element:
+        return self._parent
+
+    @parent.setter
+    def parent(self, value: Element):
+        self._parent = value
+        for key, prop in self.items():  # pylint: disable=no-member
+            prop.bind(name=key, parent=value)
+
+
 class ObjectClassDict(dict):
     """Overriden class dictionary for the metaclass of Object.
 
     Collects schema properties and default value if present.
     """
 
-    properties: Dict[str, _Property]
+    properties: _PropertyDict
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.properties = {}
+        self.properties = _PropertyDict()
 
     def __setitem__(self, key, value):
         if key in RESERVED_PROPERTIES and isinstance(value, _Property):
             raise SchemaDefinitionError.reserved_attribute(key)
         if isinstance(value, _Property):
-            value.bind_name(key)
             return self.properties.__setitem__(key, value)
         return super().__setitem__(key, value)
 
@@ -93,10 +119,13 @@ class ObjectMeta(type, Element):
         propertyNames: Maybe[Element] = NotPassed(),
         dependencies: Maybe[Dict[str, Union[List[str], Element]]] = NotPassed(),
     ):
-        cls: Type[ObjectMeta] = type.__new__(mcs, name, bases, dict(classdict))
+        cls: ObjectMeta = cast(
+            ObjectMeta, type.__new__(mcs, name, bases, dict(classdict))
+        )
         cls.properties = classdict.properties
-        for property_ in cls.properties.values():
-            property_.bind_class(cls)
+        cls.properties.parent = cls
+        # for property_ in cls.properties.values():
+        #     property_.bind_class(cls)
         cls.default = default
         cls.const = const
         cls.enum = enum
@@ -109,7 +138,7 @@ class ObjectMeta(type, Element):
         return cls
 
     def __hash__(cls):
-        return hash(tuple([cls.__name__] + [prop for prop in cls.properties]))
+        return hash(tuple([cls.__name__] + list(cls.properties)))
 
     @property
     def annotation(cls) -> str:

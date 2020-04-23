@@ -64,7 +64,7 @@ class CompositionElement(Element):
             return annotations[0]
         if "Any" in annotations:
             return "Any"
-        joined = ", ".join([annotation for annotation in annotations])
+        joined = ", ".join(annotations)
         return f"Union[{joined}]"
 
     def construct(self, value: Any, property_: _Property):

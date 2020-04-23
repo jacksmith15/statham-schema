@@ -51,17 +51,17 @@ class _Property(Generic[PropType]):
         property_: _Property[PropType] = _Property(
             element=self.element, required=self.required, source=self.source
         )
-        property_.bind_name(name)
-        property_.bind_class(self.parent)
+        property_.bind(name=name, parent=self.parent)
         return property_
 
-    def bind_name(self, name: str):
+    def bind(self, name: str = None, parent: "Element" = None) -> None:
+        if parent:
+            self.parent = parent
+        if not name:
+            return
         if not self.source:
             self.source = name
         self.name = name
-
-    def bind_class(self, parent: Any):
-        self.parent = parent
 
     def __call__(self, value):
         return self.element(value, self)
@@ -102,6 +102,7 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
         constructor.
     :param source: The source name of this property. Only necessary if it must
         differ from that of the attribute.
+    :return: The property descriptor for this element.
 
     To hand property name conflicts, use the :paramref:`Property.source`
     option. For example, to express a property called `class`, one could

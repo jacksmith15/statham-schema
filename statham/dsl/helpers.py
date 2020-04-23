@@ -41,7 +41,7 @@ def custom_repr_args(self):
         if value == param.default:
             continue
         if param.kind == param.VAR_POSITIONAL:
-            args.extend([sub_val for sub_val in value or []])
+            args.extend(value or [])
         elif param.kind == param.KEYWORD_ONLY:
             kwargs[param.name] = value
         else:

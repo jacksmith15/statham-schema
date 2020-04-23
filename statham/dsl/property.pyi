@@ -28,10 +28,7 @@ class _Property(Generic[PropType]):
     def evolve(self, name: str) -> "_Property":
         ...
 
-    def bind_name(self, name: str) -> None:
-        ...
-
-    def bind_class(self, parent: Any) -> None:
+    def bind(self, name: str = None, parent: Element = None) -> None:
         ...
 
     @property
