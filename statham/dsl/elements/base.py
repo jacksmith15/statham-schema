@@ -181,7 +181,10 @@ class Element(Generic[T]):
                 prop.bind(name=name, parent=self)
                 if prop.required:
                     self.required = list(
-                        set(cast(List[str], self.required or []) + [name])
+                        set(
+                            cast(List[str], self.required or [])
+                            + [prop.source or name]
+                        )
                     )
         self.patternProperties = patternProperties
         self.additionalProperties = additionalProperties

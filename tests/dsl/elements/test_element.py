@@ -244,3 +244,13 @@ def test_nothing_element_is_falsey():
 
 def test_nothing_element_annotation_is_none():
     assert Nothing().annotation == "None"
+
+
+def test_required_renamed_property():
+    element = Element(
+        properties={
+            "class_": _Property(Element(), source="class", required=True)
+        }
+    )
+    with no_raise():
+        _ = element({"class": None})

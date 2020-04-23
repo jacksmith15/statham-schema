@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Fixed bug where renamed required fields are incorrectly validated.
 
 ## [0.10.0] - 2020-04-23
 ### Changed
