@@ -1,6 +1,7 @@
-from typing import Any, Generic, Optional, TypeVar, TYPE_CHECKING
+from typing import Any, Dict, Generic, Optional, TypeVar, TYPE_CHECKING
 
 from statham.dsl.constants import NotPassed
+from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.helpers import custom_repr_args
 
 if TYPE_CHECKING:
@@ -51,17 +52,17 @@ class _Property(Generic[PropType]):
         property_: _Property[PropType] = _Property(
             element=self.element, required=self.required, source=self.source
         )
-        property_.bind_name(name)
-        property_.bind_class(self.parent)
+        property_.bind(name=name, parent=self.parent)
         return property_
 
-    def bind_name(self, name: str):
+    def bind(self, name: str = None, parent: "Element" = None) -> None:
+        if parent:
+            self.parent = parent
+        if not name:
+            return
         if not self.source:
             self.source = name
         self.name = name
-
-    def bind_class(self, parent: Any):
-        self.parent = parent
 
     def __call__(self, value):
         return self.element(value, self)
@@ -102,6 +103,7 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
         constructor.
     :param source: The source name of this property. Only necessary if it must
         differ from that of the attribute.
+    :return: The property descriptor for this element.
 
     To hand property name conflicts, use the :paramref:`Property.source`
     option. For example, to express a property called `class`, one could
@@ -114,3 +116,51 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
             class_: str = Property(String(), source="class")
     """
     return _Property(element, required=required, source=source)
+
+
+class _PropertyDict(Dict[str, _Property[Any]]):
+    """Container for properties.
+
+    Used internally to bind properties to the enclosing element, and
+    attribute name.
+    """
+
+    _parent: "Element"
+
+    def __init__(self, *args, **kwargs):
+        self._parent = None
+        super().__init__(*args, **kwargs)
+        bad_values = {
+            name: prop
+            for name, prop in self.items()  # pylint: disable=no-member
+            if not isinstance(prop, _Property)
+        }
+        if bad_values:
+            raise SchemaDefinitionError(f"Got bad property types: {bad_values}")
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, _Property):
+            raise SchemaDefinitionError(
+                f"{key} must be a `Property`, got {value}"
+            )
+        super().__setitem__(key, value)  # pylint: disable=no-member
+        value.bind(name=key, parent=self.parent)
+
+    @property
+    def parent(self) -> "Element":
+        return self._parent
+
+    @parent.setter
+    def parent(self, value: "Element"):
+        self._parent = value
+        for key, prop in self.items():  # pylint: disable=no-member
+            prop.bind(name=key, parent=value)
+
+    @property
+    def required(self):
+        # pylint: disable=no-member
+        return [
+            prop.source or name
+            for name, prop in self.items()
+            if prop.required and isinstance(prop.element.default, NotPassed)
+        ]

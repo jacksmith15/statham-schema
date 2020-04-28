@@ -5,7 +5,7 @@ from typing import Any, cast, Dict, List, Generic, TypeVar, Union
 from statham.dsl.constants import NotPassed, Maybe
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.helpers import custom_repr
-from statham.dsl.property import _Property
+from statham.dsl.property import _Property, _PropertyDict
 from statham.dsl.validation import (
     get_validators,
     InstanceOf,
@@ -120,6 +120,8 @@ class Element(Generic[T]):
     """
     # pylint: enable=line-too-long
 
+    _properties: Maybe[_PropertyDict]
+
     # This is how many options there are!
     # pylint: disable=too-many-locals
     def __init__(
@@ -175,21 +177,26 @@ class Element(Generic[T]):
         self.minLength = minLength
         self.maxLength = maxLength
         self.required = required
-        self.properties = properties
-        if isinstance(self.properties, dict):
-            for name, prop in (self.properties or {}).items():
-                prop.bind_class(type(self))
-                prop.bind_name(name)
-                if prop.required:
-                    self.required = list(
-                        set(cast(List[str], self.required or []) + [name])
-                    )
+        # https://github.com/python/mypy/issues/3004
+        self.properties = properties  # type: ignore
         self.patternProperties = patternProperties
         self.additionalProperties = additionalProperties
         self.minProperties = minProperties
         self.maxProperties = maxProperties
         self.propertyNames = propertyNames
         self.dependencies = dependencies
+
+    @property
+    def properties(self) -> Maybe[_PropertyDict]:
+        return self._properties
+
+    @properties.setter
+    def properties(self, value: Maybe[Dict[str, _Property]]):
+        if isinstance(value, NotPassed):
+            self._properties = value
+            return
+        self._properties = _PropertyDict(cast(Dict[str, _Property], value))
+        self._properties.parent = self
 
     def __repr__(self):
         """Dynamically construct the repr to match value instantiation."""
@@ -205,7 +212,9 @@ class Element(Generic[T]):
         if not isinstance(other, self.__class__):
             return False
         pub_vars = lambda x: {
-            k: v for k, v in vars(x).items() if not k.startswith("_")
+            k: v
+            for k, v in vars(x).items()
+            if not k.startswith("_") or k == "_properties"
         }
         return pub_vars(self) == pub_vars(other)
 
@@ -260,6 +269,7 @@ class Element(Generic[T]):
         :param property_: Optionally specify the outer property scope
             enclosing this :class:`Element`. Used automatically by object
             validation to produce more useful error messages.
+        :return: The parsed value.
         """
         property_ = property_ or UNBOUND_PROPERTY
 
@@ -281,8 +291,7 @@ class Element(Generic[T]):
 
 
 UNBOUND_PROPERTY: _Property = _Property(Element(), required=False)
-UNBOUND_PROPERTY.bind_name("<unbound>")
-UNBOUND_PROPERTY.bind_class(Element())
+UNBOUND_PROPERTY.bind(parent=Element(), name="<unbound>")
 
 
 class Nothing(Element):

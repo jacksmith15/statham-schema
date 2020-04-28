@@ -31,6 +31,8 @@ def serialize_json(
         to serialize.
     :param definitions: A dictionary of elements which should be members
       of the schema definitions keyword, and referenced everywhere else.
+    :return: A JSON-serializable dictionary containing the JSON Schema
+        for the provided element(s).
     """
     primary = elements[0]
     object_classes = get_object_classes(*elements)
@@ -75,8 +77,8 @@ def _serialize_element(
         del schema["properties"]
     if "properties" in schema:
         schema["required"] = [
-            prop.source
-            for prop in schema["properties"].values()
+            prop.source or name
+            for name, prop in schema["properties"].items()
             if prop.required
         ]
     if not schema.get("required", True):

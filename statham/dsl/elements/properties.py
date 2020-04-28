@@ -18,8 +18,7 @@ class Properties:
         self.props = props or {}
         self.pattern = PatternDict(pattern or {})
         for name, prop in self.props.items():
-            prop.bind_name(name)
-            prop.bind_class(self.element)
+            prop.bind(name=name, parent=self.element)
         if isinstance(additional, bool):
             self.additional = {True: Element(), False: Nothing()}[additional]
         else:
@@ -27,8 +26,7 @@ class Properties:
 
     def property(self, element, name):
         prop = Property(element)
-        prop.bind_class(self.element)
-        prop.bind_name(name)
+        prop.bind(name=name, parent=self.element)
         return prop
 
     def __repr__(self):
@@ -59,8 +57,7 @@ class Properties:
             source=prop.source,
             required=prop.required,
         )
-        composite.bind_name(prop.name)
-        composite.bind_class(prop.parent)
+        composite.bind(name=prop.name, parent=prop.parent)
         return composite
 
     def __contains__(self, key):

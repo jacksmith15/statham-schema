@@ -1,7 +1,6 @@
 -r requirements.txt
-pylint==2.3.0
-# This is pinned due to a bug in 2.3.0
-astroid==2.2.5
+pylint==2.4.4
+astroid==2.3.3
 mypy==0.730
 coverage
 pytest==4.6.6

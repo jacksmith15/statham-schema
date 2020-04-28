@@ -392,3 +392,48 @@ class TestEnum:
         instance = self.MyObject({"foo": "bar"})
         with no_raise():
             _ = self.MyObject(instance)
+
+
+class TestRequired:
+    class MyObject(Object, required=["value"]):
+        pass
+
+    def test_that_missing_value_raises(self):
+        with pytest.raises(ValidationError):
+            _ = self.MyObject({})
+
+    def test_that_provided_value_succeeds(self):
+        with no_raise():
+            _ = self.MyObject({"value": 1})
+
+
+def test_object_classes_accept_custom_attributes():
+    with no_raise():
+
+        class MyObject(Object):
+            value = Property(String())
+            custom = 5
+
+    assert MyObject.custom == 5
+
+
+def test_object_properties_can_be_fully_overriden():
+    class MyObject(Object):
+        value = Property(String())
+
+    MyObject.properties = {"other": Property(String())}
+    assert "other" in MyObject.properties
+    assert MyObject.properties.parent is MyObject
+    prop = MyObject.properties["other"]
+    assert prop.name == prop.source == "other"
+    assert prop.parent is MyObject
+
+
+def test_element_properties_can_be_edited():
+    class MyObject(Object):
+        value = Property(String())
+
+    prop = Property(String())
+    MyObject.properties["other"] = prop
+    assert prop.parent is MyObject
+    assert prop.name == prop.source == "other"

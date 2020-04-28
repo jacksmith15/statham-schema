@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from statham.dsl.constants import Maybe
 from statham.dsl.elements.base import Element
@@ -28,10 +28,7 @@ class _Property(Generic[PropType]):
     def evolve(self, name: str) -> "_Property":
         ...
 
-    def bind_name(self, name: str) -> None:
-        ...
-
-    def bind_class(self, parent: Any) -> None:
+    def bind(self, name: str = None, parent: Element = None) -> None:
         ...
 
     @property
@@ -60,3 +57,20 @@ def Property(
     source: str = None
 ) -> PropType:
     ...
+
+
+class _PropertyDict(Dict[str, _Property[Any]]):
+
+    _parent: Element
+
+    @property
+    def parent(self) -> Element:
+        ...
+
+    @parent.setter
+    def parent(self, value: Element):
+        ...
+
+    @property
+    def required(self) -> List[str]:
+        ...

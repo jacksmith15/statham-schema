@@ -81,7 +81,7 @@ class Object(metaclass=ObjectMeta):
             value = self.default
         self._dict: Dict[str, Any] = {}
         for attr_name, attr_value in type(self).__properties__(value).items():
-            if attr_name in self.properties:
+            if attr_name in type(self).properties:
                 setattr(self, attr_name, attr_value)
             self._dict[attr_name] = attr_value
 

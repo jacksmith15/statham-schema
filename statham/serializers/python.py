@@ -14,6 +14,7 @@ def serialize_python(*elements: Element) -> str:
 
     :param elements: The :class:`~statham.dsl.elements.Element` objects
         to serialize.
+    :return: Python module contents as a string, declaring the DSL tree.
     """
     declarations = "\n\n".join(
         [object_model.python() for object_model in orderer(*elements)]

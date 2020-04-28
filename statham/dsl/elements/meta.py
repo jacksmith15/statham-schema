@@ -1,6 +1,6 @@
 import inspect
 import keyword
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, cast, Dict, List, Tuple, Type, Union
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements.base import Element
@@ -23,16 +23,13 @@ from statham.dsl.validation import (
 RESERVED_PROPERTIES = dir(object) + list(keyword.kwlist) + ["_dict"]
 
 
-# TODO: Manually set properties should be automatically bound.
-
-
 class ObjectClassDict(dict):
     """Overriden class dictionary for the metaclass of Object.
 
     Collects schema properties and default value if present.
     """
 
-    properties: Dict[str, _Property]
+    properties: Dict
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,7 +39,6 @@ class ObjectClassDict(dict):
         if key in RESERVED_PROPERTIES and isinstance(value, _Property):
             raise SchemaDefinitionError.reserved_attribute(key)
         if isinstance(value, _Property):
-            value.bind_name(key)
             return self.properties.__setitem__(key, value)
         return super().__setitem__(key, value)
 
@@ -54,7 +50,6 @@ class ObjectMeta(type, Element):
     and binds information to those properties.
     """
 
-    properties: Dict[str, _Property]
     additionalProperties: Union[Element, bool]
     patternProperties: Maybe[Dict[str, Element]]
     minProperties: Maybe[int]
@@ -86,6 +81,7 @@ class ObjectMeta(type, Element):
         default: Maybe[Any] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
         enum: Maybe[List[Any]] = NotPassed(),
+        required: Maybe[List[str]] = NotPassed(),
         minProperties: Maybe[int] = NotPassed(),
         maxProperties: Maybe[int] = NotPassed(),
         patternProperties: Maybe[Dict[str, Element]] = NotPassed(),
@@ -93,13 +89,15 @@ class ObjectMeta(type, Element):
         propertyNames: Maybe[Element] = NotPassed(),
         dependencies: Maybe[Dict[str, Union[List[str], Element]]] = NotPassed(),
     ):
-        cls: Type[ObjectMeta] = type.__new__(mcs, name, bases, dict(classdict))
-        cls.properties = classdict.properties
-        for property_ in cls.properties.values():
-            property_.bind_class(cls)
+        cls: ObjectMeta = cast(
+            ObjectMeta, type.__new__(mcs, name, bases, dict(classdict))
+        )
         cls.default = default
         cls.const = const
         cls.enum = enum
+        cls.required = required
+        # https://github.com/python/mypy/issues/3004
+        cls.properties = classdict.properties  # type: ignore
         cls.minProperties = minProperties
         cls.maxProperties = maxProperties
         cls.patternProperties = patternProperties
@@ -109,7 +107,7 @@ class ObjectMeta(type, Element):
         return cls
 
     def __hash__(cls):
-        return hash(tuple([cls.__name__] + [prop for prop in cls.properties]))
+        return hash(tuple([cls.__name__] + list(cls.properties or [])))
 
     @property
     def annotation(cls) -> str:
@@ -126,13 +124,7 @@ class ObjectMeta(type, Element):
     def validators(cls) -> List[Validator]:
         possible_validators = [
             cls.type_validator,
-            Required(
-                [
-                    prop.name
-                    for prop in cls.properties.values()
-                    if prop.required and not prop.element.default
-                ]
-            ),
+            Required.from_element(cls),
             AdditionalProperties(cls.__properties__),
             MinProperties.from_element(cls),
             MaxProperties.from_element(cls),
@@ -165,7 +157,11 @@ class ObjectMeta(type, Element):
     pass
 """
             )
-        for property_ in cls.properties.values():
+        # False positive
+        # pylint: disable=no-member
+        for property_ in cast(
+            Dict[str, _Property], cls.properties or {}
+        ).values():
             class_def = (
                 class_def
                 + f"""

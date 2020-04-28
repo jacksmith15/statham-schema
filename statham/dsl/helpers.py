@@ -30,18 +30,18 @@ class Args:
         return "(" + ", ".join(filter(None, [arg_string, kwarg_string])) + ")"
 
 
-def custom_repr_args(self):
-    args = []
-    kwargs = {}
+def custom_repr_args(self, **overrides: Any) -> Args:
+    args: List[Any] = []
+    kwargs: Dict[str, Any] = {}
     parameters = list(
         inspect.signature(type(self).__init__).parameters.values()
     )[1:]
     for param in parameters:
-        value = getattr(self, param.name, None)
+        value = overrides.get(param.name, getattr(self, param.name, None))
         if value == param.default:
             continue
         if param.kind == param.VAR_POSITIONAL:
-            args.extend([sub_val for sub_val in value or []])
+            args.extend(value or [])
         elif param.kind == param.KEYWORD_ONLY:
             kwargs[param.name] = value
         else:
@@ -49,13 +49,17 @@ def custom_repr_args(self):
     return Args(*args, **kwargs)
 
 
-def custom_repr(self):
+def custom_repr(self, **overrides: Any) -> str:
     """Dynamically construct the repr to match value instantiation.
 
     Shows the class name and attribute values, where they differ from
     defaults.
+
+    :param overrides: Overwrites of instance attribute values for the
+        repr.
+    :return: String representation of :paramref:`custom_repr.self`.
     """
-    return f"{type(self).__name__}{repr(custom_repr_args(self))}"
+    return f"{type(self).__name__}{repr(custom_repr_args(self, **overrides))}"
 
 
 ExceptionTypes = Union[Type[Exception], Tuple[Type[Exception], ...]]

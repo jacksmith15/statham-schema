@@ -293,6 +293,7 @@ def _parse_object(
 
     :raises SchemaParseError: if keys exist from which to derive the class
         title.
+    :return: The ``Object`` model equivalent to the schema.
     """
     state = state or _ParseState()
     title = schema.get("title", schema.get("_x_autotitle"))
