@@ -8,7 +8,7 @@ Compatibility
 Schemas with recursive references
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Through use of references, JSON Schema allows schemas to be recursive (self-referential). This often used in Hyper Schemas, and can be used to describe data structures inlcuding trees and linked lists. For example, the following schema can be used to describe trees of arbitrary size:
+Through use of references, JSON Schema allows schemas to be recursive (self-referential). This often used in Meta Schemas, and can be used to describe data structures inlcuding trees and linked lists. For example, the following schema can be used to describe trees of arbitrary size:
 
 .. code-block:: json
 
