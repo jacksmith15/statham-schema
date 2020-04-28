@@ -437,3 +437,43 @@ def test_element_properties_can_be_edited():
     MyObject.properties["other"] = prop
     assert prop.parent is MyObject
     assert prop.name == prop.source == "other"
+
+
+class TestObjectInheritance:
+    class BaseObject(Object, additionalProperties=False):
+        value = Property(String())
+
+        custom = 1
+
+    class ChildObject(BaseObject):
+        other = Property(String())
+
+    def test_that_child_has_both_properties(self):
+        assert set(self.ChildObject.properties) == {"value", "other"}
+
+    def test_that_child_object_has_additional_settings(self):
+        assert not self.ChildObject.additionalProperties
+
+    def test_that_child_object_inherits_normal_attrs(self):
+        assert self.ChildObject.custom == 1
+
+    def test_that_parent_properties_are_correctly_bound(self):
+        assert self.BaseObject.properties["value"].parent is self.BaseObject
+
+    def test_that_child_properties_are_correctly_rebound(self):
+        assert self.ChildObject.properties["value"].parent is self.ChildObject
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, True),
+            ({"value": "a string"}, True),
+            ({"other": "a string"}, True),
+            ({"value": "a string", "other": "another string"}, True),
+            ({"value": 1}, False),
+            ({"bad": "a string"}, False),
+        ],
+    )
+    def test_that_validation_works_correctly(self, data, valid):
+        with pytest.raises(ValidationError) if not valid else no_raise():
+            _ = self.ChildObject(data)
