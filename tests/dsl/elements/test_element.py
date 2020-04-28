@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterator, List, NamedTuple, Tuple
+from typing import Any, Iterator, List, NamedTuple, Tuple
 import pytest
 
 from statham.dsl.constants import NotPassed
@@ -254,3 +254,24 @@ def test_required_renamed_property():
     )
     with no_raise():
         _ = element({"class": None})
+
+
+@pytest.mark.parametrize(
+    "initial", (NotPassed(), {"value": _Property(Element())})
+)
+def test_element_properties_can_be_fully_overriden(initial):
+    element = Element(properties=initial)
+    element.properties = {"other": _Property(Element())}
+    assert "other" in element.properties
+    assert element.properties.parent is element
+    prop = element.properties["other"]
+    assert prop.name == prop.source == "other"
+    assert prop.parent is element
+
+
+def test_element_properties_can_be_edited():
+    element = Element(properties={"value": _Property(Element())})
+    prop = _Property(Element())
+    element.properties["other"] = prop
+    assert prop.parent is element
+    assert prop.name == prop.source == "other"

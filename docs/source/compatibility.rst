@@ -33,8 +33,6 @@ This type of schema is **not currently supported** by ``statham``. In particular
             value = Property(String())
 
         TreeNode.properties["children"] = Property(TreeNode)
-        TreeNode.properties["children"].bind_class(TreeNode)
-        TreeNode.properties["children"].bind_name("children")
 
         TreeNode(
             {
@@ -54,8 +52,6 @@ This type of schema is **not currently supported** by ``statham``. In particular
             pass
 
         DefaultLinkedList.properties["child"] = Property(DefaultLinkedList)
-        DefaultLinkedList.properties["child"].bind_class(DefaultLinkedList)
-        DefaultLinkedList.properties["child"].bind_name("child")
 
         DefaultLinkedList({})
 

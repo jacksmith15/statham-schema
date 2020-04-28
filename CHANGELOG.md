@@ -13,6 +13,13 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Added
+* Added support for `required` keyword class argument to `Object`
+  subclasses.
+
+### Changed
+* Setting properties dynamically now automatically binds them.
+
 ### Fixed
 * Fixed bug where renamed required fields are incorrectly validated.
 

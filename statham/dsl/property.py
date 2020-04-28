@@ -1,6 +1,7 @@
-from typing import Any, Generic, Optional, TypeVar, TYPE_CHECKING
+from typing import Any, Dict, Generic, Optional, TypeVar, TYPE_CHECKING
 
 from statham.dsl.constants import NotPassed
+from statham.dsl.exceptions import SchemaDefinitionError
 from statham.dsl.helpers import custom_repr_args
 
 if TYPE_CHECKING:
@@ -115,3 +116,44 @@ def Property(element: "Element", *, required: bool = False, source: str = None):
             class_: str = Property(String(), source="class")
     """
     return _Property(element, required=required, source=source)
+
+
+class _PropertyDict(Dict[str, _Property[Any]]):
+    """Container for properties.
+
+    Used internally to bind properties to the enclosing element, and
+    attribute name.
+    """
+
+    _parent: "Element"
+
+    def __init__(self, *args, **kwargs):
+        self._parent = None
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, _Property):
+            raise SchemaDefinitionError(
+                f"{key} must be a `Property`, got {value}"
+            )
+        super().__setitem__(key, value)  # pylint: disable=no-member
+        value.bind(name=key, parent=self.parent)
+
+    @property
+    def parent(self) -> "Element":
+        return self._parent
+
+    @parent.setter
+    def parent(self, value: "Element"):
+        self._parent = value
+        for key, prop in self.items():  # pylint: disable=no-member
+            prop.bind(name=key, parent=value)
+
+    @property
+    def required(self):
+        # pylint: disable=no-member
+        return [
+            prop.source or name
+            for name, prop in self.items()
+            if prop.required and isinstance(prop.element.default, NotPassed)
+        ]

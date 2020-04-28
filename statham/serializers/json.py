@@ -77,8 +77,8 @@ def _serialize_element(
         del schema["properties"]
     if "properties" in schema:
         schema["required"] = [
-            prop.source
-            for prop in schema["properties"].values()
+            prop.source or name
+            for name, prop in schema["properties"].items()
             if prop.required
         ]
     if not schema.get("required", True):

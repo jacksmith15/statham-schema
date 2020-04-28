@@ -11,6 +11,16 @@ class Required(Validator):
     keywords = ("required",)
     message = "Must contain all required fields: {required}"
 
+    @classmethod
+    def from_element(cls, element):
+        required = getattr(element, "required", None) or []
+        properties = getattr(element, "properties", None)
+        if properties:
+            required += properties.required
+        if not required:
+            return None
+        return Required(required)
+
     def _validate(self, value: Any):
         if set(self.params["required"]) - set(value):
             raise ValidationError
