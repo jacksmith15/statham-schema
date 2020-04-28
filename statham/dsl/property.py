@@ -130,6 +130,13 @@ class _PropertyDict(Dict[str, _Property[Any]]):
     def __init__(self, *args, **kwargs):
         self._parent = None
         super().__init__(*args, **kwargs)
+        bad_values = {
+            name: prop
+            for name, prop in self.items()  # pylint: disable=no-member
+            if not isinstance(prop, _Property)
+        }
+        if bad_values:
+            raise SchemaDefinitionError(f"Got bad property types: {bad_values}")
 
     def __setitem__(self, key, value):
         if not isinstance(value, _Property):

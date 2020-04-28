@@ -4,7 +4,7 @@ import pytest
 from statham.dsl.constants import NotPassed
 from statham.dsl.elements import Element, Nothing, String
 from statham.dsl.elements.base import _AnonymousObject
-from statham.dsl.exceptions import ValidationError
+from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from statham.dsl.property import _Property
 from tests.helpers import no_raise
 
@@ -256,22 +256,36 @@ def test_required_renamed_property():
         _ = element({"class": None})
 
 
-@pytest.mark.parametrize(
-    "initial", (NotPassed(), {"value": _Property(Element())})
-)
-def test_element_properties_can_be_fully_overriden(initial):
-    element = Element(properties=initial)
-    element.properties = {"other": _Property(Element())}
-    assert "other" in element.properties
-    assert element.properties.parent is element
-    prop = element.properties["other"]
-    assert prop.name == prop.source == "other"
-    assert prop.parent is element
+class TestPropertyBinding:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "initial", (NotPassed(), {"value": _Property(Element())})
+    )
+    def test_element_properties_can_be_fully_overriden(initial):
+        element = Element(properties=initial)
+        element.properties = {"other": _Property(Element())}
+        assert "other" in element.properties
+        assert element.properties.parent is element
+        prop = element.properties["other"]
+        assert prop.name == prop.source == "other"
+        assert prop.parent is element
 
+    @staticmethod
+    def test_full_override_with_bad_property_raises():
+        element = Element(properties={"value": _Property(Element())})
+        with pytest.raises(SchemaDefinitionError):
+            element.properties = {"other": 0}
 
-def test_element_properties_can_be_edited():
-    element = Element(properties={"value": _Property(Element())})
-    prop = _Property(Element())
-    element.properties["other"] = prop
-    assert prop.parent is element
-    assert prop.name == prop.source == "other"
+    @staticmethod
+    def test_element_properties_can_be_edited():
+        element = Element(properties={"value": _Property(Element())})
+        prop = _Property(Element())
+        element.properties["other"] = prop
+        assert prop.parent is element
+        assert prop.name == prop.source == "other"
+
+    @staticmethod
+    def test_setting_a_bad_property_raises():
+        element = Element(properties={"value": _Property(Element())})
+        with pytest.raises(SchemaDefinitionError):
+            element.properties["other"] = 0
