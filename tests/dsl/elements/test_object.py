@@ -463,8 +463,30 @@ class TestObjectInheritance:
             ({"value": "a string", "other": "another string"}, True),
             ({"value": 1}, False),
             ({"bad": "a string"}, False),
+            (
+                {
+                    "value": "a string",
+                    "other": "another string",
+                    "bad": "a string",
+                },
+                False,
+            ),
         ],
     )
     def test_that_validation_works_correctly(self, data, valid):
         with pytest.raises(ValidationError) if not valid else no_raise():
             _ = self.ChildObject(data)
+
+
+def test_object_property_override():
+    class BaseObject(Object):
+        value = Property(String())
+
+    class ChildObject(BaseObject):
+        value = Property(String(maxLength=2))
+
+    with pytest.raises(ValidationError):
+        _ = ChildObject(dict(value="a string"))
+
+    with no_raise():
+        _ = ChildObject(dict(value="a"))

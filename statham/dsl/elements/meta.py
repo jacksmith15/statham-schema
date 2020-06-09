@@ -104,11 +104,11 @@ class ObjectMeta(type, Element):
         cls.required = required
         # https://github.com/python/mypy/issues/3004
         cls.properties = {  # type: ignore
-            **classdict.properties,
             **{
                 attr: prop.clone()
                 for attr, prop in previous("properties", {}).items()
             },
+            **classdict.properties,
         }
         cls.minProperties = get_value(minProperties, "minProperties")
         cls.maxProperties = get_value(maxProperties, "maxProperties")
