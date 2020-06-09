@@ -98,10 +98,10 @@ class ObjectMeta(type, Element):
             if not isinstance(value, NotPassed)
             else previous(attr, NotPassed())
         )
-        cls.default = default
-        cls.const = const
-        cls.enum = enum
-        cls.required = required
+        cls.default = get_value(default, "default")
+        cls.const = get_value(const, "const")
+        cls.enum = get_value(enum, "enum")
+        cls.required = get_value(required, "required")
         # https://github.com/python/mypy/issues/3004
         cls.properties = {  # type: ignore
             **{
