@@ -1,28 +1,11 @@
-from typing import Any, Dict, List, Union
+from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Nothing, Object, OneOf, String
-from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
-from tests.dsl.parser.test_parse_object import (
-    EmptyModel,
-    ObjectWithOptionalProperty,
-    ObjectWithRequiredProperty,
-    ObjectWithObjectProperty,
-    ObjectWithDefaultProp,
-    ObjectWithAdditionalPropElement,
-    ObjectWithAdditionalPropTrue,
-    ObjectWithAdditionalPropFalse,
-    ObjectWithPatternProps,
-    ObjectWithSizeValidation,
-    ObjectWithPropertyNames,
-    ObjectWithConst,
-    ObjectWithEnum,
-    ObjectWithDependencies,
-)
 
 
 class StringWrapper(Object):
@@ -440,19 +423,28 @@ def test_element_properties_can_be_edited():
 
 
 class TestObjectInheritance:
-    class BaseObject(Object, additionalProperties=False):
+    class BaseObject(
+        Object, additionalProperties=False, minProperties=0, maxProperties=5
+    ):
         value = Property(String())
 
         custom = 1
 
-    class ChildObject(BaseObject):
+    class ChildObject(BaseObject, maxProperties=10):
         other = Property(String())
 
     def test_that_child_has_both_properties(self):
         assert set(self.ChildObject.properties) == {"value", "other"}
 
-    def test_that_child_object_has_additional_settings(self):
+    @pytest.mark.xfail(strict=True)
+    def test_that_child_object_has_additional_properties(self):
         assert not self.ChildObject.additionalProperties
+
+    def test_that_child_object_inherits_min_properties(self):
+        assert self.ChildObject.minProperties == 0
+
+    def test_that_child_object_overwrites_max_properties(self):
+        assert self.ChildObject.maxProperties == 10
 
     def test_that_child_object_inherits_normal_attrs(self):
         assert self.ChildObject.custom == 1
@@ -471,7 +463,9 @@ class TestObjectInheritance:
             ({"other": "a string"}, True),
             ({"value": "a string", "other": "another string"}, True),
             ({"value": 1}, False),
-            ({"bad": "a string"}, False),
+            pytest.param(
+                {"bad": "a string"}, False, marks=pytest.mark.xfail(strict=True)
+            ),
         ],
     )
     def test_that_validation_works_correctly(self, data, valid):

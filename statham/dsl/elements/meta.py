@@ -92,18 +92,32 @@ class ObjectMeta(type, Element):
         cls: ObjectMeta = cast(
             ObjectMeta, type.__new__(mcs, name, bases, dict(classdict))
         )
+        previous = lambda attr, default: getattr(cls, attr, default)
+        get_value = (
+            lambda value, attr: value
+            if not isinstance(value, NotPassed)
+            else previous(attr, NotPassed())
+        )
         cls.default = default
         cls.const = const
         cls.enum = enum
         cls.required = required
         # https://github.com/python/mypy/issues/3004
-        cls.properties = classdict.properties  # type: ignore
-        cls.minProperties = minProperties
-        cls.maxProperties = maxProperties
-        cls.patternProperties = patternProperties
+        cls.properties = {  # type: ignore
+            **classdict.properties,
+            **{
+                attr: prop.clone()
+                for attr, prop in previous("properties", {}).items()
+            },
+        }
+        cls.minProperties = get_value(minProperties, "minProperties")
+        cls.maxProperties = get_value(maxProperties, "maxProperties")
+        cls.patternProperties = get_value(
+            patternProperties, "patternProperties"
+        )
         cls.additionalProperties = additionalProperties
-        cls.propertyNames = propertyNames
-        cls.dependencies = dependencies
+        cls.propertyNames = get_value(propertyNames, "propertyNames")
+        cls.dependencies = get_value(dependencies, "dependencies")
         return cls
 
     def __hash__(cls):
