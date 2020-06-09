@@ -16,6 +16,7 @@ Types of changes are:
 ### Added
 * Added support for `required` keyword class argument to `Object`
   subclasses.
+* Added support for `Object` model inheritance.
 
 ### Changed
 * Setting properties dynamically now automatically binds them.

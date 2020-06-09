@@ -1,28 +1,11 @@
-from typing import Any, Dict, List, Union
+from typing import Any, List, Union
 import pytest
 
 from statham.dsl.constants import Maybe, NotPassed
 from statham.dsl.elements import Array, Integer, Nothing, Object, OneOf, String
-from statham.dsl.elements.meta import ObjectMeta
 from statham.dsl.property import Property
 from statham.dsl.exceptions import SchemaDefinitionError, ValidationError
 from tests.helpers import no_raise
-from tests.dsl.parser.test_parse_object import (
-    EmptyModel,
-    ObjectWithOptionalProperty,
-    ObjectWithRequiredProperty,
-    ObjectWithObjectProperty,
-    ObjectWithDefaultProp,
-    ObjectWithAdditionalPropElement,
-    ObjectWithAdditionalPropTrue,
-    ObjectWithAdditionalPropFalse,
-    ObjectWithPatternProps,
-    ObjectWithSizeValidation,
-    ObjectWithPropertyNames,
-    ObjectWithConst,
-    ObjectWithEnum,
-    ObjectWithDependencies,
-)
 
 
 class StringWrapper(Object):
@@ -437,3 +420,73 @@ def test_element_properties_can_be_edited():
     MyObject.properties["other"] = prop
     assert prop.parent is MyObject
     assert prop.name == prop.source == "other"
+
+
+class TestObjectInheritance:
+    class BaseObject(
+        Object, additionalProperties=False, minProperties=0, maxProperties=5
+    ):
+        value = Property(String())
+
+        custom = 1
+
+    class ChildObject(BaseObject, maxProperties=10):
+        other = Property(String())
+
+    def test_that_child_has_both_properties(self):
+        assert set(self.ChildObject.properties) == {"value", "other"}
+
+    def test_that_child_object_has_additional_properties(self):
+        assert not self.ChildObject.additionalProperties
+
+    def test_that_child_object_inherits_min_properties(self):
+        assert self.ChildObject.minProperties == 0
+
+    def test_that_child_object_overwrites_max_properties(self):
+        assert self.ChildObject.maxProperties == 10
+
+    def test_that_child_object_inherits_normal_attrs(self):
+        assert self.ChildObject.custom == 1
+
+    def test_that_parent_properties_are_correctly_bound(self):
+        assert self.BaseObject.properties["value"].parent is self.BaseObject
+
+    def test_that_child_properties_are_correctly_rebound(self):
+        assert self.ChildObject.properties["value"].parent is self.ChildObject
+
+    @pytest.mark.parametrize(
+        "data,valid",
+        [
+            ({}, True),
+            ({"value": "a string"}, True),
+            ({"other": "a string"}, True),
+            ({"value": "a string", "other": "another string"}, True),
+            ({"value": 1}, False),
+            ({"bad": "a string"}, False),
+            (
+                {
+                    "value": "a string",
+                    "other": "another string",
+                    "bad": "a string",
+                },
+                False,
+            ),
+        ],
+    )
+    def test_that_validation_works_correctly(self, data, valid):
+        with pytest.raises(ValidationError) if not valid else no_raise():
+            _ = self.ChildObject(data)
+
+
+def test_object_property_override():
+    class BaseObject(Object):
+        value = Property(String())
+
+    class ChildObject(BaseObject):
+        value = Property(String(maxLength=2))
+
+    with pytest.raises(ValidationError):
+        _ = ChildObject(dict(value="a string"))
+
+    with no_raise():
+        _ = ChildObject(dict(value="a"))

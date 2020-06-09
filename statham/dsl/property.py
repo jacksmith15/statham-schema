@@ -47,6 +47,11 @@ class _Property(Generic[PropType]):
             and self.source == other.source
         )
 
+    def clone(self):
+        return _Property(
+            self.element, required=self.required, source=self.source
+        )
+
     def evolve(self, name: str) -> "_Property":
         """Generate renamed property object to pass into nested elements."""
         property_: _Property[PropType] = _Property(
