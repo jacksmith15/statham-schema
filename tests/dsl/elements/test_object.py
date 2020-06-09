@@ -436,7 +436,6 @@ class TestObjectInheritance:
     def test_that_child_has_both_properties(self):
         assert set(self.ChildObject.properties) == {"value", "other"}
 
-    @pytest.mark.xfail(strict=True)
     def test_that_child_object_has_additional_properties(self):
         assert not self.ChildObject.additionalProperties
 
@@ -463,9 +462,7 @@ class TestObjectInheritance:
             ({"other": "a string"}, True),
             ({"value": "a string", "other": "another string"}, True),
             ({"value": 1}, False),
-            pytest.param(
-                {"bad": "a string"}, False, marks=pytest.mark.xfail(strict=True)
-            ),
+            ({"bad": "a string"}, False),
         ],
     )
     def test_that_validation_works_correctly(self, data, valid):

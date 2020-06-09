@@ -85,7 +85,7 @@ class ObjectMeta(type, Element):
         minProperties: Maybe[int] = NotPassed(),
         maxProperties: Maybe[int] = NotPassed(),
         patternProperties: Maybe[Dict[str, Element]] = NotPassed(),
-        additionalProperties: Union[Element, bool] = True,
+        additionalProperties: Maybe[Union[Element, bool]] = NotPassed(),
         propertyNames: Maybe[Element] = NotPassed(),
         dependencies: Maybe[Dict[str, Union[List[str], Element]]] = NotPassed(),
     ):
@@ -115,7 +115,11 @@ class ObjectMeta(type, Element):
         cls.patternProperties = get_value(
             patternProperties, "patternProperties"
         )
-        cls.additionalProperties = additionalProperties
+        cls.additionalProperties = (
+            additionalProperties
+            if not isinstance(additionalProperties, NotPassed)
+            else previous("additionalProperties", True)
+        )
         cls.propertyNames = get_value(propertyNames, "propertyNames")
         cls.dependencies = get_value(dependencies, "dependencies")
         return cls
@@ -159,7 +163,9 @@ class ObjectMeta(type, Element):
             if param.kind != param.KEYWORD_ONLY:
                 continue
             value = getattr(cls, param.name, NotPassed())
-            if value == param.default:
+            if value == param.default or (
+                param.name == "additionalProperties" and value is True
+            ):
                 continue
             cls_args.append(f"{param.name}={repr(value)}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
