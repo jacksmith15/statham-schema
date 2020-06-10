@@ -8,7 +8,6 @@ from statham.dsl.constants import NotPassed
 
 
 # TODO: Test and support limited recursive models.
-# TODO: Test and support validation of setting model attributes.
 
 
 class Object(metaclass=ObjectMeta):
