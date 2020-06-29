@@ -1,7 +1,7 @@
 from typing import Any, ClassVar, Dict, Union
 
 from statham.dsl.elements.base import Element, UNBOUND_PROPERTY
-from statham.dsl.elements.meta import ObjectMeta
+from statham.dsl.elements.meta import ObjectClassDict, ObjectMeta
 from statham.dsl.exceptions import ValidationError
 from statham.dsl.property import _Property
 from statham.dsl.constants import NotPassed
@@ -105,3 +105,25 @@ class Object(metaclass=ObjectMeta):
 
     def __getitem__(self, key: str) -> Any:
         return self._dict[key]
+
+    @staticmethod
+    def inline(
+        name: str, *, properties: Dict[str, Any] = None, **kwargs
+    ) -> ObjectMeta:
+        """Inline constructor for object schema elements.
+
+        Useful for minor objects, at the cost of reduced type checking
+        support.
+
+        :param name: The name of the schema element.
+        :param properties: Dictionary of properties accepted by the schema
+            element.
+        :param kwargs: Any accepted class args to `Object` subclasses.
+        :return: A new subclass of `Object` with the appropriate validation
+            rules.
+        """
+        properties = properties or {}
+        object_properties = ObjectClassDict()
+        for prop_name, prop in properties.items():
+            object_properties[prop_name] = prop
+        return ObjectMeta(name, (Object,), object_properties, **kwargs)

@@ -152,6 +152,14 @@ Properties which are accepted via ``additionalProperties`` or ``patternPropertie
 >>> value["other"]
 "another string"
 
+:class:`~statham.dsl.elements.Object` elements may also be declared via an inline constructor as follows:
+
+>>> StringWrapper = Object.inline("StringWrapper", properties={"value": Property(String())})
+>>> StringWrapper({"value": "a string"})
+StringWrapper(value='a string')
+
+However, elements declared this way will not have the same type hinting support as those declared using class notation.
+
 .. note::
 
     It is possible to pass ``"object"`` values to :class:`~statham.dsl.elements.Element`. Assuming all validation passes, the return value will be a instance of a ``dict`` subclass allowing attribute access to its keys. This allows a consistent interface with :class:`~statham.dsl.elements.Object` instances.

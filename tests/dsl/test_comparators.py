@@ -40,6 +40,13 @@ class Doo(Object, const={"value": "foo"}):
     value = Property(String())
 
 
+InlineFoo = Object.inline("InlineFoo", properties={"value": Property(String())})
+InlineBar = Object.inline("InlineBar", properties={"value": Property(String())})
+InlineBaz = Object.inline(
+    "InlineBaz", properties={"value": Property(String(), required=True)}
+)
+
+
 @pytest.mark.parametrize(
     "left,right",
     [
@@ -54,6 +61,9 @@ class Doo(Object, const={"value": "foo"}):
         ),
         (Foo, Bar),
         (Raz, Maz),
+        (Foo, InlineFoo),
+        (InlineFoo, InlineBar),
+        (Baz, InlineBaz),
     ],
 )
 def test_equivalent_schemas_are_equal(left, right):
@@ -73,6 +83,9 @@ def test_equivalent_schemas_are_equal(left, right):
         (Foo, Raz),
         (Foo, Taz),
         (Foo, Doo),
+        (Foo, InlineBaz),
+        (InlineFoo, Baz),
+        (InlineFoo, InlineBaz),
     ],
 )
 def test_non_equivalent_schemas_are_not_equal(left, right):

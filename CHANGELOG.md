@@ -17,6 +17,7 @@ Types of changes are:
 * Added support for `required` keyword class argument to `Object`
   subclasses.
 * Added support for `Object` model inheritance.
+* Added inline constructor for `Object` DSL elements, `Object.inline`
 
 ### Changed
 * Setting properties dynamically now automatically binds them.

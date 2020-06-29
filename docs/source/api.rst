@@ -56,6 +56,8 @@ Typed schemas are declared using the following subclasses of :class:`statham.dsl
 
 .. autoclass:: statham.dsl.elements.Object
 
+    .. automethod:: inline
+
 .. autoclass:: statham.dsl.elements.String
 
 
