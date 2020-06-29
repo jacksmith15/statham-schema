@@ -20,7 +20,7 @@ def pytest_assertrepr_compare(op, left, right):
         pubvars = lambda obj: sorted(
             f"  {key}={repr(value)}"
             for key, value in vars(obj).items()
-            if not key.startswith("_")
+            if not key.startswith("_") or key == "_properties"
         )
         return [
             "Comparing ObjectMeta instances:",
