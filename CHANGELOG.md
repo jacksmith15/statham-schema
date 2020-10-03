@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.11.0] - 2020-10-03
 ### Added
 * Added support for `required` keyword class argument to `Object`
   subclasses.
@@ -229,7 +231,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.10.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.11.0..HEAD
+[0.11.0]: http://github.com/jacksmith15/statham-schema/compare/0.10.0..0.11.0
 [0.10.0]: http://github.com/jacksmith15/statham-schema/compare/0.9.0..0.10.0
 [0.9.0]: http://github.com/jacksmith15/statham-schema/compare/0.8.0..0.9.0
 [0.8.0]: http://github.com/jacksmith15/statham-schema/compare/0.7.0..0.8.0
