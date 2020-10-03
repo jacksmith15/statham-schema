@@ -61,6 +61,8 @@ This project requires Python 3.6 and may be installed using [pip]:
 pip install statham-schema
 ```
 
+# Compatibility
+See [Compatibility](https://statham-schema.readthedocs.io/en/latest/compatibility.html) for information regarding the currently supported JSON Schema draft and exceptions.
 
 # Development
 1. Clone the repository: `git clone git@github.com:jacksmith15/statham-schema.git && cd statham-schema`
