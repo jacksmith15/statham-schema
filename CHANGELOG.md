@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Changed
+* Corrected terminology relating to DSL (Domain Specific Language).
 
 ## [0.11.0] - 2020-10-03
 ### Added
