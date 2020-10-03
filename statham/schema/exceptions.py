@@ -26,7 +26,7 @@ class ValidationError(StathamError):
     @classmethod
     def from_validator(cls, property_, value, message) -> "ValidationError":
         value_string = (
-            f"{repr(property_.parent)}{property_.name} = {repr(value)}`"
+            f"{repr(property_.parent)}.{property_.name} = {repr(value)}`"
             if property_.name != "<unbound>"
             else repr(value)
         )

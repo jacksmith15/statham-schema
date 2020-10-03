@@ -16,6 +16,9 @@ Types of changes are:
 ### Added
 * Added support for Python 3.7 and 3.8.
 
+### Fixed
+* Fixed a typo in property validation error messages.
+
 ## [0.12.0] - 2020-10-03
 ### Changed
 * Corrected terminology relating to DSL (Domain Specific Language).
