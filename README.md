@@ -56,7 +56,7 @@ Optional arguments:
 
 
 # Installation
-This project requires Python 3.6 and may be installed using [pip]:
+This project requires Python 3.6+ and may be installed using [pip]:
 ```
 pip install statham-schema
 ```
