@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/jacksmith15/statham-schema.svg?token=JrMQr8Ynsmu5tphpTQ2p&branch=master)](https://travis-ci.com/jacksmith15/statham-schema)  [![Documentation Status](https://readthedocs.org/projects/statham-schema/badge/?version=latest)](https://statham-schema.readthedocs.io/en/latest/?badge=latest)
 
-# Statham Schema
+# Statham
 
 `statham` is a Python Model Parsing Library for [JSON Schema]. Read the [documentation](https://statham-schema.readthedocs.io/en/latest/).
 
