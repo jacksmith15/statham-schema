@@ -2,13 +2,13 @@ from typing import Any
 
 import pytest
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import Element, Object, String
+from statham.schema.constants import Maybe
+from statham.schema.elements import Element, Object, String
 
 # False positive: https://github.com/PyCQA/pylint/issues/3202
-from statham.dsl.elements import Nothing  # pylint: disable=unused-import
-from statham.dsl.parser import parse
-from statham.dsl.property import Property
+from statham.schema.elements import Nothing  # pylint: disable=unused-import
+from statham.schema.parser import parse
+from statham.schema.property import Property
 from statham.serializers.python import serialize_python
 
 
@@ -37,9 +37,9 @@ SCHEMA = {
 
 def test_schema_reserializes_to_expected_python_string():
     assert serialize_python(*parse(SCHEMA)) == (
-        """from statham.dsl.constants import Maybe
-from statham.dsl.elements import Integer, Object, String
-from statham.dsl.property import Property
+        """from statham.schema.constants import Maybe
+from statham.schema.elements import Integer, Object, String
+from statham.schema.property import Property
 
 
 class Other(Object):
@@ -68,9 +68,9 @@ def test_parse_and_serialize_schema_with_self_property():
         "properties": {"self": {"type": "string"}},
     }
     assert serialize_python(*parse(schema)) == (
-        """from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, String
-from statham.dsl.property import Property
+        """from statham.schema.constants import Maybe
+from statham.schema.elements import Object, String
+from statham.schema.property import Property
 
 
 class MyObject(Object):
@@ -83,7 +83,7 @@ class MyObject(Object):
 def test_parse_and_serialize_schema_with_no_args():
     schema = {"type": "object", "title": "NoProps"}
     assert serialize_python(*parse(schema)) == (
-        """from statham.dsl.elements import Object
+        """from statham.schema.elements import Object
 
 
 class NoProps(Object):
@@ -100,7 +100,7 @@ def test_parse_and_serialize_schema_with_additional_properties_element():
         "additionalProperties": {"type": "string"},
     }
     assert serialize_python(*parse(schema)) == (
-        """from statham.dsl.elements import Object, String
+        """from statham.schema.elements import Object, String
 
 
 class StringContainer(Object, additionalProperties=String()):
@@ -121,9 +121,9 @@ def test_parse_and_serialize_schema_with_additional_property_dependencies():
         },
     }
     assert serialize_python(*parse(schema)) == (
-        """from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, String
-from statham.dsl.property import Property
+        """from statham.schema.constants import Maybe
+from statham.schema.elements import Object, String
+from statham.schema.property import Property
 
 
 class StringWrapper(Object):
@@ -151,9 +151,9 @@ def test_parse_and_serialize_schema_with_untyped_dependency():
     assert serialize_python(*parse(schema)) == (
         """from typing import Any
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import Element, Object
-from statham.dsl.property import Property
+from statham.schema.constants import Maybe
+from statham.schema.elements import Element, Object
+from statham.schema.property import Property
 
 
 class Bar(Object):
@@ -183,8 +183,8 @@ def test_parse_and_serialize_schema_with_composition_keywords():
     assert serialize_python(*parse(schema)) == (
         """from typing import Any
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
+from statham.schema.constants import Maybe
+from statham.schema.elements import (
     AllOf,
     AnyOf,
     Element,
@@ -193,7 +193,7 @@ from statham.dsl.elements import (
     OneOf,
     String,
 )
-from statham.dsl.property import Property
+from statham.schema.property import Property
 
 
 class MyObject(Object):
@@ -217,8 +217,8 @@ def test_parse_and_serialize_schema_with_bad_name():
         "properties": {"$id": {"type": "string"}},
     }
     assert serialize_python(*parse(schema)) == (
-        """from statham.dsl.elements import Object, String
-from statham.dsl.property import Property
+        """from statham.schema.elements import Object, String
+from statham.schema.property import Property
 
 
 class BadName(Object):

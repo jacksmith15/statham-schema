@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.exceptions import ValidationError
+from statham.schema.exceptions import ValidationError
 from tests.helpers import no_raise
 from tests.models.array_item_validation import Model
 

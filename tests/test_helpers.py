@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.parser import _title_format
+from statham.schema.parser import _title_format
 
 
 @pytest.mark.parametrize(

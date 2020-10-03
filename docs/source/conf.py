@@ -69,7 +69,7 @@ html_static_path = ["_static"]
 
 
 html_theme_options = {
-    "description": "Python DSL for JSON Schema.",
+    "description": "Python Model Parsing Library for JSON Schema.",
     "github_repo": "statham-schema",
     "github_user": "jacksmith15",
     "github_button": False,

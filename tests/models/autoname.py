@@ -1,8 +1,8 @@
 from typing import Any, List, Union
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import AnyOf, Array, Integer, Object, String
-from statham.dsl.property import Property
+from statham.schema.constants import Maybe
+from statham.schema.elements import AnyOf, Array, Integer, Object, String
+from statham.schema.property import Property
 
 
 class ListOfStringsItem(Object, additionalProperties=False):

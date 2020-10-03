@@ -21,11 +21,11 @@ Through use of references, JSON Schema allows schemas to be recursive (self-refe
         }
     }
 
-This type of schema is **not currently supported** by ``statham``. In particular, attempting to :func:`~statham.dsl.parser.parse` a schema containing recursive references will raise a :exc:`~statham.dsl.exceptions.FeatureNotImplementedError`.
+This type of schema is **not currently supported** by ``statham``. In particular, attempting to :func:`~statham.schema.parser.parse` a schema containing recursive references will raise a :exc:`~statham.schema.exceptions.FeatureNotImplementedError`.
 
 .. note::
 
-    It is possible, but not recommended, to create recursive schemas directly in the DSL:
+    It is possible, but not recommended, to create recursive schemas directly in ``statham``:
 
     .. code-block:: python
 
@@ -77,7 +77,7 @@ JSON Schema supports an ``"$id"`` keyword for manually declaring the URI of sub-
 
 Here, the fragment of the reference is not a location-dependent JSON Pointer (e.g. ``"#/definitions/X"``), but rather assumes knowledge of the absolute location denoted by the ``"$id"`` keyword.
 
-These identifiers are **not supported** by :func:`~statham.dsl.parser.parse` , and the ``"$id"`` key will be ignored in schemas.
+These identifiers are **not supported** by :func:`~statham.schema.parser.parse` , and the ``"$id"`` key will be ignored in schemas.
 
 
 Annotations

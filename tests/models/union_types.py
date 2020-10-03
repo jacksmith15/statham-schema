@@ -1,7 +1,7 @@
 from typing import Any, Union
 
-from statham.dsl.elements import AnyOf, Integer, Null, Number, Object, String
-from statham.dsl.property import Property
+from statham.schema.elements import AnyOf, Integer, Null, Number, Object, String
+from statham.schema.property import Property
 
 
 class Model(Object):

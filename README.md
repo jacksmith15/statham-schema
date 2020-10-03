@@ -2,19 +2,19 @@
 
 # Statham Schema
 
-`statham` is a Python DSL for [JSON Schema]. Read the [documentation](https://statham-schema.readthedocs.io/en/latest/).
+`statham` is a Python Model Parsing Library for [JSON Schema]. Read the [documentation](https://statham-schema.readthedocs.io/en/latest/).
 
 This project includes tools for writing and generating extensible Python classes based on [JSON Schema] documents.
 
-## Example DSL Definition
+## Example Model Definition
 
-The DSL can be used to write JSON Schema documents and their corresponding application-level models in one go:
+`statham` can be used to write JSON Schema documents and their corresponding application-level models in one go:
 
 ```python
 from typing import List
 
-from statham.dsl.elements import Array, Integer, Object, String
-from statham.dsl.property import Property
+from statham.schema.elements import Array, Integer, Object, String
+from statham.schema.property import Property
 
 
 class Choice(Object):
@@ -28,7 +28,7 @@ class Poll(Object):
 ```
 
 # Generating python classes
-Alternatively, DSL models may be generated automatically from an existing schema:
+Alternatively, Python models may be generated automatically from an existing schema:
 ```
 statham --input http://example.com/schema.json
 ```

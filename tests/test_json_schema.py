@@ -11,8 +11,11 @@ from json_ref_dict.loader import get_document
 from json_ref_dict.ref_pointer import resolve_uri
 import pytest
 
-from statham.dsl.parser import parse_element
-from statham.dsl.exceptions import FeatureNotImplementedError, ValidationError
+from statham.schema.parser import parse_element
+from statham.schema.exceptions import (
+    FeatureNotImplementedError,
+    ValidationError,
+)
 from statham.titles import title_labeller
 from tests.helpers import no_raise
 

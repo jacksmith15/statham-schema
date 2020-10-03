@@ -2,7 +2,7 @@ import inspect
 from functools import partial
 from typing import Any, Dict, Optional
 
-from statham.dsl.elements import (
+from statham.schema.elements import (
     Array,
     Boolean,
     CompositionElement,
@@ -14,20 +14,20 @@ from statham.dsl.elements import (
     Number,
     String,
 )
-from statham.dsl.elements.meta import ObjectMeta
-from statham.dsl.property import _Property
+from statham.schema.elements.meta import ObjectMeta
+from statham.schema.property import _Property
 from statham.serializers.orderer import get_object_classes
 
 
 def serialize_json(
     *elements: Element, definitions: Dict[str, Element] = None
 ) -> Dict[str, Any]:
-    """Serialize DSL elements to a JSON Schema dictionary.
+    """Serialize elements to a JSON Schema dictionary.
 
     Object classes are included in definitions. The first element is
     the top-level schema.
 
-    :param elements: The :class:`~statham.dsl.elements.Element` objects
+    :param elements: The :class:`~statham.schema.elements.Element` objects
         to serialize.
     :param definitions: A dictionary of elements which should be members
       of the schema definitions keyword, and referenced everywhere else.
@@ -61,7 +61,7 @@ def _serialize_element(
     object_refs: bool = False,
     definitions: Dict[str, Any] = None,
 ):
-    """Convert a DSL to a JSON Schema dictionary.
+    """Convert a schema element to a JSON Schema dictionary.
 
     This does the heavy lifting behind `serialize_json`.
     """
@@ -110,7 +110,7 @@ _TYPE_MAPPING = {
 def _serialize_recursive(
     data: Any, object_refs: bool = False, definitions: Dict[str, Element] = None
 ) -> Any:
-    """Recursively serialize DSL elements."""
+    """Recursively serialize schema elements."""
     recur = partial(
         _serialize_recursive, object_refs=object_refs, definitions=definitions
     )

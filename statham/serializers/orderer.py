@@ -1,10 +1,10 @@
-"""Iteration tools for DSL Element trees."""
+"""Iteration tools for Element trees."""
 from itertools import chain
 from typing import Any, Dict, Iterator, List, Set
 
-from statham.dsl.elements import Element
-from statham.dsl.elements.meta import ObjectMeta
-from statham.dsl.exceptions import SchemaParseError
+from statham.schema.elements import Element
+from statham.schema.elements.meta import ObjectMeta
+from statham.schema.exceptions import SchemaParseError
 
 
 # TODO: Generate non-object elements.
