@@ -1,20 +1,20 @@
 from typing import Set, Type, Union
 
-from statham.dsl.elements import Element, Object
-from statham.dsl.elements.meta import ObjectMeta
+from statham.schema.elements import Element, Object
+from statham.schema.elements.meta import ObjectMeta
 from statham.serializers.orderer import orderer, get_children
 
 
 def serialize_python(*elements: Element) -> str:
-    """Serialize DSL elements to python declaration string.
+    """Serialize schema elements to python declaration string.
 
     Captures declaration of the first Object elements, and any subsequent
     elements this depends on. Module imports and declaration order are
     dynamically inferred.
 
-    :param elements: The :class:`~statham.dsl.elements.Element` objects
+    :param elements: The :class:`~statham.schema.elements.Element` objects
         to serialize.
-    :return: Python module contents as a string, declaring the DSL tree.
+    :return: Python module contents as a string, declaring the element tree.
     """
     declarations = "\n\n".join(
         [object_model.python() for object_model in orderer(*elements)]
@@ -24,7 +24,7 @@ def serialize_python(*elements: Element) -> str:
 
 
 def _get_imports(declarations: str, *elements: Element) -> str:
-    """Get import statements required by the DSL elements."""
+    """Get import statements required by the elements."""
     imports = [
         _get_standard_imports(declarations),
         _get_statham_imports(declarations, *elements),
@@ -53,18 +53,18 @@ def _get_statham_imports(declaration: str, *elements: Element) -> str:
     """Construct imports from statham submodules."""
     statham_imports = []
     if "Maybe" in declaration:
-        statham_imports.append("from statham.dsl.constants import Maybe")
+        statham_imports.append("from statham.schema.constants import Maybe")
     element_imports = _get_element_imports(*elements)
     if element_imports:
         statham_imports.append(element_imports)
     if "Property" in declaration:
-        statham_imports.append("from statham.dsl.property import Property")
+        statham_imports.append("from statham.schema.property import Property")
     return "\n".join(statham_imports)
 
 
 def _get_element_imports(*elements: Element) -> str:
-    """Get the import string for DSL elements in use."""
-    prefix = "from statham.dsl.elements import "
+    """Get the import string for the elements in use."""
+    prefix = "from statham.schema.elements import "
     max_length = 80
     import_names = [
         elem_type.__name__

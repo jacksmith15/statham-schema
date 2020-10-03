@@ -1,8 +1,8 @@
 from typing import List
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import Array, Integer, Number, Object, String
-from statham.dsl.property import Property
+from statham.schema.constants import Maybe
+from statham.schema.elements import Array, Integer, Number, Object, String
+from statham.schema.property import Property
 
 
 class NestedSchema(Object):

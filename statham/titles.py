@@ -2,7 +2,7 @@ from typing import Callable, Tuple
 
 from json_ref_dict import URI
 
-from statham.dsl.constants import COMPOSITION_KEYWORDS
+from statham.schema.constants import COMPOSITION_KEYWORDS
 
 
 def _get_title_from_reference(reference: str) -> str:

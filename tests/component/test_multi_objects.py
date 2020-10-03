@@ -1,6 +1,6 @@
 import pytest
 
-from statham.dsl.exceptions import ValidationError
+from statham.schema.exceptions import ValidationError
 from tests.models.multi_object import Category, Child, Model
 
 

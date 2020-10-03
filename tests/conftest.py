@@ -1,4 +1,4 @@
-from statham.dsl.elements.meta import ObjectMeta
+from statham.schema.elements.meta import ObjectMeta
 
 
 def pytest_configure(config):

@@ -1,6 +1,6 @@
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import Object, String
-from statham.dsl.property import Property
+from statham.schema.constants import Maybe
+from statham.schema.elements import Object, String
+from statham.schema.property import Property
 
 
 class Category(Object):

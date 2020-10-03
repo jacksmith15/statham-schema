@@ -7,16 +7,16 @@ API Reference
     :members: main
 
 
-DSL Reference
--------------
+Model Reference
+---------------
 
-.. module:: statham.dsl
+.. module:: statham.schema
 
 
 Parser
 ``````
 
-.. automodule:: statham.dsl.parser
+.. automodule:: statham.schema.parser
     :members:
 
 Elements
@@ -25,61 +25,61 @@ Elements
 Untyped Elements
 ~~~~~~~~~~~~~~~~
 
-.. module:: statham.dsl.elements
+.. module:: statham.schema.elements
 
 
-The DSL consists of composable elements, corresponding to JSON Sub-Schemas.
+The Model Definition Language consists of composable elements, corresponding to JSON Sub-Schemas.
 
 
-.. autoclass:: statham.dsl.elements.Element
+.. autoclass:: statham.schema.elements.Element
 
     .. automethod:: __call__
 
 
-.. autoclass:: statham.dsl.elements.Nothing
+.. autoclass:: statham.schema.elements.Nothing
 
 
 Typed Elements
 ~~~~~~~~~~~~~~
 
-Typed schemas are declared using the following subclasses of :class:`statham.dsl.elements.Element`:
+Typed schemas are declared using the following subclasses of :class:`statham.schema.elements.Element`:
 
-.. autoclass:: statham.dsl.elements.Array
+.. autoclass:: statham.schema.elements.Array
 
-.. autoclass:: statham.dsl.elements.Boolean
+.. autoclass:: statham.schema.elements.Boolean
 
-.. autoclass:: statham.dsl.elements.Null
+.. autoclass:: statham.schema.elements.Null
 
-.. autoclass:: statham.dsl.elements.Integer
+.. autoclass:: statham.schema.elements.Integer
 
-.. autoclass:: statham.dsl.elements.Number
+.. autoclass:: statham.schema.elements.Number
 
-.. autoclass:: statham.dsl.elements.Object
+.. autoclass:: statham.schema.elements.Object
 
     .. automethod:: inline
 
-.. autoclass:: statham.dsl.elements.String
+.. autoclass:: statham.schema.elements.String
 
 
 Composition Elements
 ~~~~~~~~~~~~~~~~~~~~
 
-Four composition elements are available. Each accepts the composed element(s) as positional arguments, and :paramref:`statham.dsl.elements.Element.default` as an optional keyword argument.
+Four composition elements are available. Each accepts the composed element(s) as positional arguments, and :paramref:`statham.schema.elements.Element.default` as an optional keyword argument.
 
 
-.. autoclass:: statham.dsl.elements.Not
+.. autoclass:: statham.schema.elements.Not
 
-.. autoclass:: statham.dsl.elements.AnyOf
+.. autoclass:: statham.schema.elements.AnyOf
 
-.. autoclass:: statham.dsl.elements.OneOf
+.. autoclass:: statham.schema.elements.OneOf
 
-.. autoclass:: statham.dsl.elements.AllOf
+.. autoclass:: statham.schema.elements.AllOf
 
 
 Property
 ````````
 
-.. module:: statham.dsl.property
+.. module:: statham.schema.property
 
 Required object properties are expressed inline. For example:
 
@@ -96,41 +96,41 @@ is expressed as
 
 .. code:: python
 
-    from statham.dsl.elements import Object, String
-    from statham.dsl.property import Property
+    from statham.schema.elements import Object, String
+    from statham.schema.property import Property
 
     class MyObject(Object):
         value = Property(String(), required=False)
 
-.. autoclass:: statham.dsl.property.Property
+.. autoclass:: statham.schema.property.Property
 
 
 Validation
 ``````````
 
-.. automodule:: statham.dsl.validation
+.. automodule:: statham.schema.validation
     :members:
 
-.. automodule:: statham.dsl.validation.base
+.. automodule:: statham.schema.validation.base
     :members:
     :special-members: __call__
 
-.. automodule:: statham.dsl.validation.array
+.. automodule:: statham.schema.validation.array
     :members:
     :exclude-members: from_element
 
-.. automodule:: statham.dsl.validation.numeric
+.. automodule:: statham.schema.validation.numeric
     :members:
 
-.. automodule:: statham.dsl.validation.object
-    :members:
-    :exclude-members: error_message
-
-.. automodule:: statham.dsl.validation.string
+.. automodule:: statham.schema.validation.object
     :members:
     :exclude-members: error_message
 
-.. automodule:: statham.dsl.validation.format
+.. automodule:: statham.schema.validation.string
+    :members:
+    :exclude-members: error_message
+
+.. automodule:: statham.schema.validation.format
     :members:
 
 
@@ -156,6 +156,6 @@ JSON
 Exceptions
 ----------
 
-.. automodule:: statham.dsl.exceptions
+.. automodule:: statham.schema.exceptions
     :members:
     :undoc-members:

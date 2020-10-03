@@ -81,8 +81,8 @@ Then open up the ``app/poll.py``. You should see something like this:
 
     from typing import List
 
-    from statham.dsl.elements import Array, Integer, Object, String
-    from statham.dsl.property import Property
+    from statham.schema.elements import Array, Integer, Object, String
+    from statham.schema.property import Property
 
 
     class Choice(Object):
@@ -148,8 +148,8 @@ Now that we have models for the external data, we realise that some of our logic
 
     import requests
 
-    from statham.dsl.elements import Array, Integer, Object, String
-    from statham.dsl.property import Property
+    from statham.schema.elements import Array, Integer, Object, String
+    from statham.schema.property import Property
 
 
     class Choice(Object):

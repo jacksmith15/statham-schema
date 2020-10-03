@@ -1,7 +1,7 @@
 from typing import List
 
-from statham.dsl.constants import Maybe
-from statham.dsl.elements import (
+from statham.schema.constants import Maybe
+from statham.schema.elements import (
     Array,
     Boolean,
     Integer,
@@ -10,7 +10,7 @@ from statham.dsl.elements import (
     Object,
     String,
 )
-from statham.dsl.property import Property
+from statham.schema.property import Property
 
 
 class Model(Object):

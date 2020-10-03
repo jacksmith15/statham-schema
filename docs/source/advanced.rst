@@ -67,8 +67,8 @@ We've now overwritten our models, and they should look something like this:
 
     from typing import List
 
-    from statham.dsl.elements import Array, Integer, Object, String
-    from statham.dsl.property import Property
+    from statham.schema.elements import Array, Integer, Object, String
+    from statham.schema.property import Property
 
 
     class Choice(Object):
@@ -96,10 +96,10 @@ We now have an immediate progress bar on our work to integrate with the new API.
   If you are planning on extending the generated models, as shown in :doc:`quickstart`, then it's a good idea to extend the generated models in sub-classes. This will ease the task of model generation.
 
 
-Converting DSL Elements to JSON Schema
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Converting ``statham`` Elements to JSON Schema
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``statham`` includes some tools for converting schemas defined in the DSL to raw JSON Schema. This allows you to use the DSL for writing your schemas, whilst still exposing a standard schema externally. The simplest way to do this is:
+``statham`` includes some tools for converting schemas defined in ``statham`` to raw JSON Schema. This allows you to use ``statham`` for writing your schemas, whilst still exposing a standard schema externally. The simplest way to do this is:
 
 >>> import json
 >>> from statham.serializers import serialize_json
@@ -149,7 +149,7 @@ Converting DSL Elements to JSON Schema
 
 By default, only ``Object`` sub-elements are placed in the ``"definitions"`` section. However, you can add more definitions manually:
 
->>> from statham.dsl.elements import Integer
+>>> from statham.schema.elements import Integer
 >>> schema = serialize_json(
 ...     Poll, definitions={"Votes": Integer(default=0)}
 ... )
@@ -200,15 +200,15 @@ By default, only ``Object`` sub-elements are placed in the ``"definitions"`` sec
 Generating Other Types of Models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It may be desirable to generate other types of models (e.g. Django models) from JSON Schema. Whilst ``statham`` doesn't specifically cater for this, it is easier write code which generates from DSL elements than raw JSON Schema.
+It may be desirable to generate other types of models (e.g. Django models) from JSON Schema. Whilst ``statham`` doesn't specifically cater for this, it is easier write code which generates from ``statham`` elements than raw JSON Schema.
 
-The ``orderer`` function iterates dependent :class:`~statham.dsl.elements.Object` sub-elements in a valid class declaration order:
+The ``orderer`` function iterates dependent :class:`~statham.schema.elements.Object` sub-elements in a valid class declaration order:
 
 >>> from statham.serializers.orderer import orderer
 >>> list(orderer(Poll))
 [Choice, Poll]
 
-The ``get_children`` function iterates all sub-elements of a DSL element:
+The ``get_children`` function iterates all sub-elements of a schema element:
 
 >>> from statham.serializers.orderer import get_children
 >>> list(get_children(Poll))

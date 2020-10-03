@@ -7,21 +7,21 @@ Welcome to Statham's documentation!
 ==========================================
 
 
-``statham`` is a Python DSL for `JSON Schema`_.
+``statham`` is a Python Model Parsing Library for `JSON Schema`_.
 
 This project includes tools for writing and generating extensible Python classes based on `JSON Schema`_ documents.
 
-Example DSL Definition
-----------------------
+Example Model Definition
+------------------------
 
-The DSL can be used to write JSON Schema documents and their corresponding application-level models in one go:
+``statham`` can be used to write JSON Schema documents and their corresponding application-level models in one go:
 
 .. code:: python
 
    from typing import List
 
-   from statham.dsl.elements import Array, Integer, Object, String
-   from statham.dsl.property import Property
+   from statham.schema.elements import Array, Integer, Object, String
+   from statham.schema.property import Property
 
 
    class Choice(Object):
@@ -38,7 +38,7 @@ The DSL can be used to write JSON Schema documents and their corresponding appli
 Generating python classes
 -------------------------
 
-Alternatively, DSL models may be generated automatically from an existing schema:
+Alternatively, Python models may be generated automatically from an existing schema:
 
 .. code-block:: bash
 
@@ -83,7 +83,7 @@ Contents
   installing
   quickstart
   advanced
-  dsl
+  modeldef
   compatibility
   api
 

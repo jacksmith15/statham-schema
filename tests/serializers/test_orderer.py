@@ -3,10 +3,10 @@ from typing import List
 
 import pytest
 
-from statham.dsl.elements import Array, Element, Object, String
-from statham.dsl.elements.meta import ObjectMeta
-from statham.dsl.exceptions import SchemaParseError
-from statham.dsl.property import Property
+from statham.schema.elements import Array, Element, Object, String
+from statham.schema.elements.meta import ObjectMeta
+from statham.schema.exceptions import SchemaParseError
+from statham.schema.property import Property
 from statham.serializers.orderer import orderer
 
 

@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 import pytest
 
-from statham.dsl.elements import (
+from statham.schema.elements import (
     AllOf,
     AnyOf,
     Array,
@@ -18,9 +18,9 @@ from statham.dsl.elements import (
     OneOf,
     String,
 )
-from statham.dsl.property import Property, _Property
+from statham.schema.property import Property, _Property
 from statham.serializers.json import _serialize_element, serialize_json
-from tests.dsl.parser.test_parse_object import (
+from tests.schema.parser.test_parse_object import (
     EmptyModel,
     ObjectWithOptionalProperty,
     ObjectWithRequiredProperty,

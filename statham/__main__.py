@@ -7,7 +7,7 @@ from sys import argv, stdout
 
 from json_ref_dict import materialize, RefDict
 
-from statham.dsl.parser import parse
+from statham.schema.parser import parse
 from statham.serializers import serialize_python
 from statham.titles import title_labeller
 
@@ -32,7 +32,7 @@ def parse_args(args) -> Iterator[Tuple[str, TextIO]]:
     """Parse arguments, abstracting IO in a context manager."""
 
     parser = ArgumentParser(
-        description="Generate statham DSL models from JSON Schema files.",
+        description="Generate statham models from JSON Schema files.",
         formatter_class=RawTextHelpFormatter,
         add_help=False,
     )
