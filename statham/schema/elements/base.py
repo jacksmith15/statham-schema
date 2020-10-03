@@ -220,6 +220,7 @@ class Element(Generic[T]):
 
     @property
     def annotation(self) -> str:
+        # pylint: disable=no-member
         generic = type(self).__orig_bases__[0].__args__[0]  # type: ignore
         if isinstance(generic, TypeVar):  # type: ignore
             return "Any"

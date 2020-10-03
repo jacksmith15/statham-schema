@@ -92,7 +92,7 @@ class PatternDict(Dict[str, T], Generic[T]):
             raise KeyError
 
     def getall(self, key: str) -> Iterator[T]:
-        for pattern, value in self.items():
+        for pattern, value in self.items():  # pylint: disable=no-member
             if re.search(pattern, key):
                 yield value
 

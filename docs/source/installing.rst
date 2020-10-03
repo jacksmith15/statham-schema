@@ -3,7 +3,7 @@
 Installation
 ============
 
-``statham`` is tested for Python 3.6, but may work on later versions.
+``statham`` is tested for Python 3.6, 3.7 and 3.8.
 
 
 Install with pip_
