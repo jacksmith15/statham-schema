@@ -41,5 +41,4 @@ publish: test ## Tags release, builds and publishes to pypi
 	python release.py
 	pip install -U setuptools wheel twine
 	python setup.py sdist bdist_wheel
-	echo "No pypi publishing set up!"
 	twine upload dist/*
