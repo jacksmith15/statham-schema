@@ -12,7 +12,7 @@ Welcome to Statham's documentation!
 This project includes tools for writing and generating extensible Python classes based on `JSON Schema`_ documents.
 
 Example Model Definition
-----------------------
+------------------------
 
 ``statham`` can be used to write JSON Schema documents and their corresponding application-level models in one go:
 
