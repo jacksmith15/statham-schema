@@ -18,6 +18,8 @@ Types of changes are:
 
 ### Fixed
 * Fixed a typo in property validation error messages.
+* Fixed a bug where special characters were improperly handled in
+  `"object"` type schema parsing.
 
 ## [0.12.0] - 2020-10-03
 ### Changed
