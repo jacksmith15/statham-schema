@@ -520,7 +520,7 @@ def _keyword_filter(type_: Type) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
 
 def _title_format(name: str) -> str:
     """Convert titles in schemas to class names."""
-    words = list(filter(None, re.split(r"[ _-]", name)))
+    words = list(filter(None, re.split("[^a-zA-Z0-9]", name)))
     segments = chain.from_iterable(
         [
             re.findall("[A-Z][^A-Z]*", word[0].upper() + word[1:])
