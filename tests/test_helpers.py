@@ -26,6 +26,12 @@ from statham.schema.parser import _title_format
         ("Foo-Bar", "FooBar"),
         ("foo-Bar", "FooBar"),
         ("Foo-bar", "FooBar"),
+        ("FooBar!", "FooBar"),
+        ("Foo Bar!", "FooBar"),
+        ("Foo+bar", "FooBar"),
+        ("Foo+-bar", "FooBar"),
+        ("+Foo-bar", "FooBar"),
+        ("Foo,bar", "FooBar"),
     ],
 )
 def test_title_format_produces_expected_output(title: str, expected: str):
