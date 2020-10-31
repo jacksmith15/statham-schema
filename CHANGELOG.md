@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Relaxed version dependency on `json-ref-dict`.
 
 ## [0.13.0] - 2020-10-21
 ### Added
