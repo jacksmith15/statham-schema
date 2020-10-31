@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.13.1] - 2020-10-31
 ### Fixed
 * Relaxed version dependency on `json-ref-dict`.
 
@@ -246,7 +248,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.13.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.13.1..HEAD
+[0.13.1]: http://github.com/jacksmith15/statham-schema/compare/0.13.0..0.13.1
 [0.13.0]: http://github.com/jacksmith15/statham-schema/compare/0.12.0..0.13.0
 [0.12.0]: http://github.com/jacksmith15/statham-schema/compare/0.11.0..0.12.0
 [0.11.0]: http://github.com/jacksmith15/statham-schema/compare/0.10.0..0.11.0
