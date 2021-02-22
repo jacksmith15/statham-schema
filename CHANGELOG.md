@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Prevented `tests` folder from being packaged.
 
 ## [0.13.1] - 2020-10-31
 ### Fixed
