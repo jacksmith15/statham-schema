@@ -41,7 +41,7 @@ setup(
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.6",
     ],
-    packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    packages=find_packages(exclude=["docs*", "tests*"]),
     package_data={"statham": ["py.typed"]},
     install_requires=REQUIREMENTS_FILE,
     dependency_links=[],
