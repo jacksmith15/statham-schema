@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Bumped PyYAML dependency to '5.4'.
 
 ## [0.13.2] - 2021-02-22
 ### Fixed
