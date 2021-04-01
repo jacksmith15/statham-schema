@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Fixed
+* Relaxed dependency version pinning
 
 ## [0.13.3] - 2021-03-30
 ### Fixed
