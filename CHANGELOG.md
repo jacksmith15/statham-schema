@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.13.5] - 2021-10-18
 ### Fixed
 * Relaxed dependency version pinning
 
@@ -262,7 +264,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.13.4..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.13.5..HEAD
+[0.13.5]: http://github.com/jacksmith15/statham-schema/compare/0.13.4..0.13.5
 [0.13.4]: http://github.com/jacksmith15/statham-schema/compare/0.13.3..0.13.4
 [0.13.3]: http://github.com/jacksmith15/statham-schema/compare/0.13.2..0.13.3
 [0.13.2]: http://github.com/jacksmith15/statham-schema/compare/0.13.1..0.13.2
