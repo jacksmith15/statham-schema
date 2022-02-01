@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+### Changed
+* Typo in quickstart.rst
 
 ## [0.13.5] - 2021-10-18
 ### Fixed

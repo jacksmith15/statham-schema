@@ -190,7 +190,7 @@ Now our app logic becomes as simple as this:
 
 .. note::
 
-    When working with external schemas, it may be beneficial to preserve the generated models and extend them in sub-classes. This will help if you ever need to regenerate your models due to upsteam changes.
+    When working with external schemas, it may be beneficial to preserve the generated models and extend them in sub-classes. This will help if you ever need to regenerate your models due to upstream changes.
 
 This concludes the quickstart tutorial, please see the rest of the documentation for more detailed information.
 
