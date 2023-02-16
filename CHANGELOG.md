@@ -14,7 +14,8 @@ Types of changes are:
 
 ## [Unreleased]
 ### Changed
-* Typo in quickstart.rst
+* Relaxed dependency version pinning for typing-annotations
+
 
 ## [0.13.5] - 2021-10-18
 ### Fixed
