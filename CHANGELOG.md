@@ -13,6 +13,8 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+
+## [0.14.0] - 2023-02-16
 ### Changed
 * Relaxed dependency version pinning for typing-annotations
 
@@ -267,7 +269,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.13.5..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.14.0..HEAD
+[0.14.0]: http://github.com/jacksmith15/statham-schema/compare/0.13.5..0.14.0
 [0.13.5]: http://github.com/jacksmith15/statham-schema/compare/0.13.4..0.13.5
 [0.13.4]: http://github.com/jacksmith15/statham-schema/compare/0.13.3..0.13.4
 [0.13.3]: http://github.com/jacksmith15/statham-schema/compare/0.13.2..0.13.3
