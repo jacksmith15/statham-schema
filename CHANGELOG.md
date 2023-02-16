@@ -16,9 +16,6 @@ Types of changes are:
 ### Changed
 * Relaxed dependency version pinning for typing-annotations
 
-## [0.13.6] - 2023-02-16
-### Fixed
-* Relazed dependency version pinning for typing-annotations
 
 ## [0.13.5] - 2021-10-18
 ### Fixed
