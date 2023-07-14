@@ -13,6 +13,7 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
+* Use description field to generate doc comments
 
 ## [0.14.0] - 2023-02-16
 ### Changed
