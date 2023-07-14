@@ -32,6 +32,7 @@ class Array(Element[List[Item]]):  # pylint: disable=missing-param-doc
         maxItems: Maybe[int] = NotPassed(),
         uniqueItems: bool = False,
         contains: Maybe[Element] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.items = items
         self.default = default
@@ -42,6 +43,7 @@ class Array(Element[List[Item]]):  # pylint: disable=missing-param-doc
         self.maxItems = maxItems
         self.uniqueItems = uniqueItems
         self.contains = contains
+        self.description = description
 
     @property
     def annotation(self) -> str:

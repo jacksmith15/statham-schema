@@ -326,6 +326,7 @@ def _parse_object(
         "const",
         "enum",
         "default",
+        "description",
     ]:
         if key in schema:
             cls_args[key] = schema[key]

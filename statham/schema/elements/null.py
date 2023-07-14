@@ -14,10 +14,12 @@ class Null(Element[None]):
         default: Maybe[None] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
         enum: Maybe[List[Any]] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.default = default
         self.const = const
         self.enum = enum
+        self.description = description
 
     @property
     def annotation(self) -> str:

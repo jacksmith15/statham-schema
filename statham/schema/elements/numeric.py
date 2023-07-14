@@ -25,6 +25,7 @@ class NumericElement(Element[T]):
         exclusiveMinimum: Maybe[Numeric] = NotPassed(),
         exclusiveMaximum: Maybe[Numeric] = NotPassed(),
         multipleOf: Maybe[Numeric] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.default = default
         self.const = const
@@ -34,6 +35,7 @@ class NumericElement(Element[T]):
         self.exclusiveMinimum = exclusiveMinimum
         self.exclusiveMaximum = exclusiveMaximum
         self.multipleOf = multipleOf
+        self.description = description
 
 
 class Integer(NumericElement[int]):

@@ -21,6 +21,7 @@ class String(Element[str]):
         pattern: Maybe[str] = NotPassed(),
         minLength: Maybe[int] = NotPassed(),
         maxLength: Maybe[int] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.default = default
         self.const = const
@@ -29,6 +30,7 @@ class String(Element[str]):
         self.pattern = pattern
         self.minLength = minLength
         self.maxLength = maxLength
+        self.description = description
 
     @property
     def type_validator(self):

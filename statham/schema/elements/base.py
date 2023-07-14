@@ -117,6 +117,8 @@ class Element(Generic[T]):
         validation applies whenever the property name of the key is present. See
         `Object Dependencies <https://json-schema.org/understanding-json-schema/reference/object.html#dependencies>`_
         for more detail.
+    :param description:
+        Description of the element.
     """
     # pylint: enable=line-too-long
 
@@ -157,6 +159,7 @@ class Element(Generic[T]):
         dependencies: Maybe[
             Dict[str, Union[List[str], "Element"]]
         ] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.default = default
         self.const = const
@@ -185,6 +188,7 @@ class Element(Generic[T]):
         self.maxProperties = maxProperties
         self.propertyNames = propertyNames
         self.dependencies = dependencies
+        self.description = description
 
     @property
     def properties(self) -> Maybe[_PropertyDict]:
