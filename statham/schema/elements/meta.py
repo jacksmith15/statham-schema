@@ -165,8 +165,10 @@ class ObjectMeta(type, Element):
             if param.kind != param.KEYWORD_ONLY:
                 continue
             value = getattr(cls, param.name, NotPassed())
-            if value == param.default or (
-                param.name == "additionalProperties" and value is True
+            if (
+                value == param.default
+                or (param.name == "additionalProperties" and value is True)
+                or param.name == "description"
             ):
                 continue
             cls_args.append(f"{param.name}={repr(value)}")

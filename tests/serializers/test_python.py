@@ -100,7 +100,7 @@ class Other(Object):
     value: Maybe[int] = Property(Integer())
 
 
-class Category(Object, default={'value': 'none'}, description='category of parent'):
+class Category(Object, default={'value': 'none'}):
     """category of parent"""
 
     value: Maybe[str] = Property(String(description='value of category'))
