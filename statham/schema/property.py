@@ -88,16 +88,11 @@ class _Property(Generic[PropType]):
 
     def python(self) -> str:
         prop_def = repr(self)
-        res = (
-            (f"{self.name}: {self.annotation} = {prop_def}")
+        return (
+            f"{self.name}: {self.annotation} = {prop_def}"
             if self.name
             else prop_def
         )
-        if not self.element.description is None and not isinstance(
-            self.element.description, NotPassed
-        ):
-            res += f'\n    """{self.element.description}"""'
-        return res
 
 
 # Behaves as a wrapper for the `_Property` class.

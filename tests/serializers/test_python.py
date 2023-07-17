@@ -101,17 +101,14 @@ class Other(Object):
 
 
 class Category(Object, default={'value': 'none'}, description='category of parent'):
-
     """category of parent"""
 
     value: Maybe[str] = Property(String(description='value of category'))
-    """value of category"""
 
 
 class Parent(Object):
 
     category: Category = Property(Category, required=True)
-    """category of parent"""
 
     default: Maybe[str] = Property(String())
 '''
