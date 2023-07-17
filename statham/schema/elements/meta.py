@@ -175,7 +175,7 @@ class ObjectMeta(type, Element):
         if not cls.description is None and not isinstance(
             cls.description, NotPassed
         ):
-            class_def += f'\n    """{cls.description}"""\n'
+            class_def += f'    """{cls.description}"""\n'
         if not cls.properties:
             class_def = (
                 class_def
