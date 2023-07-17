@@ -4,16 +4,19 @@ from statham.schema.property import Property
 
 
 class Category(Object):
+    """Category with required name."""
 
     required_name: str = Property(String(), required=True)
 
 
 class NestedRemote(Object):
+    """Local reference nested in remote reference"""
 
     name: Maybe[str] = Property(String())
 
 
 class Remote(Object):
+    """Remote ref in sub-directory."""
 
     name: Maybe[str] = Property(String())
 
@@ -21,6 +24,7 @@ class Remote(Object):
 
 
 class Model(Object):
+    """Model defined with remote refs."""
 
     filesystem_remote_ref_flat: Maybe[Category] = Property(Category)
 

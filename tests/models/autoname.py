@@ -26,6 +26,7 @@ class ListAnyOfItem1(Object, additionalProperties=False):
 
 
 class Autoname(Object):
+    """Test schema for checking auto-naming logic for anonymous schemas."""
 
     list_of_strings: Maybe[List[ListOfStringsItem]] = Property(
         Array(ListOfStringsItem)
