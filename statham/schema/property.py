@@ -89,7 +89,7 @@ class _Property(Generic[PropType]):
     def python(self) -> str:
         prop_def = repr(self)
         return (
-            f"{self.name}: {self.annotation} = {prop_def}"
+            (f"{self.name}: {self.annotation} = {prop_def}")
             if self.name
             else prop_def
         )
@@ -97,12 +97,7 @@ class _Property(Generic[PropType]):
 
 # Behaves as a wrapper for the `_Property` class.
 # pylint: disable=invalid-name
-def Property(
-    element: "Element",
-    *,
-    required: bool = False,
-    source: str = None,
-):
+def Property(element: "Element", *, required: bool = False, source: str = None):
     """Descriptor for adding a property when declaring an object schema model.
 
     Return value is typed to inform instance-level interface (see type stubs).
