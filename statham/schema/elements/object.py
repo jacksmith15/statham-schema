@@ -35,6 +35,11 @@ class Object(metaclass=ObjectMeta):
     properties: ClassVar[Dict[str, _Property]]
     default: ClassVar[Any]
     additionalProperties: ClassVar[Union[Element, bool]]
+    description: ClassVar[str]
+
+    def __init_subclass__(cls, *args, **kwargs):
+        if cls.__doc__ and cls.description is NotPassed():
+            cls.description = cls.__doc__
 
     def __new__(
         cls, value: Any = NotPassed(), property_: _Property = UNBOUND_PROPERTY

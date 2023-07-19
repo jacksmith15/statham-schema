@@ -497,3 +497,26 @@ def test_object_property_override():
 
     with no_raise():
         _ = ChildObject(dict(value="a"))
+
+
+class TestObjectDescription:
+    @staticmethod
+    def test_that_description_is_read_from_kwarg():
+        class MyObject(Object, description="My description"):
+            pass
+
+        assert MyObject.description == "My description"
+
+    @staticmethod
+    def test_that_description_is_read_from_docstring():
+        class MyObject(Object):
+            """My docstring."""
+
+        assert MyObject.description == "My docstring."
+
+    @staticmethod
+    def test_that_description_kwargs_takes_precedence():
+        class MyObject(Object, description="My description"):
+            """My docstring."""
+
+        assert MyObject.description == "My description"
