@@ -80,7 +80,7 @@ def iter_schemas():
 
 @pytest.fixture(scope="session")
 def outfile():
-    with open("integration-report.csv", "w") as file:
+    with open("integration-report.csv", "w", encoding="utf-8") as file:
         yield file
 
 

@@ -133,7 +133,7 @@ def _extract_tests(directory: str) -> Iterator[Param]:
                         data=test["data"],
                         valid=test["valid"],
                     )
-                    yield pytest.param(param, marks=param.marks)
+                    yield pytest.param(param, marks=param.marks)  # type: ignore
 
 
 @pytest.mark.parametrize("param", _extract_tests(DIRECTORY), ids=str)
@@ -143,7 +143,7 @@ def test_jsonschema_official_test(param: Param):
         element = parse_element(schema)
     except FeatureNotImplementedError:
         return
-    with no_raise() if param.valid else pytest.raises(
+    with no_raise() if param.valid else pytest.raises(  # type: ignore
         (TypeError, ValidationError)
     ):
         _ = element(param.data)

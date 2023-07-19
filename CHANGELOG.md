@@ -14,6 +14,7 @@ Types of changes are:
 
 ## [Unreleased]
 * Use description field to generate doc comments
+* Bumped PyYAML dependency to '6.0'.
 
 ## [0.14.0] - 2023-02-16
 ### Changed

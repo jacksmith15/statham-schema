@@ -1,11 +1,11 @@
 -r requirements.txt
-pylint==2.4.4
-astroid==2.3.3
-mypy==0.730
+pylint==2.13.9
+mypy==0.971
 coverage
-pytest==4.6.6
+pytest==6.2.5
 pytest-cov
 ipdb
 pre-commit
 safety
 black
+types-requests

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from statham.schema.elements.base import Element  # pragma: no cover
 
 
-PropType = TypeVar("PropType")
+PropType = TypeVar("PropType")  # pylint: disable=invalid-name
 
 
 class _Property(Generic[PropType]):
