@@ -106,7 +106,9 @@ class ObjectMeta(type, Element):
         cls.properties = {  # type: ignore
             **{
                 attr: prop.clone()
-                for attr, prop in previous("properties", {}).items()
+                for attr, prop in previous(  # type: ignore
+                    "properties", {}
+                ).items()
             },
             **classdict.properties,
         }
@@ -116,7 +118,7 @@ class ObjectMeta(type, Element):
             patternProperties, "patternProperties"
         )
         cls.additionalProperties = (
-            additionalProperties
+            additionalProperties  # type: ignore
             if not isinstance(additionalProperties, NotPassed)
             else previous("additionalProperties", True)
         )

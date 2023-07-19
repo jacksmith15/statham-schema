@@ -16,7 +16,7 @@ def assert_generated_models_match(filename: str) -> None:
     reporting changes this may need to be updated.
     """
     generated = main(f"tests/jsonschemas/{filename}.json#/")
-    with open(f"tests/models/{filename}.py") as file:
+    with open(f"tests/models/{filename}.py", encoding="utf-8") as file:
         expected = file.read()
     try:
         assert_ast_equal(expected, generated)

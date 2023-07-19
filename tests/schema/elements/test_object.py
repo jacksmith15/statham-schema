@@ -228,7 +228,7 @@ class TestAdditionalPropertiesAsTrue:
                 {"value": "foo", "other_value": additional_value}
             )
         with pytest.raises(AttributeError):
-            _ = instance.other_value
+            _ = instance.other_value  # type: ignore
         assert instance["other_value"] == additional_value
 
 
