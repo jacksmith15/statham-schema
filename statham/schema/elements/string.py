@@ -5,7 +5,7 @@ from statham.schema.constants import Maybe, NotPassed
 from statham.schema.validation import InstanceOf
 
 
-class String(Element[str]):
+class String(Element[str]):  # pylint: disable=too-many-instance-attributes
     """JSON Schema ``"string"`` element."""
 
     def __init__(

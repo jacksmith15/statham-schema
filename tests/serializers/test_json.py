@@ -390,6 +390,7 @@ def test_serialize_element(element: Element, expected: Dict[str, Any]):
             {
                 "title": "Model",
                 "type": "object",
+                "description": "Model with references to children and category.",
                 "properties": {
                     "children": {
                         "type": "array",
@@ -405,12 +406,14 @@ def test_serialize_element(element: Element, expected: Dict[str, Any]):
                         },
                         "title": "Child",
                         "type": "object",
+                        "description": "Model with name and reference to category."
                     },
                     "Category": {
                         "properties": {"required_name": {"type": "string"}},
                         "required": ["required_name"],
                         "title": "Category",
                         "type": "object",
+                        "description": "Category with required name.",
                     },
                 },
             },

@@ -13,8 +13,13 @@ Types of changes are:
 * **Fixed** for any bug fixes.
 
 ## [Unreleased]
-* Use description field to generate doc comments
-* Bumped PyYAML dependency to '6.0'.
+
+### Added
+* Added support for the `description` field, which will be mapped to class
+  docstring for schemas with `"type": "object"`.
+
+### Fixed
+* Bumped PyYAML dependency to version 6 due to upstream bug [yaml/pyyaml#601](https://github.com/yaml/pyyaml/issues/601)
 
 ## [0.14.0] - 2023-02-16
 ### Changed
