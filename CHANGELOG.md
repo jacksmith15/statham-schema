@@ -14,6 +14,8 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [0.15.0] - 2023-07-21
+
 ### Added
 * Added support for the `description` field, which will be mapped to class
   docstring for schemas with `"type": "object"`.
@@ -276,7 +278,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.14.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.15.0..HEAD
+[0.15.0]: http://github.com/jacksmith15/statham-schema/compare/0.14.0..0.15.0
 [0.14.0]: http://github.com/jacksmith15/statham-schema/compare/0.13.5..0.14.0
 [0.13.5]: http://github.com/jacksmith15/statham-schema/compare/0.13.4..0.13.5
 [0.13.4]: http://github.com/jacksmith15/statham-schema/compare/0.13.3..0.13.4
