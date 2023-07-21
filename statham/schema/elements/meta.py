@@ -88,6 +88,7 @@ class ObjectMeta(type, Element):
         additionalProperties: Maybe[Union[Element, bool]] = NotPassed(),
         propertyNames: Maybe[Element] = NotPassed(),
         dependencies: Maybe[Dict[str, Union[List[str], Element]]] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         cls: ObjectMeta = cast(
             ObjectMeta, type.__new__(mcs, name, bases, dict(classdict))
@@ -102,6 +103,7 @@ class ObjectMeta(type, Element):
         cls.const = get_value(const, "const")
         cls.enum = get_value(enum, "enum")
         cls.required = get_value(required, "required")
+        cls.description = get_value(description, "description")
         # https://github.com/python/mypy/issues/3004
         cls.properties = {  # type: ignore
             **{
@@ -165,13 +167,19 @@ class ObjectMeta(type, Element):
             if param.kind != param.KEYWORD_ONLY:
                 continue
             value = getattr(cls, param.name, NotPassed())
-            if value == param.default or (
-                param.name == "additionalProperties" and value is True
+            if (
+                value == param.default
+                or (param.name == "additionalProperties" and value is True)
+                or param.name == "description"
             ):
                 continue
             cls_args.append(f"{param.name}={repr(value)}")
         class_def = f"""class {repr(cls)}({', '.join(cls_args)}):
 """
+        if not cls.description is None and not isinstance(
+            cls.description, NotPassed
+        ):
+            class_def += f'    """{cls.description}"""\n'
         if not cls.properties:
             class_def = (
                 class_def

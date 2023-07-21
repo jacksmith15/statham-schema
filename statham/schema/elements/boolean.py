@@ -14,10 +14,12 @@ class Boolean(Element[bool]):
         default: Maybe[bool] = NotPassed(),
         const: Maybe[Any] = NotPassed(),
         enum: Maybe[List[Any]] = NotPassed(),
+        description: Maybe[str] = NotPassed(),
     ):
         self.default = default
         self.const = const
         self.enum = enum
+        self.description = description
 
     @property
     def type_validator(self):

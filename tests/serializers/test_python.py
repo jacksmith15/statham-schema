@@ -61,6 +61,60 @@ class Parent(Object):
     )
 
 
+def test_and_parse_schema_with_description():
+    schema = {
+        "type": "object",
+        "title": "Parent",
+        "required": ["category"],
+        "properties": {
+            "category": {
+                "type": "object",
+                "title": "Category",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "description": "value of category",
+                    }
+                },
+                "default": {"value": "none"},
+                "description": "category of parent",
+            },
+            "default": {"type": "string"},
+        },
+        "definitions": {
+            "other": {
+                "type": "object",
+                "title": "Other",
+                "properties": {"value": {"type": "integer"}},
+            }
+        },
+    }
+    assert serialize_python(*parse(schema)) == (
+        '''from statham.schema.constants import Maybe
+from statham.schema.elements import Integer, Object, String
+from statham.schema.property import Property
+
+
+class Other(Object):
+
+    value: Maybe[int] = Property(Integer())
+
+
+class Category(Object, default={'value': 'none'}):
+    """category of parent"""
+
+    value: Maybe[str] = Property(String(description='value of category'))
+
+
+class Parent(Object):
+
+    category: Category = Property(Category, required=True)
+
+    default: Maybe[str] = Property(String())
+'''
+    )
+
+
 def test_parse_and_serialize_schema_with_self_property():
     schema = {
         "type": "object",

@@ -28,9 +28,10 @@ class NestedSchema(Object):
 
 
 class SimpleSchema(Object):
+    """This is a simple object."""
 
     related: NestedSchema = Property(NestedSchema, required=True)
 
-    amount: Maybe[float] = Property(Number())
+    amount: Maybe[float] = Property(Number(description="int-bar"))
 
     children: Maybe[List[NestedSchema]] = Property(Array(NestedSchema))
