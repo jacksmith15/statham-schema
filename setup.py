@@ -45,5 +45,6 @@ setup(
     package_data={"statham": ["py.typed"]},
     install_requires=REQUIREMENTS_FILE,
     dependency_links=[],
+    license="MIT",
     entry_points={"console_scripts": ["statham=statham.__main__:entry_point"]},
 )
