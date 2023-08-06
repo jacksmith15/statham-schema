@@ -14,6 +14,8 @@ Types of changes are:
 
 ## [Unreleased]
 
+## [0.15.1] - 2023-08-06
+
 ### Fixed
 * Added license to `setup.py`
 
@@ -281,7 +283,8 @@ Types of changes are:
 ## [0.0.0]
 Nothing here.
 
-[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.15.0..HEAD
+[Unreleased]: http://github.com/jacksmith15/statham-schema/compare/0.15.1..HEAD
+[0.15.1]: http://github.com/jacksmith15/statham-schema/compare/0.15.0..0.15.1
 [0.15.0]: http://github.com/jacksmith15/statham-schema/compare/0.14.0..0.15.0
 [0.14.0]: http://github.com/jacksmith15/statham-schema/compare/0.13.5..0.14.0
 [0.13.5]: http://github.com/jacksmith15/statham-schema/compare/0.13.4..0.13.5
