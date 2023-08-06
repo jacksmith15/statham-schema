@@ -14,6 +14,9 @@ Types of changes are:
 
 ## [Unreleased]
 
+### Fixed
+* Added license to `setup.py`
+
 ## [0.15.0] - 2023-07-21
 
 ### Added
